@@ -30,6 +30,10 @@ model User {
   acceptPromotions  Boolean
   timestamp         DateTime   @default(now())
   pfp               String
+  hash              String     @unique   
+  hashedPassword    String
+  hashedResetToken  String
+  
 }
 
 //calendar
@@ -52,6 +56,7 @@ model Calendar {
   timestamp    DateTime @default(now())
   padding      Int
   availability Json   // assuming this corresponds to availabilityID array
+  hash              String     @unique  
 }
 
 //
@@ -69,6 +74,7 @@ model Integration {
   secret String           @db.VarChar(256) // adjust size based on your needs
   user   Int              // assuming this corresponds to userID
   type   IntegrationType
+  hash              String     @unique  
 }
 
 //transaction
@@ -80,6 +86,7 @@ model Transaction {
   calendar    Int      // assuming this corresponds to calendarID
   license     Int      // assuming this corresponds to licenseID
   appointment Int      // assuming this corresponds to appointmentID
+  hash              String     @unique  
 }
 
 //license
@@ -101,6 +108,7 @@ model License {
   editedBy   Int      // assuming this corresponds to userID
   coupon     Json    // assuming this corresponds to an array of couponID
   fixedPrice Boolean
+  hash              String     @unique  
 }
 
 //availability
@@ -115,6 +123,7 @@ model Availability {
   acceptPromotions Boolean
   timestamp        DateTime @default(now())
   pfp              String   // assuming this is a URL or file path
+  hash              String     @unique  
 }
 
 //coupon
@@ -128,6 +137,7 @@ model Coupon {
   editedby     Int      // assuming this corresponds to userID
   coupon       Json    // assuming this corresponds to licenseID Array
   discountPrice Decimal  // assuming this is a floating point number
+  hash              String     @unique  
   // Relations
   // editedByUser User     @relation(fields: [editedby], references: [id])
 }
@@ -151,6 +161,7 @@ model Appointment {
   canceltime   DateTime?         // assuming timestamp and it is optional
   isConfirmed  Boolean
   length       Decimal           // assuming this is a floating point number
+  hash              String     @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // userInfo     User     @relation(fields: [user], references: [id])
@@ -166,6 +177,7 @@ model Review {
   reviewer  Int       // assuming this corresponds to userId
   text      String
   rating    Decimal   // assuming this is a floating point number
+  hash              String     @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // reviewerInfo User     @relation(fields: [reviewer], references: [id])
