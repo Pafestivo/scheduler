@@ -3,13 +3,14 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import Colors from 'colors.ts';
-
+import auth from './routes/auth.route.js';
+import errorHandler from './middlewares/errorHandler.js';
 dotenv.config();
 
 Colors.enable();
 
 const app = express();
-
+app.use(express.json());
 app.use(cors());
 
 if (process.env.NODE_ENV !== 'production') {
@@ -21,6 +22,9 @@ app.get('/', (req, res) => {
     message: 'Welcome to WeSchdule API',
   });
 });
+
+app.use('/api/v1/auth', auth);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
 

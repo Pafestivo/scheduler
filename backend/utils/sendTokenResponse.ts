@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import getSignedJwtToken from './getSignedJwtToken';
-import { UserRequest } from '../models/types';
+import getSignedJwtToken from './getSignedJwtToken.js';
+import { User } from '@prisma/client';
 
 interface TokenOptions {
   expires: Date;
@@ -9,9 +9,9 @@ interface TokenOptions {
 }
 
 // Get token from model, create cookie and send response
-const sendTokenResponse = (user: UserRequest, statusCode: number, res: Response) => {
+const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
   // Create token
-  const token = getSignedJwtToken(user.user?.hash || '');
+  const token = getSignedJwtToken(user.hash);
 
   const options: TokenOptions = {
     expires: new Date(

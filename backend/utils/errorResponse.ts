@@ -3,13 +3,13 @@ interface ErrorResponseOptions {
   statusCode: number;
 }
 
-class ErrorResponse extends Error {
+class ErrorResponse {
   statusCode: number;
+  message: string;
 
   constructor(options: ErrorResponseOptions) {
-    super(options.message);
     this.statusCode = options.statusCode;
+    this.message = options.message;
   }
 }
-
 export default ErrorResponse;

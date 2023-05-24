@@ -22,17 +22,17 @@ enum UserType {
 
 model User {
   id                Int        @id @default(autoincrement())
-  name              String
-  type              UserType
-  mail              String
-  phone             String
-  asWhatsapp        Boolean
-  acceptPromotions  Boolean
+  name              String?     
+  type              UserType   @default(booker)
+  email             String?     @unique
+  phone             String?
+  asWhatsapp        Boolean?   @default(false)
+  acceptPromotions  Boolean    @default(false)
   timestamp         DateTime   @default(now())
-  pfp               String
+  pfp               String?
   hash              String     @unique   
-  hashedPassword    String
-  hashedResetToken  String
+  hashedPassword    String?
+  hashedResetToken  String?
   
 }
 
