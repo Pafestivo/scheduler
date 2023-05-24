@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "lib": ["es6"],
+    "allowJs": true,
+    "outDir": "build",
+    "rootDir": "backend",
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "watch": false,
+    "moduleResolution": "node",
+    "skipLibCheck": true
+    // "resolveJsonModule": true
+  },
+  "include": ["./backend/**/*"],
+  "exclude": ["node_modules"]
+}

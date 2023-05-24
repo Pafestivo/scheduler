@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+
+//user 
+enum UserType {
+  admin
+  vendor
+  booker
+  agent
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  name              String
+  type              UserType
+  mail              String
+  phone             String
+  asWhatsapp        Boolean
+  acceptPromotions  Boolean
+  timestamp         DateTime   @default(now())
+  pfp               String
+}
+
+//calendar
+
+enum CalendarType {
+  paid
+  free
+  trial
+}
+
+model Calendar {
+  id           Int     @id @default(autoincrement())
+  user         Int     // assuming this corresponds to userID
+  license      Int     // assuming this corresponds to licenseID
+  appointments Json   // assuming this corresponds to appointmentID array
+  integration  Int     // assuming this corresponds to integrationID
+  isActive     Boolean
+  type         CalendarType
+  name         String
+  timestamp    DateTime @default(now())
+  padding      Int
+  availability Json   // assuming this corresponds to availabilityID array
+}
+
+//
+
+enum IntegrationType {
+  google
+  outlook
+  zapier
+  zoom
+}
+
+model Integration {
+  id     Int              @id @default(autoincrement())
+  token  String           @db.VarChar(256) // adjust size based on your needs
+  secret String           @db.VarChar(256) // adjust size based on your needs
+  user   Int              // assuming this corresponds to userID
+  type   IntegrationType
+}
+
+//transaction
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  timestamp   DateTime @default(now())
+  user        Int      // assuming this corresponds to userID
+  calendar    Int      // assuming this corresponds to calendarID
+  license     Int      // assuming this corresponds to licenseID
+  appointment Int      // assuming this corresponds to appointmentID
+}
+
+//license
+
+enum LicenseType {
+  // fill in your license types here
+  FREE
+  TRIAL
+  PAID
+  // etc.
+}
+
+model License {
+  id         Int      @id @default(autoincrement())
+  type       LicenseType
+  name       String
+  price      Float
+  timestamp  DateTime @default(now())
+  editedBy   Int      // assuming this corresponds to userID
+  coupon     Json    // assuming this corresponds to an array of couponID
+  fixedPrice Boolean
+}
+
+//availability
+
+model Availability {
+  id               Int      @id @default(autoincrement())
+  calendar         Int      // assuming this corresponds to calendarID
+  day              Int
+  startTime        DateTime // assuming you're using a 24-hour format
+  endTime          DateTime // assuming you're using a 24-hour format
+  asWhatsapp       Boolean
+  acceptPromotions Boolean
+  timestamp        DateTime @default(now())
+  pfp              String   // assuming this is a URL or file path
+}
+
+//coupon
+
+model Coupon {
+  id           Int      @id @default(autoincrement())
+  type         String   // enum, create an enum as per your values
+  name         String
+  CCode        String
+  is_onetime   Boolean
+  editedby     Int      // assuming this corresponds to userID
+  coupon       Json    // assuming this corresponds to licenseID Array
+  discountPrice Decimal  // assuming this is a floating point number
+  // Relations
+  // editedByUser User     @relation(fields: [editedby], references: [id])
+}
+
+//appointment
+
+enum AppointmentStatus {
+  COMPLETED
+  CANCELED
+  RESCHEDULED
+}
+
+model Appointment {
+  id           Int               @id @default(autoincrement())
+  calendar     Int               // assuming this corresponds to calendarId
+  user         Int               // assuming this corresponds to userId
+  timestamp    DateTime          // assuming timestamp
+  status       AppointmentStatus
+  date         DateTime          // assuming date 
+  transaction  Int               // assuming this corresponds to transactionID
+  canceltime   DateTime?         // assuming timestamp and it is optional
+  isConfirmed  Boolean
+  length       Decimal           // assuming this is a floating point number
+  // Relations
+  // calendarInfo Calendar @relation(fields: [calendar], references: [id])
+  // userInfo     User     @relation(fields: [user], references: [id])
+  // transactionInfo Transaction @relation(fields: [transaction], references: [id])
+
+}
+
+//review
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  calendar  Int       // assuming this corresponds to calendarId
+  reviewer  Int       // assuming this corresponds to userId
+  text      String
+  rating    Decimal   // assuming this is a floating point number
+  // Relations
+  // calendarInfo Calendar @relation(fields: [calendar], references: [id])
+  // reviewerInfo User     @relation(fields: [reviewer], references: [id])
+}
