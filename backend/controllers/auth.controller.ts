@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import ErrorResponse from '../utils/errorResponse.js';
 import sendTokenResponse from '../utils/sendTokenResponse.js';
@@ -7,7 +6,6 @@ import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import { comparePassword, generateHashedPassword } from '../utils/passwordManager.js';
 import excludeFields from '../utils/excludeFields.js';
-import { timeStamp } from 'console';
 
 interface AuthRequest extends Request {
   body: {
@@ -30,7 +28,7 @@ interface AuthRequest extends Request {
 // @access  Public
 
 export const registerUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { email, password } = req.body;
+  const { email, password, acceptPromotions, phone, name } = req.body;
   const hash = generateHash(email);
   // Create user
   try {
@@ -44,8 +42,8 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
     });
 
     sendTokenResponse(user, 200, res);
-  } catch (error) {
-    res.status(500).json({ success: false, error: error });
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400 }));
   }
 });
 

@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import Colors from 'colors.ts';
 import auth from './routes/auth.route.js';
+import calendar from './routes/calendar.route.js'
 import errorHandler from './middlewares/errorHandler.js';
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/calendars', calendar);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
