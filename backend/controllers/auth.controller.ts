@@ -43,7 +43,7 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
 
     sendTokenResponse(user, 200, res);
   } catch (error:any) {
-    return next(new ErrorResponse({ message: error.message, statusCode: 400 }));
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
 
@@ -97,11 +97,11 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response, next:
 });
 
 // @desc    Get current logged in user
-// @route   GET /api/v1/auth/me
+// @route   GET /api/v1/auth/me/:hash
 // @access  Private
 
 export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { hash } = req.body;
+  const { hash } = req.params;
 
   try {
     const user = await prisma.user.findUnique({
@@ -117,6 +117,7 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
       res.status(200).json({ success: true, data: response });
     }
   } catch (error) {
+    console.log('err', error)
     res.status(400).json({ success: false, data: error });
   }
 });

@@ -56,6 +56,7 @@ model Calendar {
   padding          Int?
   availabilityHash Json?          // assuming this corresponds to availabilityHash array
   hash             String         @unique  
+  deleted          Boolean        @default(false)
 }
 
 //

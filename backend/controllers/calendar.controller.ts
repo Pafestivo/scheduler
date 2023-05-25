@@ -11,7 +11,8 @@ interface CalendarRequest extends Request {
     name: string;
     padding?: number;
     availabilityHash?: any[]; // assuming availabilityHash is an array
-    licenseHash?: string; 
+    licenseHash?: string;
+    deleted: boolean;
   };
 }
 
@@ -42,6 +43,38 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
       data: response,
     });
   } catch (error:any) {
-    return next(new ErrorResponse({ message: error.message, statusCode: 400 }));
+    return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+  }
+});
+
+// @desc    Get all user calendars
+// @route   GET /api/v1/calendars/:userHash
+// @access  Public
+
+export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { userHash } = req.params;
+
+  try {
+    const calendars = await prisma.calendar.findMany({
+      where: {
+        userHash,
+        deleted: false
+      }
+    })
+
+    if(calendars.length === 0) {
+      res.status(200).json({
+        success: true,
+        data: 'No calendars found for given user.',
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        amount: calendars.length,
+        data: calendars,
+      });
+    }
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
