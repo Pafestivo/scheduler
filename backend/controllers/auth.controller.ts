@@ -11,7 +11,7 @@ interface AuthRequest extends Request {
   body: {
     email: string;
     password: string;
-    hash?: string;
+    hash: string;
     name?: string;
     type?: string;
     phone?: string;
@@ -129,7 +129,9 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
 export const updateUserDetails = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { email, name, phone, asWhatsapp, acceptPromotions, pfp, hash } = req.body;
 
-  if (!email || !name || !phone || !asWhatsapp || !acceptPromotions || !pfp) {
+  if(!hash) {
+    res.status(401).json({ success: false, data: 'No hash provided' });
+  } else if (!email && !name && !phone && !asWhatsapp && !acceptPromotions && !pfp) {
     res.status(400).json({ success: false, data: 'No fields to update' });
   } else {
     let data = {};

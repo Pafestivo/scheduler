@@ -4,6 +4,7 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import excludeFields from '../utils/excludeFields.js';
+import { CalendarType } from '@prisma/client';
 
 interface CalendarRequest extends Request {
   body: {
@@ -13,6 +14,9 @@ interface CalendarRequest extends Request {
     availabilityHash?: any[]; // assuming availabilityHash is an array
     licenseHash?: string;
     deleted: boolean;
+    hash: string;
+    appointmentsHash: any[];
+    type: CalendarType;
   };
 }
 
@@ -74,6 +78,146 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
         data: calendars,
       });
     }
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
+// @desc    Get single calendar
+// @route   GET /api/v1/calendars/single/:hash
+// @access  Public
+
+export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { hash } = req.params;
+
+  try {
+    const calendar = await prisma.calendar.findUnique({
+      where: {
+        hash
+      }
+    })
+
+    if(!calendar) {
+      res.status(200).json({
+        success: true,
+        data: 'No calendar with given hash was found.',
+      });
+    } else if(calendar.deleted) {
+      res.status(200).json({
+        success: true,
+        data: 'The calendar you are looking for was deleted.',
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        data: calendar,
+      });
+    }
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
+// @desc    Delete a single calendar
+// @route   DELETE /api/v1/calendars/:hash
+// @access  Public
+
+export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { hash } = req.params;
+
+  try {
+    const calendar = await prisma.calendar.findUnique({
+      where: {
+        hash
+      }
+    })
+
+    if(!calendar) {
+      res.status(200).json({
+        success: true,
+        data: 'No calendar with given hash was found.',
+      });
+      return;
+    } else if(calendar.deleted) {
+      res.status(200).json({
+        success: true,
+        data: 'The calendar you are looking for was already deleted.',
+      });
+      return;
+    }
+
+    await prisma.calendar.update({
+      where: {
+        hash
+      },
+      data: {
+        deleted: true
+      }});
+
+    res.status(200).json({
+      success: true,
+      data: 'Calendar deleted successfully.',
+    })
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
+// @desc    Update calendar
+// @route   PUT /api/v1/calendars
+// @access  Public
+
+export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { 
+      hash,
+      appointmentsHash, 
+      type, 
+      name, 
+      padding, 
+      availabilityHash 
+    } = req.body;
+
+  try {
+    const calendar = await prisma.calendar.findUnique({
+      where: {
+        hash
+      }
+    })
+
+    if(!calendar) {
+      res.status(200).json({
+        success: true,
+        data: 'No calendar with given hash was found.',
+      });
+      return;
+    } else if(calendar.deleted) {
+      res.status(200).json({
+        success: true,
+        data: 'The calendar you are trying to update is deleted.',
+      });
+      return;
+    }
+
+    // make an update data object to not update undefined
+    const updateData: any = {};
+    if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
+    if (type) updateData.type = type;
+    if (name) updateData.name = name;
+    if (padding) updateData.padding = padding;
+    if (availabilityHash) updateData.availabilityHash = availabilityHash;
+    
+
+    const updatedCalendar = await prisma.calendar.update({
+      where: {
+        hash
+      },
+      data: updateData
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedCalendar,
+    })
   } catch (error:any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
