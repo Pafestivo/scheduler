@@ -4,6 +4,7 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import { addToAvailabilityArray } from '../utils/addToAvailabilityArray.js';
+import excludeFields from '../utils/excludeFields.js';
 
 interface AvailabilityRequest extends Request {
   body: {
@@ -26,7 +27,11 @@ export const addAvailability = asyncHandler(async (req: AvailabilityRequest, res
     return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
   }
 
-  if(!day || !startTime || !endTime) {
+  if(isNaN(day) || day > 6 || day < 0) {
+    return next(new ErrorResponse({ message: 'Invalid day', statusCode: 400 }));
+  }
+  
+  if (!startTime || !endTime) {
     return next(new ErrorResponse({ message: 'Missing information', statusCode: 400 }));
   }
 
@@ -60,6 +65,42 @@ export const addAvailability = asyncHandler(async (req: AvailabilityRequest, res
         calendar: updatedCalendar,
         availability
       },
+    });
+
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+  }
+})
+
+// @desc    Get availabilities for specific calendar
+// @route   GET /api/v1/availability
+// @access  private
+
+export const getAvailabilities = asyncHandler(async (req: AvailabilityRequest, res: Response, next: NextFunction) => {
+  const { calendarHash } = req.params;
+
+  if (!calendarHash) {
+    return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
+  }
+
+  try {
+    const availabilities = await prisma.availability.findMany({
+      where: {
+        calendarHash
+      }
+    });
+
+    // exclude unnecessary fields from each object
+    const response:any[] = []
+    availabilities.forEach(availability => {
+      const availabilityToSend = excludeFields(availability, ['calendarHash', 'id', 'timestamp'])
+      response.push(availabilityToSend)
+    })
+
+    res.status(200).json({
+      success: true,
+      amount: response.length,
+      data: response,
     });
 
   } catch (error:any) {
