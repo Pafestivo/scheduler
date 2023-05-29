@@ -74,7 +74,7 @@ model Integration {
   secret String           @db.VarChar(256) // adjust size based on your needs
   user   Int              // assuming this corresponds to userID
   type   IntegrationType
-  hash              String     @unique  
+  hash   String           @unique  
 }
 
 //transaction
@@ -86,7 +86,7 @@ model Transaction {
   calendar    Int      // assuming this corresponds to calendarID
   license     Int      // assuming this corresponds to licenseID
   appointment Int      // assuming this corresponds to appointmentID
-  hash              String     @unique  
+  hash        String   @unique  
 }
 
 //license
@@ -113,33 +113,30 @@ model License {
 
 //availability
 
-model Availability {
+model availability {
   id               Int      @id @default(autoincrement())
-  calendar         Int      // assuming this corresponds to calendarID
+  calendarHash     String   // assuming this corresponds to calendarHash
   day              Int
-  startTime        DateTime // assuming you're using a 24-hour format
-  endTime          DateTime // assuming you're using a 24-hour format
-  asWhatsapp       Boolean
-  acceptPromotions Boolean
+  startTime        String   // assuming you're using a 24-hour format
+  endTime          String   // assuming you're using a 24-hour format
   timestamp        DateTime @default(now())
-  pfp              String   // assuming this is a URL or file path
-  hash              String     @unique  
+  hash             String   @unique  
 }
 
 //coupon
 
 model Coupon {
-  id           Int      @id @default(autoincrement())
-  type         String   // enum, create an enum as per your values
-  name         String
-  CCode        String
-  is_onetime   Boolean
-  editedby     Int      // assuming this corresponds to userID
-  coupon       Json    // assuming this corresponds to licenseID Array
+  id            Int      @id @default(autoincrement())
+  type          String   // enum, create an enum as per your values
+  name          String
+  CCode         String
+  is_onetime    Boolean
+  editedby      Int      // assuming this corresponds to userID
+  coupon        Json     // assuming this corresponds to licenseID Array
   discountPrice Decimal  // assuming this is a floating point number
-  hash              String     @unique  
+  hash          String   @unique  
   // Relations
-  // editedByUser User     @relation(fields: [editedby], references: [id])
+  // editedByUser User   @relation(fields: [editedby], references: [id])
 }
 
 //appointment

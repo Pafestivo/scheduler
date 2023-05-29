@@ -11,7 +11,7 @@ interface CalendarRequest extends Request {
     userHash: string;
     name: string;
     padding?: number;
-    availabilityHash?: any[]; // assuming availabilityHash is an array
+    availabilityHash?: any[];
     licenseHash?: string;
     deleted: boolean;
     hash: string;
@@ -22,11 +22,11 @@ interface CalendarRequest extends Request {
 
 // @desc    Add Calendar
 // @route   POST /api/v1/calendars
-// @access  Public
+// @access  Private
 
 export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { userHash, name, padding, availabilityHash } = req.body;
-  const hash = generateHash(name);
+  const hash = generateHash(userHash, name);
   // Add calendar
   try {
     const calendar = await prisma.calendar.create({
@@ -53,7 +53,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
 
 // @desc    Get all user calendars
 // @route   GET /api/v1/calendars/:userHash
-// @access  Public
+// @access  Private
 
 export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { userHash } = req.params;
@@ -120,7 +120,7 @@ export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
 
 // @desc    Delete a single calendar
 // @route   DELETE /api/v1/calendars/:hash
-// @access  Public
+// @access  Private
 
 export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { hash } = req.params;
@@ -165,7 +165,7 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 
 // @desc    Update calendar
 // @route   PUT /api/v1/calendars
-// @access  Public
+// @access  Private
 
 export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { 
@@ -174,7 +174,6 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       type, 
       name, 
       padding, 
-      availabilityHash 
     } = req.body;
 
   try {
@@ -203,9 +202,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
     if (name) updateData.name = name;
-    if (padding) updateData.padding = padding;
-    if (availabilityHash) updateData.availabilityHash = availabilityHash;
-    
+    if (padding) updateData.padding = padding;    
 
     const updatedCalendar = await prisma.calendar.update({
       where: {

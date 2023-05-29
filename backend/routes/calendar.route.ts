@@ -5,17 +5,17 @@ import {
   getCalendars,
   getCalendar,
   deleteCalendar,
-  updateCalendar
+  updateCalendar,
 } from '../controllers/calendar.controller.js';
 import { protect } from '../middlewares/authHandler.js';
 
 const router = express.Router();
 
-router.post('', protect, addCalendar);
-router.get('/:userHash', protect, getCalendars);
-router.get('/single/:hash', getCalendar);
-router.delete('/:hash', protect ,deleteCalendar);
-router.put('', protect, updateCalendar);
+router.post('/calendars', protect, addCalendar);
+router.get('/calendars/:userHash', protect, getCalendars);
+router.get('/calendars/single/:hash', getCalendar);
+router.delete('/calendars/:hash', protect ,deleteCalendar);
+router.put('/calendars', protect, updateCalendar);
 
 
 export default router;
