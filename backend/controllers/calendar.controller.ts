@@ -17,6 +17,7 @@ interface CalendarRequest extends Request {
     hash: string;
     appointmentsHash: any[];
     type: CalendarType;
+    personalForm: string[];
   };
 }
 
@@ -25,7 +26,7 @@ interface CalendarRequest extends Request {
 // @access  Private
 
 export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { userHash, name, padding, availabilityHash } = req.body;
+  const { userHash, name, padding, availabilityHash, personalForm } = req.body;
   const hash = generateHash(userHash, name);
   // Add calendar
   try {
@@ -37,6 +38,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         availabilityHash,
         licenseHash: '', 
         hash,
+        personalForm
       },
     });
 
