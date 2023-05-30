@@ -17,7 +17,7 @@ interface CalendarRequest extends Request {
     hash: string;
     appointmentsHash: any[];
     type: CalendarType;
-    personalForm: string[];
+    personalForm?: string[];
   };
 }
 

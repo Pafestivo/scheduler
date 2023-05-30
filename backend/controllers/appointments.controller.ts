@@ -46,6 +46,16 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
   }
 
   try {
+  //   const calendar = await prisma.calendar.findUnique({
+  //     where: {
+  //       hash: calendarHash
+  //     }
+  //   })
+
+  //   if(calendar?.personalForm) {
+  //     const questionsArray = calendar.personalForm
+  //   }
+
     const appointment = await prisma.appointment.create({
       data: {
         calendarHash,
