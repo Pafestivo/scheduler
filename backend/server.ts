@@ -7,6 +7,8 @@ import auth from './routes/auth.route.js';
 import calendar from './routes/calendar.route.js';
 import availability from './routes/availability.route.js';
 import errorHandler from './middlewares/errorHandler.js';
+import appointments from './routes/appointments.route.js';
+
 dotenv.config();
 
 Colors.enable();
@@ -28,6 +30,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', auth);
 app.use('/api/v1', calendar);
 app.use('/api/v1', availability);
+app.use('/api/v1', appointments);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;

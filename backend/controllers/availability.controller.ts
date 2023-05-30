@@ -178,7 +178,7 @@ export const updateAvailability = asyncHandler(async (req: AvailabilityRequest, 
 
     res.status(200).json({
       success: true,
-      data: updatedAvailability
+      data: 'Availability preference update successfully'
     })
   } catch(error:any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));

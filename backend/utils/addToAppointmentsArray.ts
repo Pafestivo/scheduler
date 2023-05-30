@@ -1,7 +1,7 @@
 import { findCalendar } from "./findCalendar.js";
 import prisma from "./prismaClient.js";
 
-export const addToAvailabilityArray = async (calendarHash: string, availabilityHash: string) => {
+export const addToAppointmentsArray = async (calendarHash: string, appointmentHash: string) => {
   const calendar = await findCalendar(calendarHash)
   if(!calendar) {
     console.log('No calendar with given hash was found')
@@ -11,11 +11,11 @@ export const addToAvailabilityArray = async (calendarHash: string, availabilityH
     return;
   }   
   
-  let newAvailabilityArray:string[] = [];
-  if (calendar.availabilityHash) {
-    newAvailabilityArray = [...calendar.availabilityHash as string[]]; 
+  let newAppointmentsArray:string[] = [];
+  if (calendar.appointmentsHash) {
+    newAppointmentsArray = [...calendar.appointmentsHash as string[]]; 
   }
-  newAvailabilityArray.push(availabilityHash);
+  newAppointmentsArray.push(appointmentHash);
   
   try {
     const updatedCalendar = await prisma.calendar.update({
@@ -23,7 +23,7 @@ export const addToAvailabilityArray = async (calendarHash: string, availabilityH
         hash: calendarHash
       },
       data: {
-        availabilityHash: newAvailabilityArray
+        appointmentsHash: newAppointmentsArray
       }
     });
     return updatedCalendar;

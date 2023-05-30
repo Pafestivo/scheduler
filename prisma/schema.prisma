@@ -113,7 +113,7 @@ model License {
 
 //availability
 
-model availability {
+model Availability {
   id               Int      @id @default(autoincrement())
   calendarHash     String   // assuming this corresponds to calendarHash
   day              Int
@@ -142,23 +142,26 @@ model Coupon {
 //appointment
 
 enum AppointmentStatus {
-  COMPLETED
-  CANCELED
-  RESCHEDULED
+  new
+  confirmed
+  completed
+  canceled
+  rescheduled
 }
 
 model Appointment {
   id           Int               @id @default(autoincrement())
-  calendar     Int               // assuming this corresponds to calendarId
-  user         Int               // assuming this corresponds to userId
-  timestamp    DateTime          // assuming timestamp
+  calendarHash String               // assuming this corresponds to calendarHash
+  userHash     String               // assuming this corresponds to userHash
+  timestamp    DateTime?         @default(now())
   status       AppointmentStatus
-  date         DateTime          // assuming date 
-  transaction  Int               // assuming this corresponds to transactionID
-  canceltime   DateTime?         // assuming timestamp and it is optional
-  isConfirmed  Boolean
-  length       Decimal           // assuming this is a floating point number
-  hash              String     @unique  
+  date         String          // the date of the meeting in format mm/dd/yy
+  time         String           // the time of meeting in format '17:53'
+  transaction  Int?               // assuming this corresponds to transactionID
+  cancelTime   String?         // assuming timestamp and it is optional
+  isConfirmed  Boolean           @default(false)
+  length       Int           // stored of type 'number' in amount of minutes
+  hash         String           @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // userInfo     User     @relation(fields: [user], references: [id])
