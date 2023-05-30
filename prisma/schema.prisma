@@ -57,6 +57,7 @@ model Calendar {
   availabilityHash Json?          // assuming this corresponds to availabilityHash array
   hash             String         @unique  
   deleted          Boolean        @default(false)
+  personalForm     Json?          // holds the questions for the personal form
 }
 
 //
