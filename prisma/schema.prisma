@@ -161,6 +161,7 @@ model Appointment {
   transaction  Int?               // assuming this corresponds to transactionID
   cancelTime   String?         // assuming timestamp and it is optional
   isConfirmed  Boolean           @default(false)
+  answersArray Json?          // the answers to the personalForm questions
   length       Int           // stored of type 'number' in amount of minutes
   hash         String           @unique  
   // Relations

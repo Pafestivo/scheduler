@@ -24,6 +24,7 @@ interface AppointmentsRequest extends Request {
     length: number;
     hash?: string;
     transaction?: number;
+    answersArray?: string[];
   };
 }
 
@@ -32,7 +33,7 @@ interface AppointmentsRequest extends Request {
 // @access  Private
 
 export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { calendarHash, userHash, date, time, length } = req.body;
+  const { calendarHash, userHash, date, time, length, answersArray } = req.body;
   const hash = generateHash(userHash, calendarHash, date);
 
   if(!calendarHash) {
@@ -44,18 +45,9 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
   if(!date || !time || !length) {
     return next(new ErrorResponse({ message: 'Missing information(date, time, and length is required)', statusCode: 400 }));
   }
+  console.log(answersArray)
 
   try {
-  //   const calendar = await prisma.calendar.findUnique({
-  //     where: {
-  //       hash: calendarHash
-  //     }
-  //   })
-
-  //   if(calendar?.personalForm) {
-  //     const questionsArray = calendar.personalForm
-  //   }
-
     const appointment = await prisma.appointment.create({
       data: {
         calendarHash,
@@ -64,6 +56,7 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
         date,
         time,
         length,
+        answersArray,
         hash
       },
     });
