@@ -8,12 +8,14 @@ import calendar from './routes/calendar.route.js';
 import availability from './routes/availability.route.js';
 import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 Colors.enable();
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:3000',

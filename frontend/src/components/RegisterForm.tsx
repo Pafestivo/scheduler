@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { postData } from "@/utilities/serverRequests/serverRequests";
+import axios from "axios";
 
 const RegisterForm = () => {
   const [name, setName] = useState("");

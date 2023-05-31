@@ -12,7 +12,7 @@ const HomePage = () => {
       setLoggedUser(user)
     }
     getUser()
-  })
+  }, [])
 
   return (
     <div>
