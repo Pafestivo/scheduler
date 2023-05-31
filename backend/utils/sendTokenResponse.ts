@@ -15,7 +15,7 @@ const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
 
   const options: TokenOptions = {
     expires: new Date(
-      // Convert the 30 days in the config t0 30 days in milliseconds
+      // Convert the 30 days in the config to 30 days in milliseconds
       Date.now() + (process.env.JWT_COOKIE_EXPIRE ? parseInt(process.env.JWT_COOKIE_EXPIRE) : 30) * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,

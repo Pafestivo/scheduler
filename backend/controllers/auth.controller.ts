@@ -7,7 +7,23 @@ import generateHash from '../utils/generateHash.js';
 import { comparePassword, generateHashedPassword } from '../utils/passwordManager.js';
 import excludeFields from '../utils/excludeFields.js';
 
+interface Iuser {
+  id: number;
+  name: string;
+  type: string;
+  email: string;
+  phone: string | null;
+  asWhatsapp: boolean;
+  acceptPromotions: boolean;
+  pfp: string | null;
+  hash: string;
+  calendars: string[] | null;
+  timestamp: string;
+  hashedPassword: string;
+  hashedResetToken: string | null;
+}
 interface AuthRequest extends Request {
+  user?: Iuser;
   body: {
     email: string;
     password: string;
@@ -37,6 +53,9 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
       data: {
         email,
         hashedPassword,
+        acceptPromotions,
+        phone,
+        name,
         hash,
       },
     });
@@ -97,29 +116,16 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response, next:
 });
 
 // @desc    Get current logged in user
-// @route   GET /api/v1/auth/me/:hash
+// @route   GET /api/v1/auth/me/
 // @access  Private
 
 export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { hash } = req.params;
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        hash,
-      },
-    });
-
-    if (!user) {
-      res.status(400).json({ success: false, data: 'User not found' });
-    } else {
-      const response = excludeFields(user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
-      res.status(200).json({ success: true, data: response });
-    }
-  } catch (error) {
-    console.log('err', error)
-    res.status(400).json({ success: false, data: error });
-  }
+  // the middlewear 'protect' sets the req.user if token was verified
+  console.log('user:', req.user);
+  if(req.user) {
+    const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
+    res.status(200).json({ success: true, data: response });
+  } else res.status(400).json({ success: false, data: 'No user found' });
 });
 
 // @desc    Update user details

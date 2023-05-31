@@ -15,7 +15,10 @@ Colors.enable();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));

@@ -1,10 +1,10 @@
 import axios from "axios";
 const PORT = process.env.PORT || 8080;
 
-export let url = `http://localhost:${PORT}/api`;
+export let url = `http://localhost:${PORT}/api/v1`;
 
 if(process.env.NODE_ENV === "production") {
-  url = "/api";
+  url = "/api/v1";
 }
 
 export const API = axios.create({
