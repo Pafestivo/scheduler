@@ -1,5 +1,5 @@
 import axios from "axios";
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.NEXT_PUBLIC_PORT || 8080;
 
 export let url = `http://localhost:${PORT}/api/v1`;
 

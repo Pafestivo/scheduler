@@ -1,18 +1,26 @@
 "use client";
 
-import { getData } from "@/utilities/serverRequests/serverRequests"
-import { useEffect, useState } from "react"
+import { getData, postData } from "@/utilities/serverRequests/serverRequests"
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const HomePage = () => {
+  const data = useSession()
+  console.log('data', data)
   const [loggedUser, setLoggedUser] = useState(null)
 
+  // fix infinite loop
   useEffect(() => {
     const getUser = async () => {
       const user = await getData("/auth/me")
       setLoggedUser(user)
     }
+    if(data.data?.user && !loggedUser) {
+      const { email, name } = data.data?.user
+      postData('/auth/register', {email, name})
+    }
     getUser()
-  }, [])
+  }, [data.data?.user, loggedUser])
 
   return (
     <div>
@@ -23,7 +31,6 @@ const HomePage = () => {
       )}
   <h1>Home Page</h1>
     </div>
-    
   )
 }
 

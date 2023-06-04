@@ -34,6 +34,10 @@ model User {
   hashedPassword    String?
   hashedResetToken  String?
   calendars         Json?
+  provider          String?
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
 }
 
 //calendar
@@ -70,12 +74,12 @@ enum IntegrationType {
 }
 
 model Integration {
-  id     Int              @id @default(autoincrement())
+  id     Int              @id @unique @default(autoincrement())
   token  String           @db.VarChar(256) // adjust size based on your needs
-  secret String           @db.VarChar(256) // adjust size based on your needs
-  user   Int              // assuming this corresponds to userID
-  type   IntegrationType
-  hash   String           @unique  
+  refreshToken String     @db.VarChar(256) // adjust size based on your needs
+  expiresAt   Int
+  userEmail   String      
+  provider   IntegrationType
 }
 
 //transaction

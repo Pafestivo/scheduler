@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { postData } from "@/utilities/serverRequests/serverRequests";
-import axios from "axios";
+import { signIn } from 'next-auth/react'
 
 const RegisterForm = () => {
   const [name, setName] = useState("");
@@ -80,6 +80,9 @@ const RegisterForm = () => {
         <p style={{color: "red", fontSize: "14px"}}>{errorMsg}</p>
         <button type="submit">Register now</button>
       </form>
+
+      <p>Or register with:</p>
+      <button onClick={() => signIn('google')}>Google</button>
     </div>
   )
 }

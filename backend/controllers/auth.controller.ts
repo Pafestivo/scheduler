@@ -19,7 +19,7 @@ interface Iuser {
   hash: string;
   calendars: string[] | null;
   timestamp: string;
-  hashedPassword: string;
+  hashedPassword?: string;
   hashedResetToken: string | null;
 }
 interface AuthRequest extends Request {
@@ -36,6 +36,7 @@ interface AuthRequest extends Request {
     pfp?: string;
     currentPassword?: string;
     newPassword?: string;
+    provider?: string;
   };
 }
 
@@ -44,11 +45,12 @@ interface AuthRequest extends Request {
 // @access  Public
 
 export const registerUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { email, password, acceptPromotions, phone, name } = req.body;
+  const { email, password, acceptPromotions, phone, name, provider } = req.body;
   const hash = generateHash(email);
+  let hashedPassword;
   // Create user
   try {
-    const hashedPassword = await generateHashedPassword(password);
+    if(password) hashedPassword = await generateHashedPassword(password);
     const user = await prisma.user.create({
       data: {
         email,
@@ -57,6 +59,7 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
         phone,
         name,
         hash,
+        provider
       },
     });
 
@@ -121,7 +124,6 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response, next:
 
 export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   // the middlewear 'protect' sets the req.user if token was verified
-  console.log('user:', req.user);
   if(req.user) {
     const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
     res.status(200).json({ success: true, data: response });

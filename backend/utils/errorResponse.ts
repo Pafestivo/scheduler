@@ -16,9 +16,10 @@ class ErrorResponse {
     // set specific responses to prisma error codes
     
     if (this.errorCode === 'P2002') {
+      this.message = "Conflict! Data already exists in the database."
       this.statusCode = 409;
     } else if (this.errorCode === "P2025") {
-      this.message = "The availability does not exist"
+      this.message = "Not found"
       this.statusCode = 404;
     } else if (this.errorCode) {
       this.statusCode = this.errorCode;

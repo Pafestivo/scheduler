@@ -8,6 +8,8 @@ import calendar from './routes/calendar.route.js';
 import availability from './routes/availability.route.js';
 import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
+import integration from './routes/integration.route.js';
+import googleCalendar from './routes/googleCalendar.route.js';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -36,6 +38,8 @@ app.use('/api/v1/auth', auth);
 app.use('/api/v1', calendar);
 app.use('/api/v1', availability);
 app.use('/api/v1', appointments);
+app.use('/api/v1', integration);
+app.use('/api/v1', googleCalendar);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;

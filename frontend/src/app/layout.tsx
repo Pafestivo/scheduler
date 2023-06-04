@@ -1,5 +1,6 @@
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import { NextAuthProvider } from '../components/Provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,7 +31,9 @@ export default function RootLayout({
           </Link>
         </nav>
 
+      <NextAuthProvider>
         {children}
+      </NextAuthProvider>
         </body>
     </html>
   )
