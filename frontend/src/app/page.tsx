@@ -9,6 +9,7 @@ const HomePage = () => {
   const [loggedUser, setLoggedUser] = useState(null);
 
   useEffect(() => {
+    // fix unnecessary re-rendering
     const getUser = async () => {
       if (loggedUser) return; // Break infinite loop by checking if a user is already logged in
       const user = await getData('/auth/me');

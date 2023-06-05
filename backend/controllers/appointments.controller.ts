@@ -21,7 +21,6 @@ interface AppointmentsRequest extends Request {
     status?: AppointmentStatus;
     date: string;
     time: string;
-    length: number;
     hash?: string;
     transaction?: number;
     answersArray?: string[];
@@ -33,7 +32,7 @@ interface AppointmentsRequest extends Request {
 // @access  Private
 
 export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { calendarHash, userHash, date, time, length, answersArray } = req.body;
+  const { calendarHash, userHash, date, time, answersArray } = req.body;
   const hash = generateHash(userHash, calendarHash, date);
 
   if(!calendarHash) {
@@ -42,8 +41,8 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
   if(!userHash) {
     return next(new ErrorResponse({ message: 'No user hash provided', statusCode: 400 }));
   }
-  if(!date || !time || !length) {
-    return next(new ErrorResponse({ message: 'Missing information(date, time, and length is required)', statusCode: 400 }));
+  if(!date || !time) {
+    return next(new ErrorResponse({ message: 'Missing information(date and time is required)', statusCode: 400 }));
   }
   console.log(answersArray)
 
@@ -55,7 +54,6 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
         status: 'new',
         date,
         time,
-        length,
         answersArray,
         hash
       },
@@ -155,7 +153,7 @@ export const getAllCalendarAppointments = asyncHandler(async (req: AppointmentsR
 // @access  Private
 
 export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { hash, date, time, length, status, transaction } = req.body;
+  const { hash, date, time, status, transaction } = req.body;
 
   if (!hash) {
     return next(new ErrorResponse({ message: 'No hash provided', statusCode: 400 }));
@@ -183,7 +181,6 @@ export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, r
     const updateData: any = {};
     if (date) updateData.date = date;
     if (time) updateData.time = time;
-    if (length) updateData.length = length;
     if (status) updateData.status = status;
     if (cancelTime) updateData.cancelTime = cancelTime;
     if (isConfirmed) updateData.isConfirmed = isConfirmed;

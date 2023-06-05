@@ -19,6 +19,7 @@ interface CalendarRequest extends Request {
     type: CalendarType;
     personalForm?: string[];
     integrationId?: number[]
+    appointmentsLength: number;
   };
 }
 
@@ -27,7 +28,7 @@ interface CalendarRequest extends Request {
 // @access  Private
 
 export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { userHash, name, padding, availabilityHash, personalForm } = req.body;
+  const { userHash, name, padding, availabilityHash, personalForm, appointmentsLength } = req.body;
   const hash = generateHash(userHash, name);
   // Add calendar
   try {
@@ -39,9 +40,19 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         availabilityHash,
         licenseHash: '', 
         hash,
-        personalForm
+        personalForm,
+        appointmentsLength
       },
     });
+
+    const user = await prisma.user.update({
+      where: {
+        hash: userHash
+      },
+      data: {
+        type: 'vendor'
+      }
+    })
 
     const response = excludeFields(calendar, ['licenseHash', 'timestamp']);
 
@@ -177,7 +188,8 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       type, 
       name, 
       padding, 
-      integrationId
+      integrationId,
+      appointmentsLength
     } = req.body;
 
   try {
@@ -207,6 +219,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (type) updateData.type = type;
     if (name) updateData.name = name;
     if (padding) updateData.padding = padding;  
+    if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;  
     // make sure to add to the integration array and not replacing it
     if (integrationId) {
       let calendarIntegrationId = [];
