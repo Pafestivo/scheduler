@@ -16,10 +16,10 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [showAvailableTime, setShowAvailableTime] = useState(false);
   const [loading, setLoading] = useState(true);
   const [availableTimes, setAvailableTimes] = useState({});
-  const [dailyAvailability, setDailyAvailability] = useState({});
+  const [dailyAvailability, setDailyAvailability] = useState<{ startTime: string; endTime: string; }[]>([]);
   const [calendar, setCalendar] = useState({});
   const [appointmentsLength, setAppointmentsLength] = useState(60);
-  const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<{ id:number, startTime:string }[]>([]);
+  const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<{ startTime:string }[]>([]);
 
   const getDailyAvailability = async (date:Date) => {
     const currentDay = date.getDay()
@@ -28,21 +28,38 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     if(currentDayAvailabilities.length === 0) currentDayAvailabilities = [{ startTime: '00:00', endTime: '00:00' }]
     setDailyAvailability(currentDayAvailabilities);
     setLoading(false);
-    return currentDayAvailabilities[0];
+    return currentDayAvailabilities;
   }
 
-  const getWorkingTimeInMinutes = (currentDayAvailabilities: { startTime: string; endTime: string; }) => {
-    if(!currentDayAvailabilities) return 0;
+  const getWorkingTimeInMinutes = (currentDayAvailabilities: { startTime: string; endTime: string; }[]) => {
+    const sessionsTimeInMinutes:{startTime:string, timeInMinutes: number}[]  = []
 
-    const startTime = currentDayAvailabilities.startTime;
-    const endTime = currentDayAvailabilities.endTime;
-    const start = startTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${startTime}`) : new Date(`2000-01-01T${startTime}`);
-    const end = endTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${endTime}`) : new Date(`2000-01-01T${endTime}`);
+    currentDayAvailabilities.forEach(availability => {
+      const startTime = availability.startTime;
+      let endTime = availability.endTime;
+      if (endTime == '00:00') endTime = '24:00'; // make sure end time is not lower than start time
+      // add 0 in front if it's single digit
+      const start = startTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${startTime}`) : new Date(`2000-01-01T${startTime}`);
+      const end = endTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${endTime}`) : new Date(`2000-01-01T${endTime}`);
+      
+      const diffInMilliseconds = end.getTime() - start.getTime();
+      const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+      const diffInMinutes = diffInHours * 60;
+      sessionsTimeInMinutes.push({startTime, timeInMinutes: diffInMinutes});
+    })
 
-    const diffInMilliseconds = end.getTime() - start.getTime();
-    const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
-    const diffInMinutes = diffInHours * 60;
-    return diffInMinutes;
+    return sessionsTimeInMinutes;
+  }
+
+  const calculateAmountOfAppointments = (timeWorking:{startTime:string, timeInMinutes: number}[]) => {
+    const AmountOfAppointmentsPerSession:{startTime:string, amountOfAppointments: number}[] = []
+
+    timeWorking.forEach(sessionLength => {
+      const AmountOfAppointments = Math.floor(sessionLength.timeInMinutes / appointmentsLength);
+      AmountOfAppointmentsPerSession.push({startTime: sessionLength.startTime, amountOfAppointments: AmountOfAppointments});
+    })
+
+    return AmountOfAppointmentsPerSession;
   }
 
   const addTime = (timeString:string, minutesToAdd:number) => {
@@ -58,18 +75,20 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     return `${newHours}:${newMinutes}`;
   };
 
-  const modifyAmountOfMeetings = (startTime:string, possibleAmountOfAppointments:number) => {
-    const appointments = []
+  const modifyAmountOfMeetings = (AmountOfAppointments:{startTime:string, amountOfAppointments: number}[]) => {
+    const appointments:{startTime: string}[] = []
+    // dailyAvailability
+    AmountOfAppointments.forEach(appointmentsAmount => {
+      for (let i = 0; i < appointmentsAmount.amountOfAppointments; i++) {
+        const minutesToAdd = i * appointmentsLength;
+        if(dailyAvailability.length > 0 && !dailyAvailability[0].startTime) return;
+        const meetingStartTime = addTime(appointmentsAmount.startTime, minutesToAdd);
+        appointments.push({
+          startTime: meetingStartTime
+        })
+      }
+    })
 
-    for (let i = 0; i < possibleAmountOfAppointments; i++) {
-      const minutesToAdd = i * appointmentsLength;
-      if(!startTime) return;
-      const meetingStartTime = addTime(startTime, minutesToAdd);
-      appointments.push({
-        id: i,
-        startTime: meetingStartTime
-      })
-    }
     setDailyAmountOfAppointments(appointments)
   }
   
@@ -78,11 +97,10 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setStartDate(date);
     setLoading(true);
     setShowAvailableTime(true);
-    const currentDayAvailabilities = await getDailyAvailability(date);
+    const currentDayAvailabilities = await getDailyAvailability(date); 
     const timeWorking = getWorkingTimeInMinutes(currentDayAvailabilities);
-    const possibleAmountOfAppointments = Math.floor(timeWorking / appointmentsLength);
-    const startTime = currentDayAvailabilities.startTime || null;
-    modifyAmountOfMeetings(startTime, possibleAmountOfAppointments)
+    const AmountOfAppointmentsPerSession = calculateAmountOfAppointments(timeWorking)
+    modifyAmountOfMeetings(AmountOfAppointmentsPerSession)
   }
 
   const getCalendarAvailability = useCallback(async () => {
@@ -126,8 +144,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
           showAvailableTime ? (
             <div>
               {dailyAmountOfAppointments.length > 0 ? (
-                dailyAmountOfAppointments.map((appointment:{id: number, startTime: string}) => {
-                  return <h1 key={appointment.id}>{appointment.startTime}</h1>
+                dailyAmountOfAppointments.map((appointment:{startTime: string}) => {
+                  return <h1 key={appointment.startTime}>{appointment.startTime}</h1>
                 })
               ) : (
                 <h1>Try another day...</h1>
