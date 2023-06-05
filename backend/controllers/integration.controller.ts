@@ -14,7 +14,7 @@ interface integrationRequest extends Request {
     refreshToken: string;
     expiresAt: number;
     userEmail: string;
-    provider: IntegrationType
+    provider: IntegrationType;
   };
 }
 
@@ -25,25 +25,37 @@ interface integrationRequest extends Request {
 export const addIntegration = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
   const { token, refreshToken, expiresAt, userEmail, provider } = req.body;
   const encryptedToken = encrypt(token);
-  const encryptedRefreshToken = encrypt(refreshToken)
-
+  const encryptedRefreshToken = encrypt(refreshToken);
   try {
-    const integration = await prisma.integration.create({
-      data: {
-        token: encryptedToken,
-        refreshToken: encryptedRefreshToken,
-        expiresAt,
+    const findItegration = await prisma.integration.findMany({
+      where: {
         userEmail,
-        provider
+        provider,
       },
     });
 
+    if (findItegration.length > 0) {
+      res.status(200).json({
+        success: false,
+        message: 'Integration already exists',
+      });
+    } else {
+      const integration = await prisma.integration.create({
+        data: {
+          token: encryptedToken,
+          refreshToken: encryptedRefreshToken,
+          expiresAt,
+          userEmail,
+          provider,
+        },
+      });
 
-    res.status(200).json({
-      success: true,
-      data: integration,
-    });
-  } catch (error:any) {
+      res.status(200).json({
+        success: true,
+        data: integration,
+      });
+    }
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
 });

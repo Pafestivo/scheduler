@@ -50,21 +50,35 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
   let hashedPassword;
   // Create user
   try {
-    if(password) hashedPassword = await generateHashedPassword(password);
-    const user = await prisma.user.create({
-      data: {
+    const findUser = await prisma.user.findUnique({
+      where: {
         email,
-        hashedPassword,
-        acceptPromotions,
-        phone,
-        name,
-        hash,
-        provider
       },
     });
 
-    sendTokenResponse(user, 200, res);
-  } catch (error:any) {
+    if (findUser) {
+      res.status(200).json({
+        success: false,
+        message: 'User already exists',
+      });
+    } else {
+      if (password) hashedPassword = await generateHashedPassword(password);
+
+      const user = await prisma.user.create({
+        data: {
+          email,
+          hashedPassword,
+          acceptPromotions,
+          phone,
+          name,
+          hash,
+          provider,
+        },
+      });
+
+      sendTokenResponse(user, 200, res);
+    }
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -93,7 +107,9 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
   }
 
   // Check if password matches
-  const isMatch = await generateHashedPassword(password);
+  if (!user.hashedPassword)
+    return next(new ErrorResponse({ message: 'Please login with exernal provider', statusCode: 401 }));
+  const isMatch = await comparePassword(password, user.hashedPassword);
 
   if (!isMatch) {
     return next(new ErrorResponse({ message: 'Invalid credentials', statusCode: 401 }));
@@ -124,7 +140,7 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response, next:
 
 export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   // the middlewear 'protect' sets the req.user if token was verified
-  if(req.user) {
+  if (req.user) {
     const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
     res.status(200).json({ success: true, data: response });
   } else res.status(400).json({ success: false, data: 'No user found' });
@@ -137,7 +153,7 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
 export const updateUserDetails = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { email, name, phone, asWhatsapp, acceptPromotions, pfp, hash } = req.body;
 
-  if(!hash) {
+  if (!hash) {
     res.status(401).json({ success: false, data: 'No hash provided' });
   } else if (!email && !name && !phone && !asWhatsapp && !acceptPromotions && !pfp) {
     res.status(400).json({ success: false, data: 'No fields to update' });
