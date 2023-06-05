@@ -18,6 +18,7 @@ interface CalendarRequest extends Request {
     appointmentsHash: any[];
     type: CalendarType;
     personalForm?: string[];
+    integrationId?: number[]
   };
 }
 
@@ -176,6 +177,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       type, 
       name, 
       padding, 
+      integrationId
     } = req.body;
 
   try {
@@ -194,7 +196,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     } else if(calendar.deleted) {
       res.status(200).json({
         success: true,
-        data: 'The calendar you are trying to update is deleted.',
+        data: 'The calendar you are trying to update was deleted.',
       });
       return;
     }
@@ -204,7 +206,23 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
     if (name) updateData.name = name;
-    if (padding) updateData.padding = padding;    
+    if (padding) updateData.padding = padding;  
+    // make sure to add to the integration array and not replacing it
+    if (integrationId) {
+      let calendarIntegrationId = [];
+      if(typeof calendar.integrationId === 'string') {
+        try {
+          calendarIntegrationId = JSON.parse(calendar.integrationId);
+        } catch (error) {
+          console.error('Failed to parse calendar.integrationId:', error);
+        }
+      }
+      if (Array.isArray(calendarIntegrationId)) {
+        updateData.integrationId = [...calendarIntegrationId, integrationId];
+      } else {
+        updateData.integrationId = [integrationId];
+      }
+    }
 
     const updatedCalendar = await prisma.calendar.update({
       where: {

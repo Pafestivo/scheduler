@@ -36,28 +36,23 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
     version: 'v3',
     auth: auth,
   })
-  // make the calendar work
 
-  // let date = new Date(); // get current date and time
-  // date.setMinutes(date.getMinutes() + 10); // add 10 minutes
-  // let isoDate = date.toISOString(); // get date and time in ISO format
+  const now = (new Date()).toISOString();
+
+  try {
+    const calendarEvents = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: now,
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
   
-  // const schedulingDate = dayjs(isoDate).startOf('hour')
+    res.status(200).json({
+      success: true,
+      data: calendarEvents.data.items
+    })
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
 
-  // await calendar.events.insert({
-  //   calendarId: 'primary',
-  //   conferenceDataVersion: 1,
-  //   requestBody: {
-  //     summary: `Ignite Call: test`,
-  //     description: 'test',
-  //     start: {
-  //       dateTime: schedulingDate.format(),
-  //     },
-  //     end: {
-  //       dateTime: schedulingDate.add(1, 'hour').format(),
-  //     },
-  //   },
-  // })
-
-  // return res.status(201).end()
 });

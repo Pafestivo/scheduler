@@ -52,7 +52,7 @@ model Calendar {
   userHash         String         // assuming this corresponds to userHash
   licenseHash      String         // assuming this corresponds to licenseHash
   appointmentsHash Json?          // assuming this corresponds to appointmentHash array
-  integrationHash  Int?           // assuming this corresponds to integrationHash
+  integrationId    Json?          // assuming this corresponds to integrationId
   isActive         Boolean        @default(true)
   type             CalendarType   @default(free)
   name             String

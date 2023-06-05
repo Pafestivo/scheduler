@@ -15,6 +15,8 @@ export const generateGoogleClient = async (userEmail:string) => {
     return null
   }
 
+  console.log(process.env.NEXT_PUBLIC_GOOGLE_ID)
+  console.log(process.env.NEXT_PUBLIC_GOOGLE_SECRET)
   const auth = new google.auth.OAuth2(
     process.env.NEXT_PUBLIC_GOOGLE_ID,
     process.env.NEXT_PUBLIC_GOOGLE_SECRET,
@@ -23,7 +25,7 @@ export const generateGoogleClient = async (userEmail:string) => {
   auth.setCredentials({
     access_token: accessToken,
     refresh_token: refreshToken,
-    expiry_date: expireAt ? expireAt * 1000 : null,
+    expiry_date: expireAt,
   })
 
   if (!expireAt) return auth

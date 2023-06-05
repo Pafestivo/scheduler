@@ -12,6 +12,7 @@ const HomePage = () => {
   // fix infinite loop
   useEffect(() => {
     const getUser = async () => {
+      if (loggedUser) return // break infinite loop by checking if a user already logged in
       const user = await getData("/auth/me")
       setLoggedUser(user)
     }
