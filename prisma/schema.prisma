@@ -62,6 +62,7 @@ model Calendar {
   hash             String         @unique  
   deleted          Boolean        @default(false)
   personalForm     Json?          // holds the questions for the personal form
+  appointmentsLength Int          @default(60) // in minutes
 }
 
 //
@@ -166,7 +167,6 @@ model Appointment {
   cancelTime   String?         // assuming timestamp and it is optional
   isConfirmed  Boolean           @default(false)
   answersArray Json?          // the answers to the personalForm questions
-  length       Int           // stored of type 'number' in amount of minutes
   hash         String           @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])

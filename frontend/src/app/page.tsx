@@ -9,19 +9,19 @@ const HomePage = () => {
   console.log('data', data)
   const [loggedUser, setLoggedUser] = useState(null)
 
-  // fix infinite loop
   useEffect(() => {
+    // fix unnecessary re-rendering
     const getUser = async () => {
-      if (loggedUser) return // break infinite loop by checking if a user already logged in
+      if (loggedUser) return;
+      if(data.data?.user && data.status === 'authenticated') {
+        const { email, name } = data.data?.user
+        await postData('/auth/register', {email, name})
+      }
       const user = await getData("/auth/me")
       setLoggedUser(user)
     }
-    if(data.data?.user && !loggedUser) {
-      const { email, name } = data.data?.user
-      postData('/auth/register', {email, name})
-    }
     getUser()
-  }, [data.data?.user, loggedUser])
+  }, [data.data?.user, loggedUser, data.status])
 
   return (
     <div>
