@@ -88,7 +88,19 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
 // @access  Public
 
 export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { email, password } = req.body;
+  const { email, password, provider } = req.body;
+
+  if (provider) {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) return next(new ErrorResponse({ message: 'Invalid credentials', statusCode: 401 }));
+
+    sendTokenResponse(user, 200, res);
+    return;
+  }
 
   // Validate email & password
   if (!email || !password) {

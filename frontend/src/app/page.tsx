@@ -19,9 +19,12 @@ const HomePage = () => {
     const registerUser = async () => {
       if (data.data?.user && !loggedUser) {
         const { email, name } = data.data?.user;
-        await postData('/auth/register', { email, name });
-        getUser(); // Call getUser after registering the user
+        const response = await postData('/auth/register', { email, name });
+        if (response.message === 'User already exists') {
+          await postData('/auth/login', { email, name, provider: true });
+        }
       }
+      getUser(); // Call getUser after registering the user
     };
 
     const initialize = async () => {
