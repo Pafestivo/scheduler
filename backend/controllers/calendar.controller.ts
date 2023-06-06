@@ -218,7 +218,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
     if (name) updateData.name = name;
-    if (padding) updateData.padding = padding;  
+    if (padding || padding === 0) updateData.padding = padding;  
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;  
     // make sure to add to the integration array and not replacing it
     if (integrationId) {
