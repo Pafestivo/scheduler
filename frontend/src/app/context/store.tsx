@@ -2,10 +2,7 @@
 
 import { createContext, useContext, Dispatch, SetStateAction, useState } from 'react';
 
-type DataType = {
-  firstName: string;
-};
-interface User {
+export interface User {
   acceptPromotions: boolean;
   accessToken: string;
   asWhatsapp: boolean;
@@ -21,25 +18,39 @@ interface User {
   type: string;
 }
 
+export interface UiAlert {
+  message: string | null;
+  code: number | null;
+  severity: 'success' | 'error' | 'info' | 'warning';
+}
 interface ContextProps {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
-  data: DataType[];
-  setData: Dispatch<SetStateAction<DataType[]>>;
+  alert: UiAlert | null;
+  setAlert: Dispatch<SetStateAction<UiAlert | null>>;
+  alertOpen: boolean;
+  setAlertOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
   user: null,
-  setUser: (): User => {},
-  data: [],
-  setData: (): DataType[] => [],
+  setUser: (): null => null,
+  alert: null,
+  setAlert: (): null => null,
+  alertOpen: false,
+  setAlertOpen: (): false => false,
 });
 //@ts-ignore
 export const GlobalContextProvider = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [data, setData] = useState<[] | DataType[]>([]);
+  const [alert, setAlert] = useState<UiAlert | null>(null);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
-  return <GlobalContext.Provider value={{ user, setUser, data, setData }}>{children}</GlobalContext.Provider>;
+  return (
+    <GlobalContext.Provider value={{ user, setUser, alert, setAlert, alertOpen, setAlertOpen }}>
+      {children}
+    </GlobalContext.Provider>
+  );
 };
 
 export const useGlobalContext = () => useContext(GlobalContext);

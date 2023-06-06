@@ -1,9 +1,9 @@
 import { Inter } from 'next/font/google';
-import Link from 'next/link';
 import { NextAuthProvider } from '../components/Provider';
 import '../styles/normalize.css';
 import { GlobalContextProvider } from './context/store';
 import Navbar from '@/components/Navbar';
+import AlertBar from '@/components/AlertSnackbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,10 +16,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <GlobalContextProvider>
-          <Navbar />
-          {/* <nav> */}
-          {/* <Link href={'/'}>
+        <NextAuthProvider>
+          <GlobalContextProvider>
+            <Navbar />
+            {/* <nav> */}
+            {/* <Link href={'/'}>
             <p>Home</p>
             </Link>
             
@@ -31,8 +32,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <p>Register for free</p>
             </Link>
           </nav> */}
-          <NextAuthProvider>{children}</NextAuthProvider>
-        </GlobalContextProvider>
+            {children}
+            <AlertBar />
+          </GlobalContextProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
