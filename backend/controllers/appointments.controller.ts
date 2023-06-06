@@ -23,7 +23,7 @@ interface AppointmentsRequest extends Request {
     time: string;
     hash?: string;
     transaction?: number;
-    answersArray?: string[];
+    answersArray?: { [key:string]:string };
   };
 }
 

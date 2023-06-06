@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { subDays } from "date-fns";
 //import calendarComponent.css
 import '../styles/calendarComponent.css'
-import { getData } from '@/utilities/serverRequests/serverRequests';
+import { getData, postData } from '@/utilities/serverRequests/serverRequests';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -19,6 +19,13 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [appointmentsLength, setAppointmentsLength] = useState(60);
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<{ startTime:string }[]>([]);
   const [padding, setPadding] = useState(0);
+  const [personalForm, setPersonalForm] = useState<{ question:string, inputType:string, options?: string[], required:boolean  }[]>([])
+  const [showFormPopup, setShowFormPopup] = useState(false);
+  const [loggedUser, setLoggedUser] = useState<{ hash?:string }>({});
+  const [calendarOwner, setCalendarOwner] = useState<string>('');
+  const [chosenAppointmentTime, setChosenAppointmentTime] = useState('')
+  const [answers, setAnswers] = useState<{ [key:string]:string }>({});
+
 
   const getCalendarAvailability = useCallback(async () => {
     const availability = await getData(`/availability/${calendarHash}`)
@@ -30,12 +37,21 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     return calendar.data
   }, [calendarHash])
 
+  const getLoggedUser = useCallback(async () => {
+    const user = await getData(`/auth/me`)
+    return user.data
+  }, [])
+
   const preparePage = useCallback(async () => {
     const calendar = await getCurrentCalendar()
+    const user = await getLoggedUser()
+    if (user.hash) setLoggedUser(user)
     setAppointmentsLength(calendar.appointmentsLength)
     setPadding(calendar.padding)
+    setPersonalForm(calendar.personalForm || [])
+    setCalendarOwner(calendar.userHash)
     setLoading(false)
-  }, [getCurrentCalendar])
+  }, [getCurrentCalendar, getLoggedUser])
 
   // on page load
   useEffect(() => {
@@ -122,8 +138,67 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     return `${newHours}:${newMinutes}`;
   };
 
+  const doesPersonalFormExist = (appointmentStartTime:string) => {
+    if(!loggedUser.hash) {
+      alert('Please log in to schedule an appointment');
+      return;
+  }
+
+    if(personalForm.length > 0) {
+      setShowFormPopup(true)
+      setChosenAppointmentTime(appointmentStartTime)
+    } else promptBooking(appointmentStartTime)
+  }
+
+  const promptBooking = async (appointmentStartTime: string, answers?: { [key:string]:string }) => {
+
+    if(calendarOwner == loggedUser.hash) {
+      alert("Can't book an appointment in your own calendar.")
+      return;
+    }
+
+    const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentStartTime}?`)
+    if(confirmed) {
+      await postData('/appointments', {
+        calendarHash,
+        userHash: loggedUser.hash,
+        date: startDate,
+        time: appointmentStartTime,
+        length: appointmentsLength,
+        answersArray: answers || []
+      })
+      alert('Appointment booked!')
+      setShowFormPopup(false)
+      setShowAvailableTime(false)
+      setAnswers({})
+    } else return;
+  }
+
   return (
     <div>
+
+      {showFormPopup && 
+        <div>
+          <h1>Answer the booker questions:</h1>
+          <form onSubmit={() => promptBooking(chosenAppointmentTime, answers)}>
+          {personalForm.map((question) => {
+            return (
+              <div key={question.question}>
+                <label htmlFor={question.question}>{question.question}{question.required ? '*' : ''}</label>
+                <input 
+                id={question.question} 
+                type={question.inputType} 
+                required={question.required} 
+                onChange={(e) => setAnswers({...answers, [question.question]: e.target.value})}
+                />
+              </div>
+            )
+          })}
+            <button type='submit'>Submit</button>
+          </form>
+        </div>
+      }
+
       <DatePicker
         selected={startDate}
         onChange={onDateClick}
@@ -141,7 +216,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
               <h1>Available appointments:</h1>
               {dailyAmountOfAppointments.length > 0 ? (
                 dailyAmountOfAppointments.map((appointment:{startTime: string}) => {
-                  return <h1 key={appointment.startTime}>{appointment.startTime}</h1>
+                  return <h1 onClick={() => doesPersonalFormExist(appointment.startTime)} key={appointment.startTime}>{appointment.startTime}</h1>
                 })
               ) : (
                 <h1>None, try another day...</h1>
