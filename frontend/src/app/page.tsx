@@ -6,18 +6,18 @@ import { useEffect, useState } from 'react';
 
 const HomePage = () => {
   const data = useSession();
-  const [loggedUser, setLoggedUser] = useState(null);
+  const [loggedUser, setLoggedUser] = useState<{ hash?: string }>({});
 
   useEffect(() => {
     // fix unnecessary re-rendering
     const getUser = async () => {
-      if (loggedUser) return; // Break infinite loop by checking if a user is already logged in
+      if (loggedUser.hash) return; // Break infinite loop by checking if a user is already logged in
       const user = await getData('/auth/me');
-      setLoggedUser(user);
+      setLoggedUser(user.data);
     };
 
     const registerUser = async () => {
-      if (data.data?.user && !loggedUser) {
+      if (data.data?.user && !loggedUser.hash) {
         const { email, name } = data.data?.user;
         const response = await postData('/auth/register', { email, name });
         if (response.message === 'User already exists') {
@@ -36,7 +36,7 @@ const HomePage = () => {
 
   return (
     <div>
-      {loggedUser ? <p>user is logged in</p> : <p>no user logged in</p>}
+      {loggedUser.hash ? <p>user is logged in</p> : <p>no user logged in</p>}
       <h1>Home Page</h1>
     </div>
   );

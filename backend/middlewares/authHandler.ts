@@ -28,9 +28,7 @@ export const protect = asyncHandler(async (req: UserRequest, res: Response, next
 
   // Make sure token exists
   if (!token) {
-    // 401 - not authorized
-    const message = 'Not authorized to access this route';
-    return next(new ErrorResponse({ message, statusCode: 401 }));
+    return next(console.error('No user logged in'))
   }
 
   try {

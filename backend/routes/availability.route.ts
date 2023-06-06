@@ -10,7 +10,7 @@ import { protect } from '../middlewares/authHandler.js';
 
 const router = express.Router();
 
-router.get('/availability/:calendarHash', protect, getAvailabilities)
+router.get('/availability/:calendarHash', getAvailabilities)
 router.post('/availability', protect, addAvailability)
 router.delete('/availability', protect, deleteAvailability)
 router.put('/availability', protect, updateAvailability)
