@@ -44,7 +44,6 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
   if(!date || !time) {
     return next(new ErrorResponse({ message: 'Missing information(date and time is required)', statusCode: 400 }));
   }
-  console.log(answersArray)
 
   try {
     const appointment = await prisma.appointment.create({
