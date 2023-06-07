@@ -2,10 +2,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { subDays } from "date-fns";
-//import calendarComponent.css
-import '../styles/calendarComponent.css'
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
+import { useGlobalContext } from '@/app/context/store';
+import FormInput from './FormInput';
+import FormSelectInput from './FormSelectInput';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -28,6 +28,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
   const [feedbackMessage, setFeedbackMessage] = useState<string>('')
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
+  const { user, alert, setAlert, setAlertOpen } = useGlobalContext()
 
 
   const getCalendarAvailability = useCallback(async () => {
@@ -57,29 +58,19 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     }
   }, [calendarHash])
 
-  const getLoggedUser = useCallback(async () => {
-    try {
-      const user = await getData(`/auth/me`)
-      return user.data
-    } catch(error) {
-      console.log('error getting logged user', error)
-    }
-  }, [])
-
   const preparePage = useCallback(async () => {
     const calendar = await getCurrentCalendar()
-    const user = await getLoggedUser()
     const appointments = await getCalendarAppointments()
     const availabilities = await getCalendarAvailability()
     setAllCalendarAvailabilities(availabilities)
     setAppointments(appointments || [])
-    if (user.hash) setLoggedUser(user)
+    if (user?.hash) setLoggedUser(user)
     setAppointmentsLength(calendar.appointmentsLength)
     setPadding(calendar.padding)
     setPersonalForm(calendar.personalForm || [])
     setCalendarOwner(calendar.userHash)
     setLoading(false)
-  }, [getCurrentCalendar, getLoggedUser, getCalendarAppointments, getCalendarAvailability])
+  }, [getCurrentCalendar, getCalendarAppointments, getCalendarAvailability, user])
 
   // on page load
   useEffect(() => {
@@ -166,38 +157,42 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     return `${newHours}:${newMinutes}`;
   };
 
-  const doesPersonalFormExist = (appointmentStartTime:string) => {
+  const doesPersonalFormExist = (appointmentStartTime: string) => {
     if(!loggedUser.hash) {
-      alert('Please log in to schedule an appointment');
+      setAlert({ message: 'Please log in to schedule an appointment', severity: 'warning', code: 0 })
+      setAlertOpen(true)
       return;
     }
 
     if(personalForm.length > 0) {
       setShowFormPopup(true)
       setChosenAppointmentTime(appointmentStartTime)
-    } else promptBooking(appointmentStartTime)
+    } else promptBooking()
   }
 
-  const promptBooking = async (appointmentStartTime: string, answers?: { [key:string]:string }) => {
+  const promptBooking = async (e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
+    e && e.preventDefault()
 
     if(calendarOwner == loggedUser.hash) {
-      alert("Can't book an appointment in your own calendar.")
+      setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 0 })
+      setAlertOpen(true)
       return;
     }
 
-    const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentStartTime}?`)
+    const confirmed = window.confirm(`Are you sure you want to book an appointment at ${chosenAppointmentTime}?`)
     if(confirmed) {
       await postData('/appointments', {
         calendarHash,
         userHash: loggedUser.hash,
         date: startDate,
-        time: appointmentStartTime,
+        time: chosenAppointmentTime,
         length: appointmentsLength,
         answersArray: answers || {}
       })
       const updatedAppointments = await getCalendarAppointments()
       setAppointments(updatedAppointments)
-      setFeedbackMessage('Appointment booked!')
+      setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 })
+      setAlertOpen(true)
       setShowFormPopup(false)
       setShowAvailableTime(false)
       setAnswers({})
@@ -271,31 +266,27 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       {showFormPopup && 
         <div>
           <h1>Answer the booker questions:</h1>
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            promptBooking(chosenAppointmentTime, answers)
-          }}>
-          {personalForm.map((question) => {
+          <form onSubmit={(e) => promptBooking(e, answers)}>
+          {personalForm.map((question, index) => {
             return (
               <div key={question.question}>
-                <label htmlFor={question.question}>{question.question}{question.required ? '*' : ''}</label>
+                {/* <label htmlFor={question.question}>{question.question}{question.required ? '*' : ''}</label> */}
                 {question.inputType === 'select' && question.options ? (
-                  <select 
-                    id={question.question}
-                    required={question.required}
-                    onChange={(e) => setAnswers({...answers, [question.question]: e.target.value})}
-                  >
-                    {Object.entries(question.options).map(([key, value]) => {
-                      return <option key={key} value={key}>{value}</option>
-                    })}
-                  </select>
+                  <FormSelectInput 
+                    label = {question.question}
+                    options = {question.options}
+                    state = {answers}
+                    setState = {setAnswers}
+                    />
                 ) : (
-                <input 
-                  id={question.question} 
-                  type={question.inputType}
-                  required={question.required} 
-                  onChange={(e) => setAnswers({...answers, [question.question]: e.target.value})}
-                />
+                <FormInput 
+                  name = {question.question}
+                  label = {question.question}
+                  title = {question.question}
+                  type = {question.inputType}
+                  fieldIdx = {index}
+                  setState={setAnswers}
+                  />
                 )}
                 
               </div>
@@ -305,8 +296,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
           </form>
         </div>
       }
-
-      <p>{feedbackMessage}</p>
 
       <DatePicker
         selected={startDate}

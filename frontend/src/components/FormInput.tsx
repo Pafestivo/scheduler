@@ -9,12 +9,14 @@ const FormInput = ({
   title,
   type,
   fieldIdx,
+  setState
 }: {
   name: string;
   label: string;
   title: string;
   type: string;
   fieldIdx: number;
+  setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
 }) => {
   const { alert, setAlert } = useGlobalContext();
 
@@ -33,6 +35,13 @@ const FormInput = ({
       margin="normal"
       onFocus={() => {
         setAlert(null);
+      }}
+      onChange={(e) => {
+        if(!setState) return;
+        setState((prev) => ({
+          ...prev,
+          [name]: e.target.value
+        }));
       }}
     ></TextField>
   );
