@@ -285,37 +285,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         setAnswers={setAnswers}  
         handleSubmit={promptBooking}
       />
-    {showFormPopup && 
-      <div>
-        <h1>Answer the booker questions:</h1>
-        <form onSubmit={(e) => promptBooking(e, answers)}>
-        {personalForm.map((question, index) => {
-          return (
-            <div key={question.question}>
-              {question.inputType === 'select' && question.options ? (
-                <FormSelectInput 
-                  label = {question.question}
-                  options = {question.options}
-                  setState = {setAnswers}
-                  />
-              ) : (
-              <FormInput 
-                name = {question.question}
-                label = {question.question}
-                title = {question.question}
-                type = {question.inputType}
-                fieldIdx = {index}
-                setState={setAnswers}
-                />
-              )}
-              
-            </div>
-          )
-        })}
-          <button type='submit'>Submit</button>
-        </form>
-      </div>
-    }
 
       <DatePicker
         selected={startDate}
