@@ -3,6 +3,7 @@ import * as React from 'react';
 import { AppBar, Box, Button, Container, IconButton, Menu, Toolbar, Typography } from '@mui/material';
 
 import MenuItem from '@mui/material/MenuItem';
+import { useState, useEffect } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useSession } from 'next-auth/react';
@@ -11,6 +12,7 @@ import { useGlobalContext } from '@/app/context/store';
 import theme from '@/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import UserMenu from './UserMenu';
+import { usePathname, useSearchParams } from 'next/navigation'
 
 const pages = ['HOME', 'Pricing', 'Blog'];
 
@@ -19,9 +21,10 @@ const WEBSITE_NAME = 'Cortex';
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const { user, setUser } = useGlobalContext();
+  const pathname = usePathname();
   const sessionData = useSession();
 
-  React.useEffect(() => {
+  useEffect(() => {
     // fix unnecessary re-rendering
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
@@ -60,7 +63,7 @@ function Navbar() {
 
   return (
     <>
-      {typeof window !== 'undefined' && !window.location.pathname.includes('/dashboard') && (
+      {!pathname.includes('/dashboard') && (
         <ThemeProvider theme={theme}>
           <AppBar position="static">
             <Container maxWidth="xl">
