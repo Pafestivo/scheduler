@@ -60,7 +60,7 @@ function Navbar() {
 
   return (
     <>
-      {!window.location.pathname.includes('/dashboard') && (
+      {typeof window !== 'undefined' && !window.location.pathname.includes('/dashboard') && (
         <ThemeProvider theme={theme}>
           <AppBar position="static">
             <Container maxWidth="xl">
