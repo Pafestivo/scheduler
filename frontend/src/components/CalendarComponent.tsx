@@ -158,12 +158,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   };
 
   const doesPersonalFormExist = (appointmentStartTime: string) => {
-    if(!loggedUser.hash) {
-      setAlert({ message: 'Please log in to schedule an appointment', severity: 'warning', code: 0 })
-      setAlertOpen(true)
-      return;
-    }
-
     if(personalForm.length > 0) {
       setShowFormPopup(true)
       setChosenAppointmentTime(appointmentStartTime)
@@ -173,7 +167,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const promptBooking = async (e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
 
-    if(calendarOwner == loggedUser.hash) {
+    if(loggedUser.hash && calendarOwner == loggedUser.hash) {
       setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 0 })
       setAlertOpen(true)
       return;

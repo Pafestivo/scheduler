@@ -12,9 +12,9 @@ import { useGlobalContext } from '@/app/context/store';
 import theme from '@/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import UserMenu from './UserMenu';
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
-const pages = ['HOME', 'Pricing', 'Blog'];
+const pages = ['HOME', 'Pricing'];
 
 const WEBSITE_NAME = 'Cortex';
 
@@ -63,7 +63,7 @@ function Navbar() {
 
   return (
     <>
-      {!pathname.includes('/dashboard') && (
+      {pathname === '/' && (
         <ThemeProvider theme={theme}>
           <AppBar position="static">
             <Container maxWidth="xl">
