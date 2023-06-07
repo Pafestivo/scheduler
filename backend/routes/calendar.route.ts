@@ -6,6 +6,7 @@ import {
   getCalendar,
   deleteCalendar,
   updateCalendar,
+  getDeletedCalendars
 } from '../controllers/calendar.controller.js';
 import { protect } from '../middlewares/authHandler.js';
 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post('/calendars', protect, addCalendar);
 router.get('/calendars/:userHash', protect, getCalendars);
+router.get('/calendars/deleted/:userHash', protect, getDeletedCalendars);
 router.get('/calendars/single/:hash', getCalendar);
 router.delete('/calendars/:hash', protect ,deleteCalendar);
 router.put('/calendars', protect, updateCalendar);

@@ -97,6 +97,38 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
   }
 });
 
+// @desc    Get all the deleted user calendars
+// @route   GET /api/v1/calendars/deleted/:userHash
+// @access  Private
+
+export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { userHash } = req.params;
+
+  try {
+    const calendars = await prisma.calendar.findMany({
+      where: {
+        userHash,
+        deleted: true
+      }
+    })
+
+    if(calendars.length === 0) {
+      res.status(200).json({
+        success: true,
+        data: 'No deleted calendars for given user.',
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        amount: calendars.length,
+        data: calendars,
+      });
+    }
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
 // @desc    Get single calendar
 // @route   GET /api/v1/calendars/single/:hash
 // @access  Public
