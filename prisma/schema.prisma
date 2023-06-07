@@ -157,8 +157,8 @@ enum AppointmentStatus {
 
 model Appointment {
   id           Int               @id @default(autoincrement())
-  calendarHash String               // assuming this corresponds to calendarHash
-  userHash     String               // assuming this corresponds to userHash
+  calendarHash String            // assuming this corresponds to calendarHash
+  userHash     String?           // assuming this corresponds to userHash
   timestamp    DateTime?         @default(now())
   status       AppointmentStatus
   date         String          // the date of the meeting in format mm/dd/yy

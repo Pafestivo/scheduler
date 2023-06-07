@@ -17,7 +17,7 @@ enum AppointmentStatus {
 interface AppointmentsRequest extends Request {
   body: {
     calendarHash: string;
-    userHash: string;
+    userHash?: string;
     status?: AppointmentStatus;
     date: string;
     time: string;
@@ -33,13 +33,10 @@ interface AppointmentsRequest extends Request {
 
 export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
   const { calendarHash, userHash, date, time, answersArray } = req.body;
-  const hash = generateHash(userHash, calendarHash, date);
+  const hash = generateHash(calendarHash, date);
 
   if(!calendarHash) {
     return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
-  }
-  if(!userHash) {
-    return next(new ErrorResponse({ message: 'No user hash provided', statusCode: 400 }));
   }
   if(!date || !time) {
     return next(new ErrorResponse({ message: 'Missing information(date and time is required)', statusCode: 400 }));
@@ -49,7 +46,7 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
     const appointment = await prisma.appointment.create({
       data: {
         calendarHash,
-        userHash,
+        userHash: userHash || 'Guest',
         status: 'new',
         date,
         time,
