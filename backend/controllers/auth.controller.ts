@@ -49,6 +49,11 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
   const hash = generateHash(email);
   let hashedPassword;
   // Create user
+  const findIntegration = await prisma.integration.findFirst({
+    where: {
+      userEmail: email,
+    },
+  });
   try {
     const findUser = await prisma.user.findUnique({
       where: {
@@ -72,7 +77,7 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
           phone,
           name,
           hash,
-          provider,
+          provider: findIntegration ? findIntegration.provider : provider,
         },
       });
 
@@ -88,7 +93,19 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
 // @access  Public
 
 export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { email, password } = req.body;
+  const { email, password, provider } = req.body;
+
+  if (provider) {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) return next(new ErrorResponse({ message: 'Invalid credentials', statusCode: 401 }));
+
+    sendTokenResponse(user, 200, res);
+    return;
+  }
 
   // Validate email & password
   if (!email || !password) {
@@ -125,7 +142,7 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
 export const logoutUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   res.clearCookie('token', {
     // Set cookie to expire in 10 seconds
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
