@@ -275,7 +275,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
                   <FormSelectInput 
                     label = {question.question}
                     options = {question.options}
-                    state = {answers}
                     setState = {setAnswers}
                     />
                 ) : (

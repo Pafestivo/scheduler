@@ -9,11 +9,10 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 interface FormSelectInputProps {
   label: string;
   options: string[];
-  state?: { [key:string]:string };
   setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
 }
 
-const FormSelectInput = ({ label, options, state, setState }: FormSelectInputProps) => {
+const FormSelectInput = ({ label, options, setState }: FormSelectInputProps) => {
 
   const [value, setValue] = useState('');
 

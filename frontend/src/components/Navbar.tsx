@@ -57,9 +57,10 @@ function Navbar() {
     setAnchorElNav(null);
   };
 
+
   return (
     <>
-      {!user && (
+      {!window.location.pathname.includes('/dashboard') && (
         <ThemeProvider theme={theme}>
           <AppBar position="static">
             <Container maxWidth="xl">
