@@ -6,6 +6,7 @@ import { getData, postData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import FormInput from './FormInput';
 import FormSelectInput from './FormSelectInput';
+import FormDialog from './FormDialog';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -166,6 +167,25 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const promptBooking = async (e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
+    
+    if(e) {
+      let formFilledProperly = true;
+      personalForm?.forEach((question, index) => {
+        console.log(answers)
+        if(question.required && answers && !answers[question.question]) {
+          setAlert({ 
+            message: question.question, 
+            severity: 'error', 
+            code: index 
+          })
+          setAlertOpen(true)
+          formFilledProperly = false;
+          return
+        }
+      })
+      if(!formFilledProperly) return;
+    }
+    
 
     if(loggedUser.hash && calendarOwner == loggedUser.hash) {
       setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 0 })
@@ -257,38 +277,14 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   return (
     <div>
 
-      {showFormPopup && 
-        <div>
-          <h1>Answer the booker questions:</h1>
-          <form onSubmit={(e) => promptBooking(e, answers)}>
-          {personalForm.map((question, index) => {
-            return (
-              <div key={question.question}>
-                {/* <label htmlFor={question.question}>{question.question}{question.required ? '*' : ''}</label> */}
-                {question.inputType === 'select' && question.options ? (
-                  <FormSelectInput 
-                    label = {question.question}
-                    options = {question.options}
-                    setState = {setAnswers}
-                    />
-                ) : (
-                <FormInput 
-                  name = {question.question}
-                  label = {question.question}
-                  title = {question.question}
-                  type = {question.inputType}
-                  fieldIdx = {index}
-                  setState={setAnswers}
-                  />
-                )}
-                
-              </div>
-            )
-          })}
-            <button type='submit'>Submit</button>
-          </form>
-        </div>
-      }
+      <FormDialog 
+        open={showFormPopup} 
+        setOpen={setShowFormPopup} 
+        personalForm={personalForm} 
+        answers={answers}
+        setAnswers={setAnswers}  
+        handleSubmit={promptBooking}
+      />
 
       <DatePicker
         selected={startDate}
