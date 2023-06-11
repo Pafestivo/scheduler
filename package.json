@@ -14,6 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/outboxltd/wecome-events.git"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "author": "Outbox ltd",
   "license": "ISC",
   "bugs": {
