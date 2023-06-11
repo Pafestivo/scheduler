@@ -67,7 +67,7 @@ const handler = NextAuth({
     },
 
     redirect({ url, baseUrl }) {
-      return baseUrl;
+      return process.env.NEXT_PUBLIC_BASE_URL || baseUrl;
     },
   },
 });
