@@ -49,7 +49,7 @@ enum CalendarType {
 
 model Calendar {
   id               Int            @id @default(autoincrement())
-  userHash         String         // assuming this corresponds to userHash
+  userHash         Json         // assuming this corresponds to userHash
   licenseHash      String         // assuming this corresponds to licenseHash
   appointmentsHash Json?          // assuming this corresponds to appointmentHash array
   integrationId    Json?          // assuming this corresponds to integrationId
@@ -63,6 +63,9 @@ model Calendar {
   deleted          Boolean        @default(false)
   personalForm     Json?          // holds the questions for the personal form
   appointmentsLength Int          @default(60) // in minutes
+  image            String?
+  description      String?
+  password         String?
 }
 
 //

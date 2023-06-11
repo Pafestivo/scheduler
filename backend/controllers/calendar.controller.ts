@@ -18,7 +18,7 @@ interface CalendarRequest extends Request {
     appointmentsHash: any[];
     type: CalendarType;
     personalForm?: string[];
-    integrationId?: number[]
+    integrationId?: number[];
     appointmentsLength: number;
   };
 }
@@ -31,28 +31,29 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
   const { userHash, name, padding, availabilityHash, personalForm, appointmentsLength } = req.body;
   const hash = generateHash(userHash, name);
   // Add calendar
+  const hashArray = [hash];
   try {
     const calendar = await prisma.calendar.create({
       data: {
-        userHash,
+        userHash: hashArray,
         name,
         padding,
         availabilityHash,
-        licenseHash: '', 
+        licenseHash: '',
         hash,
         personalForm,
-        appointmentsLength
+        appointmentsLength,
       },
     });
 
     const user = await prisma.user.update({
       where: {
-        hash: userHash
+        hash: userHash,
       },
       data: {
-        type: 'vendor'
-      }
-    })
+        type: 'vendor',
+      },
+    });
 
     const response = excludeFields(calendar, ['licenseHash', 'timestamp']);
 
@@ -60,7 +61,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
       success: true,
       data: response,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
 });
@@ -75,12 +76,14 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
   try {
     const calendars = await prisma.calendar.findMany({
       where: {
-        userHash,
-        deleted: false
-      }
-    })
+        userHash: {
+          array_contains: userHash,
+        },
+        deleted: false,
+      },
+    });
 
-    if(calendars.length === 0) {
+    if (calendars.length === 0) {
       res.status(200).json({
         success: true,
         data: 'No calendars found for given user.',
@@ -92,7 +95,7 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
         data: calendars,
       });
     }
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -107,12 +110,14 @@ export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res
   try {
     const calendars = await prisma.calendar.findMany({
       where: {
-        userHash,
-        deleted: true
-      }
-    })
+        userHash: {
+          array_contains: userHash,
+        },
+        deleted: true,
+      },
+    });
 
-    if(calendars.length === 0) {
+    if (calendars.length === 0) {
       res.status(200).json({
         success: true,
         data: 'No deleted calendars for given user.',
@@ -124,7 +129,7 @@ export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res
         data: calendars,
       });
     }
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -139,16 +144,16 @@ export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {
-        hash
-      }
-    })
+        hash,
+      },
+    });
 
-    if(!calendar) {
+    if (!calendar) {
       res.status(200).json({
         success: true,
         data: 'No calendar with given hash was found.',
       });
-    } else if(calendar.deleted) {
+    } else if (calendar.deleted) {
       res.status(200).json({
         success: true,
         data: 'The calendar you are looking for was deleted.',
@@ -159,7 +164,7 @@ export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         data: calendar,
       });
     }
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -174,17 +179,17 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {
-        hash
-      }
-    })
+        hash,
+      },
+    });
 
-    if(!calendar) {
+    if (!calendar) {
       res.status(200).json({
         success: true,
         data: 'No calendar with given hash was found.',
       });
       return;
-    } else if(calendar.deleted) {
+    } else if (calendar.deleted) {
       res.status(200).json({
         success: true,
         data: 'The calendar you are looking for was already deleted.',
@@ -194,17 +199,18 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 
     await prisma.calendar.update({
       where: {
-        hash
+        hash,
       },
       data: {
-        deleted: true
-      }});
+        deleted: true,
+      },
+    });
 
     res.status(200).json({
       success: true,
       data: 'Calendar deleted successfully.',
-    })
-  } catch (error:any) {
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -214,30 +220,22 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 // @access  Private
 
 export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { 
-      hash,
-      appointmentsHash, 
-      type, 
-      name, 
-      padding, 
-      integrationId,
-      appointmentsLength
-    } = req.body;
+  const { hash, appointmentsHash, type, name, padding, integrationId, appointmentsLength } = req.body;
 
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {
-        hash
-      }
-    })
+        hash,
+      },
+    });
 
-    if(!calendar) {
+    if (!calendar) {
       res.status(200).json({
         success: true,
         data: 'No calendar with given hash was found.',
       });
       return;
-    } else if(calendar.deleted) {
+    } else if (calendar.deleted) {
       res.status(200).json({
         success: true,
         data: 'The calendar you are trying to update was deleted.',
@@ -250,12 +248,12 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
     if (name) updateData.name = name;
-    if (padding || padding === 0) updateData.padding = padding;  
-    if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;  
+    if (padding || padding === 0) updateData.padding = padding;
+    if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
     // make sure to add to the integration array and not replacing it
     if (integrationId) {
       let calendarIntegrationId = [];
-      if(typeof calendar.integrationId === 'string') {
+      if (typeof calendar.integrationId === 'string') {
         try {
           calendarIntegrationId = JSON.parse(calendar.integrationId);
         } catch (error) {
@@ -271,16 +269,16 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 
     const updatedCalendar = await prisma.calendar.update({
       where: {
-        hash
+        hash,
       },
-      data: updateData
+      data: updateData,
     });
 
     res.status(200).json({
       success: true,
       data: updatedCalendar,
-    })
-  } catch (error:any) {
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
