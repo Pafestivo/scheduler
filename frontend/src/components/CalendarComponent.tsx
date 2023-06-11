@@ -1,11 +1,9 @@
 "use client"
 import React, { useEffect, useState, useCallback } from 'react'
-import DatePicker from "react-datepicker";
+import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
-import FormInput from './FormInput';
-import FormSelectInput from './FormSelectInput';
 import FormDialog from './FormDialog';
 
 interface CalendarComponentProps {
@@ -258,11 +256,11 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         year: "numeric",
       }).split('/').reverse().join('-')
       
-      appointments.forEach((appointment) => {
+      for (const appointment of appointments) {
         if(appointment.date.split('T')[0] == currentlyCheckedDate) {
           amountOfBookedAppointments += 1;
         } 
-      });      
+      }     
 
       if (amountOfBookedAppointments >= maxAppointments) {
         isWorkDay = false;
@@ -284,6 +282,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         handleSubmit={promptBooking}
       />
 
+      {/* @ts-ignore */}
       <DatePicker
         selected={startDate}
         onChange={onDateClick}

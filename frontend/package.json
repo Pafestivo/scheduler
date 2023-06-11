@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
+  },
+  "resolutions": {
+    "@types/react": "17.0.30"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -25,6 +29,6 @@
     "react-datepicker": "^4.13.0",
     "react-dom": "18.2.0",
     "recharts": "^2.6.2",
-    "typescript": "5.0.4"
+    "typescript": "^5.1.3"
   }
 }
