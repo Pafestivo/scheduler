@@ -15,7 +15,6 @@ interface CalendarComponentProps {
 const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [startDate, setStartDate] = useState(new Date());
   const [showAvailableTime, setShowAvailableTime] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [dailyAvailability, setDailyAvailability] = useState<{ startTime: string; endTime: string; }[]>([]);
   const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<{ day: number; startTime: string; endTime: string; }[]>([]);
   const [appointmentsLength, setAppointmentsLength] = useState(60);
@@ -27,9 +26,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [calendarOwner, setCalendarOwner] = useState<string>('');
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('')
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
-  const [feedbackMessage, setFeedbackMessage] = useState<string>('')
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
-  const { user, alert, setAlert, setAlertOpen } = useGlobalContext()
+  const { user, setAlert, setAlertOpen, setLoading, loading } = useGlobalContext()
 
 
   const getCalendarAvailability = useCallback(async () => {
@@ -71,7 +69,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setPersonalForm(calendar.personalForm || [])
     setCalendarOwner(calendar.userHash)
     setLoading(false)
-  }, [getCurrentCalendar, getCalendarAppointments, getCalendarAvailability, user])
+  }, [getCurrentCalendar, getCalendarAppointments, getCalendarAvailability, user, setLoading])
 
   // on page load
   useEffect(() => {
@@ -80,7 +78,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const onDateClick = async (date:Date) => {
     setStartDate(date);
-    setLoading(true);
     setShowAvailableTime(true);
     const currentDayAvailabilities = await getDailyAvailability(date); 
     const timeWorking = getWorkingTimeInMinutes(currentDayAvailabilities);
@@ -167,7 +164,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const promptBooking = async (e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
-    
     if(e) {
       let formFilledProperly = true;
       personalForm?.forEach((question, index) => {
@@ -195,6 +191,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
     const confirmed = window.confirm(`Are you sure you want to book an appointment at ${chosenAppointmentTime}?`)
     if(confirmed) {
+      setShowFormPopup(false)
+      setLoading(true)
       await postData('/appointments', {
         calendarHash,
         userHash: loggedUser.hash,
@@ -207,9 +205,9 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       setAppointments(updatedAppointments)
       setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 })
       setAlertOpen(true)
-      setShowFormPopup(false)
       setShowAvailableTime(false)
       setAnswers({})
+      setLoading(false)
     } else return;
   }
 
@@ -296,10 +294,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       />
 
       <div>
-        { loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          showAvailableTime ? (
+        {showAvailableTime && (
             <div>
               <h1>Available appointments:</h1>
               {dailyAmountOfAppointments.length > 0 ? (
@@ -319,10 +314,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
                 <h1>None, try another day...</h1>
               ) }
             </div>
-          ) : (
-            null
           )
-        )}
+        }
       </div>
     </div>
 

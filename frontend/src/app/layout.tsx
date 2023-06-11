@@ -4,6 +4,7 @@ import '../styles/normalize.css';
 import { GlobalContextProvider } from './context/store';
 import Navbar from '@/components/Navbar';
 import AlertBar from '@/components/AlertSnackbar';
+import GlobalSpinner from '@/components/GlobalSpinner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </nav> */}
             {children}
             <AlertBar />
+            <GlobalSpinner />
           </GlobalContextProvider>
         </NextAuthProvider>
       </body>

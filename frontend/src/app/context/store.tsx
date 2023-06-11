@@ -30,6 +30,8 @@ interface ContextProps {
   setAlert: Dispatch<SetStateAction<UiAlert | null>>;
   alertOpen: boolean;
   setAlertOpen: Dispatch<SetStateAction<boolean>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -39,15 +41,18 @@ const GlobalContext = createContext<ContextProps>({
   setAlert: (): null => null,
   alertOpen: false,
   setAlertOpen: (): false => false,
+  loading: false,
+  setLoading: (): false => false,
 });
 //@ts-ignore
 export const GlobalContextProvider = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [alert, setAlert] = useState<UiAlert | null>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   return (
-    <GlobalContext.Provider value={{ user, setUser, alert, setAlert, alertOpen, setAlertOpen }}>
+    <GlobalContext.Provider value={{ user, setUser, alert, setAlert, alertOpen, setAlertOpen, loading, setLoading }}>
       {children}
     </GlobalContext.Provider>
   );
