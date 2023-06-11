@@ -5,6 +5,7 @@ import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import excludeFields from '../utils/excludeFields.js';
 import { CalendarType } from '@prisma/client';
+import { ca } from 'date-fns/locale';
 
 interface CalendarRequest extends Request {
   body: {
@@ -83,7 +84,6 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
       },
     });
 
-
     if (calendars.length === 0) {
       res.status(200).json({
         success: true,
@@ -141,13 +141,15 @@ export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res
 
 export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { hash } = req.params;
+  console.log(hash);
 
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {
-        hash,
+        hash: hash,
       },
     });
+    console.log(calendar);
 
     if (!calendar) {
       res.status(200).json({
@@ -259,7 +261,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
         updateData.integrationId = [integrationId];
       }
     }
-    if(userHash) {
+    if (userHash) {
       if (Array.isArray(calendar.userHash)) {
         updateData.userHash = [...calendar.userHash, userHash];
       } else {

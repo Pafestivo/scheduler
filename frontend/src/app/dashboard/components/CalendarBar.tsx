@@ -2,11 +2,12 @@
 import React, { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Paper, Stack, Avatar, Typography, Badge } from '@mui/material';
-import { Calendar } from '@/utilities/types';
+// import { Calendar } from '@/utilities/types';
 import cortexIcon from '../../../assets/Icon.webp';
 
 import Link from 'next/link';
 import ActionBox from './ActionBox';
+import { Calendar } from '@/utilities/types';
 const CalendarBar = ({ calendar }: { calendar: Calendar }) => {
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

@@ -1,36 +1,47 @@
 'use client';
 import * as React from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import {
+  CssBaseline,
+  Box,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  IconButton,
+  Container,
+  Grid,
+  Paper,
+  Link,
+} from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
-import Box from '@mui/material/Box';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
-import Chart from './Chart';
-import Deposits from './Deposits';
-import Orders from './Orders';
+import { secondaryListItems } from './listItems';
 import UserMenu from '@/components/UserMenu';
 import theme from '@/theme';
+import DashBoardSettingsList from './DashBoardSettingsList';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import FeedIcon from '@mui/icons-material/Feed';
+import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import GeneralSettings from './GeneralSettings';
+import AvailabilitySettings from './AvailabilitySettings';
+import BookingSettings from './BookingSettings';
+import NotificationSettings from './NotificationSettings';
+import IntegrationSettings from './IntegrationSettings';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { getData } from '@/utilities/serverRequests/serverRequests';
+import { Calendar } from '@prisma/client';
 
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+        Cortex
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -89,7 +100,33 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 export default function FullDashboard() {
+  const params = useParams();
+  const [calendar, setCalendar] = React.useState<null | Calendar>(null);
+  React.useEffect(() => {
+    const getCalendar = async () => {
+      const response = await getData(`/calendars/single/${params.hash}`);
+      setCalendar(response.data);
+    };
+    getCalendar();
+  }, [params.hash]);
+  const SETTING_COMPONENTS = [
+    { name: 'General', icon: <DashboardIcon />, component: <GeneralSettings hash={calendar?.hash} /> },
+    { name: 'Times & Availability', icon: <ScheduleIcon />, component: <AvailabilitySettings hash={calendar?.hash} /> },
+    { name: 'Booking form', icon: <FeedIcon />, component: <BookingSettings hash={calendar?.hash} /> },
+    {
+      name: 'Notifications and event details',
+      icon: <NotificationsActiveIcon />,
+      component: <NotificationSettings hash={calendar?.hash} />,
+    },
+    {
+      name: 'Integrations',
+      icon: <IntegrationInstructionsIcon />,
+      component: <IntegrationSettings hash={calendar?.hash} />,
+    },
+  ];
+
   const [open, setOpen] = React.useState(true);
+  const [activeSetting, setActiveSetting] = React.useState<null | number>(null);
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -119,11 +156,6 @@ export default function FullDashboard() {
             <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
               Dashboard
             </Typography>
-            {/* <IconButton color="inherit">
-              <Badge badgeContent={46} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton> */}
             <UserMenu />
           </Toolbar>
         </AppBar>
@@ -142,7 +174,7 @@ export default function FullDashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            <DashBoardSettingsList setActiveSetting={setActiveSetting} list={SETTING_COMPONENTS} />
             <Divider sx={{ my: 1 }} />
             {secondaryListItems}
           </List>
@@ -160,7 +192,6 @@ export default function FullDashboard() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
               <Grid item xs={12} md={8} lg={9}>
                 <Paper
                   sx={{
@@ -170,26 +201,11 @@ export default function FullDashboard() {
                     height: 240,
                   }}
                 >
-                  {/* <Chart /> */}
-                </Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
+                  {activeSetting !== null && calendar ? (
+                    SETTING_COMPONENTS[activeSetting].component
+                  ) : calendar ? (
+                    <GeneralSettings hash={calendar.hash} />
+                  ) : null}
                 </Paper>
               </Grid>
             </Grid>

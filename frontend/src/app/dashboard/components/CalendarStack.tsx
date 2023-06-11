@@ -5,7 +5,7 @@ import CalendarBar from './CalendarBar';
 const data = [
   {
     id: 37,
-    userHash: '2610c0083667a579260dc5af6fc6e372f3d8c9a26b366706f171f7ef80a33538',
+    userHash: ['2610c0083667a579260dc5af6fc6e372f3d8c9a26b366706f171f7ef80a33538'],
     licenseHash: '',
     appointmentsHash: [],
     integrationId: null,
@@ -44,7 +44,7 @@ const data = [
   },
   {
     id: Math.floor(Math.random() * 100),
-    userHash: 'random-string1',
+    userHash: ['random-string1'],
     licenseHash: 'random-string2',
     appointmentsHash: ['random-string3', 'random-string4'],
     integrationId: null,
@@ -83,7 +83,7 @@ const data = [
   },
   {
     id: Math.floor(Math.random() * 100),
-    userHash: 'random-string8',
+    userHash: ['random-string8'],
     licenseHash: 'random-string9',
     appointmentsHash: ['random-string10', 'random-string11', 'random-string12'],
     integrationId: null,

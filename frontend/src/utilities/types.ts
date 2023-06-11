@@ -7,7 +7,7 @@ export type PersonalForm = {
 
 export interface Calendar {
   id: number;
-  userHash: string;
+  userHash: string[];
   licenseHash: string;
   appointmentsHash: string[];
   integrationId: string | null;
@@ -22,4 +22,6 @@ export interface Calendar {
   personalForm?: PersonalForm[];
   appointmentsLength: number;
   image?: string;
+  description?: string;
+  password?: string;
 }
