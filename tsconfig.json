@@ -9,7 +9,6 @@
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
-    "watch": false,
     "moduleResolution": "node",
     "skipLibCheck": true
     // "resolveJsonModule": true
