@@ -70,7 +70,7 @@ export default function ShareUrlModal({
       setIframe(iframe);
     };
     generateIframeScript();
-  }, []);
+  }, [hash, url]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
