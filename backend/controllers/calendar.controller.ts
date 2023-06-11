@@ -31,7 +31,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
   const { userHash, name, padding, availabilityHash, personalForm, appointmentsLength } = req.body;
   const hash = generateHash(userHash, name);
   // Add calendar
-  const hashArray = [hash];
+  const hashArray = [userHash];
   try {
     const calendar = await prisma.calendar.create({
       data: {
@@ -82,6 +82,7 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
         deleted: false,
       },
     });
+
 
     if (calendars.length === 0) {
       res.status(200).json({
@@ -220,7 +221,7 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 // @access  Private
 
 export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { hash, appointmentsHash, type, name, padding, integrationId, appointmentsLength } = req.body;
+  const { hash, appointmentsHash, type, name, padding, integrationId, appointmentsLength, userHash } = req.body;
 
   try {
     const calendar = await prisma.calendar.findUnique({
@@ -252,18 +253,17 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
     // make sure to add to the integration array and not replacing it
     if (integrationId) {
-      let calendarIntegrationId = [];
-      if (typeof calendar.integrationId === 'string') {
-        try {
-          calendarIntegrationId = JSON.parse(calendar.integrationId);
-        } catch (error) {
-          console.error('Failed to parse calendar.integrationId:', error);
-        }
-      }
-      if (Array.isArray(calendarIntegrationId)) {
-        updateData.integrationId = [...calendarIntegrationId, integrationId];
+      if (Array.isArray(calendar.integrationId)) {
+        updateData.integrationId = [...calendar.integrationId, integrationId];
       } else {
         updateData.integrationId = [integrationId];
+      }
+    }
+    if(userHash) {
+      if (Array.isArray(calendar.userHash)) {
+        updateData.userHash = [...calendar.userHash, userHash];
+      } else {
+        updateData.userHash = [userHash];
       }
     }
 
