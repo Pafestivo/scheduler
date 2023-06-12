@@ -1,20 +1,14 @@
+import { Calendar } from '@prisma/client';
 import React from 'react';
-interface generalSettingsProps {
-  calendar: {
-    hash: string; 
-    name: string; 
-    image: string | null; 
-    description: string | null;
-  }
-}
 
-const GeneralSettings = ({ calendar }: generalSettingsProps) => {
-  return (
-    <div>
-      <form>
-      </form>
-    </div>
-  )
+const GeneralSettings = ({
+  calendar,
+  setCalendar,
+}: {
+  calendar: Calendar | null;
+  setCalendar: React.Dispatch<React.SetStateAction<Calendar | null>>;
+}) => {
+  return <div>GeneralSettings</div>;
 };
 
 export default GeneralSettings;

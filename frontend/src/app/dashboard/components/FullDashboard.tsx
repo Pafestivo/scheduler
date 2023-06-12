@@ -110,18 +110,30 @@ export default function FullDashboard() {
     getCalendar();
   }, [params.hash]);
   const SETTING_COMPONENTS = [
-    { name: 'General', icon: <DashboardIcon />, component: <GeneralSettings calendar={calendar} /> },
-    { name: 'Times & Availability', icon: <ScheduleIcon />, component: <AvailabilitySettings calendar={calendar} /> },
-    { name: 'Booking form', icon: <FeedIcon />, component: <BookingSettings calendar={calendar} /> },
+    {
+      name: 'General',
+      icon: <DashboardIcon />,
+      component: <GeneralSettings calendar={calendar} setCalendar={setCalendar} />,
+    },
+    {
+      name: 'Times & Availability',
+      icon: <ScheduleIcon />,
+      component: <AvailabilitySettings calendar={calendar} setCalendar={setCalendar} />,
+    },
+    {
+      name: 'Booking form',
+      icon: <FeedIcon />,
+      component: <BookingSettings calendar={calendar} setCalendar={setCalendar} />,
+    },
     {
       name: 'Notifications and event details',
       icon: <NotificationsActiveIcon />,
-      component: <NotificationSettings calendar={calendar} />,
+      component: <NotificationSettings calendar={calendar} setCalendar={setCalendar} />,
     },
     {
       name: 'Integrations',
       icon: <IntegrationInstructionsIcon />,
-      component: <IntegrationSettings calendar={calendar} />,
+      component: <IntegrationSettings calendar={calendar} setCalendar={setCalendar} />,
     },
   ];
 
@@ -204,7 +216,7 @@ export default function FullDashboard() {
                   {activeSetting !== null && calendar ? (
                     SETTING_COMPONENTS[activeSetting].component
                   ) : calendar ? (
-                    <GeneralSettings calendar={calendar} />
+                    <GeneralSettings calendar={calendar} setCalendar={setCalendar} />
                   ) : null}
                 </Paper>
               </Grid>
