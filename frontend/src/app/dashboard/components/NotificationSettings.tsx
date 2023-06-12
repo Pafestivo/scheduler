@@ -1,13 +1,6 @@
-import { Calendar } from '@prisma/client';
 import React from 'react';
 
-const NotificationSettings = ({
-  calendar,
-  setCalendar,
-}: {
-  calendar: Calendar | null;
-  setCalendar: React.Dispatch<React.SetStateAction<Calendar | null>>;
-}) => {
+const NotificationSettings = () => {
   return <div>NotificationSettings</div>;
 };
 

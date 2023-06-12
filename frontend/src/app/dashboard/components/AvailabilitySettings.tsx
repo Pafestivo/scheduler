@@ -3,15 +3,8 @@ import TabSettings from './TabSettings';
 import Availability from './Availability';
 import Duration from './Duration';
 import Timezone from './Timezone';
-import { Calendar } from '@prisma/client';
 
-const AvailabilitySettings = ({
-  calendar,
-  setCalendar,
-}: {
-  calendar: Calendar | null;
-  setCalendar: React.Dispatch<React.SetStateAction<Calendar | null>>;
-}) => {
+const AvailabilitySettings = () => {
   const COMPONENTS = [
     {
       name: 'Availability',

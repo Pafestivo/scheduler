@@ -35,6 +35,7 @@ import IntegrationSettings from './IntegrationSettings';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { getData } from '@/utilities/serverRequests/serverRequests';
 import { Calendar } from '@prisma/client';
+import { useGlobalContext } from '@/app/context/store';
 
 function Copyright(props: any) {
   return (
@@ -101,39 +102,39 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function FullDashboard() {
   const params = useParams();
-  const [calendar, setCalendar] = React.useState<null | Calendar>(null);
+  const { calendar, setCalendar } = useGlobalContext();
   React.useEffect(() => {
     const getCalendar = async () => {
       const response = await getData(`/calendars/single/${params.hash}`);
       setCalendar(response.data);
     };
     getCalendar();
-  }, [params.hash]);
+  }, [params.hash, setCalendar]);
   const SETTING_COMPONENTS = [
     {
       name: 'General',
       icon: <DashboardIcon />,
-      component: <GeneralSettings calendar={calendar} setCalendar={setCalendar} />,
+      component: <GeneralSettings />,
     },
     {
       name: 'Times & Availability',
       icon: <ScheduleIcon />,
-      component: <AvailabilitySettings calendar={calendar} setCalendar={setCalendar} />,
+      component: <AvailabilitySettings />,
     },
     {
       name: 'Booking form',
       icon: <FeedIcon />,
-      component: <BookingSettings calendar={calendar} setCalendar={setCalendar} />,
+      component: <BookingSettings />,
     },
     {
       name: 'Notifications and event details',
       icon: <NotificationsActiveIcon />,
-      component: <NotificationSettings calendar={calendar} setCalendar={setCalendar} />,
+      component: <NotificationSettings />,
     },
     {
       name: 'Integrations',
       icon: <IntegrationInstructionsIcon />,
-      component: <IntegrationSettings calendar={calendar} setCalendar={setCalendar} />,
+      component: <IntegrationSettings />,
     },
   ];
 
@@ -216,7 +217,7 @@ export default function FullDashboard() {
                   {activeSetting !== null && calendar ? (
                     SETTING_COMPONENTS[activeSetting].component
                   ) : calendar ? (
-                    <GeneralSettings calendar={calendar} setCalendar={setCalendar} />
+                    <GeneralSettings />
                   ) : null}
                 </Paper>
               </Grid>

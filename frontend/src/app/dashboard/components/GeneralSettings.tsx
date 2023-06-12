@@ -1,13 +1,8 @@
-import { Calendar } from '@prisma/client';
+import { useGlobalContext } from '@/app/context/store';
 import React from 'react';
 
-const GeneralSettings = ({
-  calendar,
-  setCalendar,
-}: {
-  calendar: Calendar | null;
-  setCalendar: React.Dispatch<React.SetStateAction<Calendar | null>>;
-}) => {
+const GeneralSettings = () => {
+  const { calendar, setCalendar } = useGlobalContext();
   return <div>GeneralSettings</div>;
 };
 
