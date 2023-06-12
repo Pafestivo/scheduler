@@ -9,6 +9,7 @@ const FormInput = ({
   title,
   type,
   fieldIdx,
+  defaultValue,
   setState
 }: {
   name: string;
@@ -16,6 +17,7 @@ const FormInput = ({
   title: string;
   type: string;
   fieldIdx: number;
+  defaultValue?: string;
   setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
 }) => {
   const { alert, setAlert } = useGlobalContext();
@@ -29,6 +31,7 @@ const FormInput = ({
       type={type}
       name={name}
       fullWidth
+      defaultValue={defaultValue}
       label={label}
       title={title}
       sx={{ backgroundColor: alert?.code === fieldIdx ? 'rgba(245, 132, 132, 0.44)' : null }}
