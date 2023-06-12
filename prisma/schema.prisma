@@ -87,6 +87,14 @@ model Integration {
   provider   IntegrationType
 }
 
+model CalendarIntegration {
+  id          Int              @id @unique @default(autoincrement())
+  userEmail   String
+  calendarName String?    
+  calendarHash String  
+  provider   IntegrationType
+}
+
 //transaction
 
 model Transaction {

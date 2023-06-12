@@ -211,7 +211,6 @@ export default function FullDashboard() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
                   }}
                 >
                   {activeSetting !== null && calendar ? (
