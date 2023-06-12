@@ -1,6 +1,10 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import CalendarBar from './CalendarBar';
+import { Typography } from '@mui/material';
+import { useGlobalContext } from '@/app/context/store';
+import { getData } from '@/utilities/serverRequests/serverRequests';
+import { Calendar } from '@/utilities/types';
 
 const data = [
   {
@@ -123,9 +127,28 @@ const data = [
 ];
 
 export default function CalendarStack() {
+  const [calendars, setCalendars] = React.useState<never[] | Calendar[]>([]);
+  const { user } = useGlobalContext();
+  React.useEffect(() => {
+    const getCalendars = async () => {
+      if (!user) return;
+
+      const respose = await getData(`/calendars/${user.hash}`);
+      console.log(respose.data);
+      setCalendars(respose.data);
+    };
+    getCalendars();
+  }, [user]);
+
   return (
     <Box sx={{ flexGrow: 1, overflow: 'hidden', px: 3 }}>
-      {data.map((calendar) => (
+      <Typography variant="h6" sx={{ my: 2 }}>
+        Your Calendars
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        {calendars.length ? `Add a new calendar` : `Add a new calendar to start booking appointments.`}
+      </Typography>
+      {calendars.map((calendar) => (
         <CalendarBar key={calendar.id} calendar={calendar} />
       ))}
     </Box>
