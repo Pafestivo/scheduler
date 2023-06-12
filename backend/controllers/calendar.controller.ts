@@ -138,7 +138,6 @@ export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res
 
 export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { hash } = req.params;
-  console.log(hash);
 
   try {
     const calendar = await prisma.calendar.findUnique({
@@ -146,7 +145,6 @@ export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         hash: hash,
       },
     });
-    console.log(calendar);
 
     if (!calendar) {
       res.status(200).json({
