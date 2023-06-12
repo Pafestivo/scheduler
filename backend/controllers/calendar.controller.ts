@@ -22,6 +22,8 @@ interface CalendarRequest extends Request {
     integrationId?: number[];
     appointmentsLength: number;
     image: string;
+    description: string;
+    password: string;
   };
 }
 
@@ -239,7 +241,7 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
 // @access  Private
 
 export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { hash, appointmentsHash, type, name, padding, integrationId, appointmentsLength, userHash } = req.body;
+  const { hash, appointmentsHash, type, name, padding, integrationId, appointmentsLength, userHash, description, password } = req.body;
 
   try {
     const calendar = await prisma.calendar.findUnique({
@@ -266,6 +268,8 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     const updateData: any = {};
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
+    if (description) updateData.description = description;
+    if (password) updateData.password = password;
     if (name) updateData.name = name;
     if (padding || padding === 0) updateData.padding = padding;
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
