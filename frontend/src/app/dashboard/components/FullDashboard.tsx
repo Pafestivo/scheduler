@@ -105,7 +105,7 @@ export default function FullDashboard() {
   const { calendar, setCalendar } = useGlobalContext();
   React.useEffect(() => {
     const getCalendar = async () => {
-      const response = await getData(`/calendars/single/${params.hash}`);
+      const response = await getData(`/calendars/fullCalendar/${params.hash}`);
       setCalendar(response.data);
     };
     getCalendar();
