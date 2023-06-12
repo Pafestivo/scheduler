@@ -4,7 +4,7 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import excludeFields from '../utils/excludeFields.js';
-import { Appointment, Availability, CalendarType, Integration, License, User } from '@prisma/client';
+import { Appointment, Availability, CalendarIntegration, CalendarType, Integration, License, User } from '@prisma/client';
 import { Calendar } from '@prisma/client'
 
 interface CalendarRequest extends Request {
@@ -26,9 +26,9 @@ interface CalendarRequest extends Request {
 }
 
 interface fullCalendarResponse extends Calendar {
-  license: License;
+  license?: License;
   appointments: Appointment[];
-  integrations: Integration[];
+  integrations: CalendarIntegration[];
   availabilities: Availability[];
   users: User[];
 }
@@ -52,14 +52,27 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
       },
     });
 
-    const user = await prisma.user.update({
+    interface userContains extends User {
+      calendars: string[]
+    }
+
+    const user = await prisma.user.findUnique({
       where: {
         hash: userHash,
-      },
-      data: {
-        type: 'vendor',
-      },
-    });
+      }
+    }) as userContains
+
+    if(user) {
+      const newUser = await prisma.user.update({
+        where: {
+          hash: userHash,
+        },
+        data: {
+          calendars: user.calendars ? [...user.calendars, calendar.hash] : [calendar.hash],
+          type: 'vendor',
+        },
+      });
+    }
 
     const response = excludeFields(calendar, ['licenseHash', 'timestamp']);
 
@@ -296,7 +309,7 @@ export const getFullCalendar = asyncHandler(async (req: CalendarRequest, res: Re
   const { hash } = req.params;
 
   try {
-    const calendar = await prisma.calendar.findUnique({
+    let calendar = await prisma.calendar.findUnique({
       where: {
         hash,
       },
@@ -321,8 +334,8 @@ export const getFullCalendar = asyncHandler(async (req: CalendarRequest, res: Re
         where: {
           hash: calendar.licenseHash,
         }
-      })
-      calendar.license = license ? license.hash : '';
+      }) as License
+      calendar = {...calendar, license}
     }
 
     if(calendar.appointmentsHash) {
@@ -331,13 +344,41 @@ export const getFullCalendar = asyncHandler(async (req: CalendarRequest, res: Re
           calendarHash: hash,
         }
       })
-      // calendar.appointmentsHash = appointments ? license.hash : null;
+      calendar = {...calendar, appointments}
     }
-    
 
+    if(calendar.integrationId) {
+      const integrations = await prisma.calendarIntegration.findMany({
+        where: {
+          calendarHash: hash,
+        }
+      })
+      calendar = {...calendar, integrations}
+    }
+
+    if(calendar.availabilityHash) {
+      const availabilities = await prisma.availability.findMany({
+        where: {
+          calendarHash: hash,
+        }
+      })
+      calendar = {...calendar, availabilities}
+    }
+
+    
+    const users = await prisma.user.findMany({
+      where: {
+        calendars: {
+          array_contains: hash,
+        },
+      }
+    })
+    calendar = {...calendar, users}
+
+    
     res.status(200).json({
       success: true,
-      data: 'Calendar deleted successfully.',
+      data: calendar,
     });
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));

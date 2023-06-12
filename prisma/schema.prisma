@@ -90,7 +90,8 @@ model Integration {
 model CalendarIntegration {
   id          Int              @id @unique @default(autoincrement())
   userEmail   String
-  calendarName String?      
+  calendarName String?    
+  calendarHash String  
   provider   IntegrationType
 }
 
