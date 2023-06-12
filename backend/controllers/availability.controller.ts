@@ -27,10 +27,10 @@ export const addAvailability = asyncHandler(async (req: AvailabilityRequest, res
     return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
   }
 
-  if(isNaN(day) || day > 6 || day < 0) {
+  if (isNaN(day) || day > 6 || day < 0) {
     return next(new ErrorResponse({ message: 'Invalid day', statusCode: 400 }));
   }
-  
+
   if (!startTime || !endTime) {
     return next(new ErrorResponse({ message: 'Missing information', statusCode: 400 }));
   }
@@ -44,36 +44,35 @@ export const addAvailability = asyncHandler(async (req: AvailabilityRequest, res
         day,
         startTime,
         endTime,
-        hash
-      }
+        hash,
+      },
     });
 
-    const updatedCalendar = await addToAvailabilityArray(calendarHash, hash)
+    const updatedCalendar = await addToAvailabilityArray(calendarHash, hash);
     // if calendar not found, delete the availability and return error
-    if(!updatedCalendar) {
+    if (!updatedCalendar) {
       await prisma.availability.delete({
         where: {
-          hash
-        }
+          hash,
+        },
       });
       return next(new ErrorResponse({ message: 'Calendar not found or deleted.', statusCode: 404 }));
-    } 
+    }
 
     res.status(200).json({
       success: true,
       data: {
         calendar: updatedCalendar,
-        availability
+        availability,
       },
     });
-
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
-})
+});
 
 // @desc    Get availabilities for specific calendar
-// @route   GET /api/v1/availability
+// @route   GET /api/v1/availability/:calendarHash
 // @access  private
 
 export const getAvailabilities = asyncHandler(async (req: AvailabilityRequest, res: Response, next: NextFunction) => {
@@ -86,27 +85,26 @@ export const getAvailabilities = asyncHandler(async (req: AvailabilityRequest, r
   try {
     const availabilities = await prisma.availability.findMany({
       where: {
-        calendarHash
-      }
+        calendarHash,
+      },
     });
 
     // exclude unnecessary fields from each object
-    const response:any[] = []
-    availabilities.forEach(availability => {
-      const availabilityToSend = excludeFields(availability, ['calendarHash', 'id', 'timestamp'])
-      response.push(availabilityToSend)
-    })
+    const response: any[] = [];
+    availabilities.forEach((availability) => {
+      const availabilityToSend = excludeFields(availability, ['calendarHash', 'id', 'timestamp']);
+      response.push(availabilityToSend);
+    });
 
     res.status(200).json({
       success: true,
       amount: response.length,
       data: response,
     });
-
-  } catch (error:any) {
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
-})
+});
 
 // @desc    Delete availability
 // @route   DELETE /api/v1/availability
@@ -118,42 +116,43 @@ export const deleteAvailability = asyncHandler(async (req: AvailabilityRequest, 
   try {
     await prisma.availability.delete({
       where: {
-        hash
-      }
-    })
+        hash,
+      },
+    });
 
     const calendar = await prisma.calendar.findUnique({
       where: {
-        hash: calendarHash
-      }
-    })
+        hash: calendarHash,
+      },
+    });
 
-    if(calendar) {
-      let newAvailabilityArray:string[] = [];
+    if (calendar) {
+      let newAvailabilityArray: string[] = [];
       if (calendar.availabilityHash) {
-        newAvailabilityArray = [...calendar.availabilityHash as string[]]; 
-        const updatedAvailability = newAvailabilityArray.filter((availabilityHash: string) => availabilityHash !== hash);
+        newAvailabilityArray = [...(calendar.availabilityHash as string[])];
+        const updatedAvailability = newAvailabilityArray.filter(
+          (availabilityHash: string) => availabilityHash !== hash
+        );
 
         await prisma.calendar.update({
           where: {
-            hash: calendarHash
+            hash: calendarHash,
           },
           data: {
-            availabilityHash: updatedAvailability
-          }
-        })
-      } 
+            availabilityHash: updatedAvailability,
+          },
+        });
+      }
     }
 
     res.status(200).json({
       success: true,
-      data: "availability preference deleted successfully."
-    })
-
-  } catch(error:any) {
+      data: 'availability preference deleted successfully.',
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
-})
+});
 
 // @desc    Update availability
 // @route   PUT /api/v1/availability
@@ -171,16 +170,16 @@ export const updateAvailability = asyncHandler(async (req: AvailabilityRequest, 
   try {
     const updatedAvailability = await prisma.availability.update({
       where: {
-        hash
-      }, 
-      data: updateData
-    })
+        hash,
+      },
+      data: updateData,
+    });
 
     res.status(200).json({
       success: true,
-      data: 'Availability preference update successfully'
-    })
-  } catch(error:any) {
+      data: 'Availability preference update successfully',
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
-})
+});
