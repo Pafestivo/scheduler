@@ -66,6 +66,7 @@ model Calendar {
   image            String?
   description      String?
   password         String?
+  breakTime        String?
 }
 
 //
