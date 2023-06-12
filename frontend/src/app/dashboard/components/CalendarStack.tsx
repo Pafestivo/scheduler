@@ -10,18 +10,20 @@ import NewCalendarModal from './NewCalendarModal';
 import IconButton from '@mui/material/IconButton';
 
 export default function CalendarStack() {
+  const { user, setLoading } = useGlobalContext();
   const [formOpen, setFormOpen] = React.useState(false);
   const [calendars, setCalendars] = React.useState<never[] | Calendar[]>([]);
-  const { user } = useGlobalContext();
-  React.useEffect(() => {
-    const getCalendars = async () => {
-      if (!user) return;
 
+  React.useEffect(() => {
+    setLoading(true)
+    const getCalendars: () => Promise<void> = async () => {
+      if (!user) return;
       const response = await getData(`/calendars/${user.hash}`);
-      setCalendars(response.data);
+      if(response.amount) setCalendars(response.data);
+      setLoading(false)
     };
     getCalendars();
-  }, [user]);
+  }, [user, setLoading]);
 
   return (
     <>

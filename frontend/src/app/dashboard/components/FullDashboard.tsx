@@ -110,18 +110,18 @@ export default function FullDashboard() {
     getCalendar();
   }, [params.hash]);
   const SETTING_COMPONENTS = [
-    { name: 'General', icon: <DashboardIcon />, component: <GeneralSettings hash={calendar?.hash} /> },
-    { name: 'Times & Availability', icon: <ScheduleIcon />, component: <AvailabilitySettings hash={calendar?.hash} /> },
-    { name: 'Booking form', icon: <FeedIcon />, component: <BookingSettings hash={calendar?.hash} /> },
+    { name: 'General', icon: <DashboardIcon />, component: <GeneralSettings calendar={calendar} /> },
+    { name: 'Times & Availability', icon: <ScheduleIcon />, component: <AvailabilitySettings calendar={calendar} /> },
+    { name: 'Booking form', icon: <FeedIcon />, component: <BookingSettings calendar={calendar} /> },
     {
       name: 'Notifications and event details',
       icon: <NotificationsActiveIcon />,
-      component: <NotificationSettings hash={calendar?.hash} />,
+      component: <NotificationSettings calendar={calendar} />,
     },
     {
       name: 'Integrations',
       icon: <IntegrationInstructionsIcon />,
-      component: <IntegrationSettings hash={calendar?.hash} />,
+      component: <IntegrationSettings calendar={calendar} />,
     },
   ];
 
@@ -204,7 +204,7 @@ export default function FullDashboard() {
                   {activeSetting !== null && calendar ? (
                     SETTING_COMPONENTS[activeSetting].component
                   ) : calendar ? (
-                    <GeneralSettings hash={calendar.hash} />
+                    <GeneralSettings calendar={calendar} />
                   ) : null}
                 </Paper>
               </Grid>

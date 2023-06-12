@@ -1,8 +1,19 @@
 import React from 'react';
+interface generalSettingsProps {
+  calendar: {
+    hash: string; 
+    name: string; 
+    image: string | null; 
+    description: string | null;
+  }
+}
 
-const GeneralSettings = ({ hash }: { hash: string | undefined }) => {
+const GeneralSettings = ({ calendar }: generalSettingsProps) => {
   return (
-    <div>GeneralSettings {hash}</div>
+    <div>
+      <form>
+      </form>
+    </div>
   )
 };
 
