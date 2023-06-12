@@ -38,8 +38,7 @@
     "@types/morgan": "^1.9.4",
     "@types/node": "^18.16.0",
     "@types/react-datepicker": "^4.11.2",
-    "concurrently": "^8.0.1",
-    "typescript": "^5.0.4"
+    "concurrently": "^8.0.1"
   },
   "dependencies": {
     "@prisma/client": "^4.14.1",
@@ -58,6 +57,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "next-auth": "^4.22.1",
-    "prisma": "^4.14.1"
+    "prisma": "^4.14.1",
+    "typescript": "^5.0.4"
   }
 }
