@@ -46,11 +46,8 @@ const CalendarBar = ({ calendar }: { calendar: Calendar }) => {
         </Stack>
         <Stack sx={{ minWidth: 0 }}>
           <Typography textAlign={'start'} noWrap>
-            {calendar.name}
-          </Typography>
-          <Typography fontWeight={'200'} fontSize={'0.8rem'} noWrap>
             <Link title="Manage Calendar" href={calendarManagerUrl} passHref>
-              {calendarBookingUrl.length > 50 ? calendarBookingUrl.substring(0, 50) + '...' : calendarBookingUrl}
+              {calendar.name}
             </Link>
           </Typography>
         </Stack>
