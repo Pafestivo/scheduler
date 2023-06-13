@@ -58,7 +58,7 @@ model Calendar {
   name             String
   timestamp        DateTime       @default(now())
   padding          Int?
-  availabilityHash Json?          // assuming this corresponds to availabilityHash array
+  availabilities   Json?          // assuming this corresponds to availabilityHash array
   hash             String         @unique  
   deleted          Boolean        @default(false)
   personalForm     Json?          // holds the questions for the personal form
@@ -67,6 +67,7 @@ model Calendar {
   description      String?
   password         String?
   breakTime        String?
+  minNotice        Int?           // in hours
 }
 
 //

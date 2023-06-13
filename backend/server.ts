@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import Colors from 'colors.ts';
 import auth from './routes/auth.route.js';
 import calendar from './routes/calendar.route.js';
-import availability from './routes/availability.route.js';
 import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
 import integration from './routes/integration.route.js';
@@ -19,10 +18,12 @@ Colors.enable();
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
@@ -36,7 +37,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', auth);
 app.use('/api/v1', calendar);
-app.use('/api/v1', availability);
 app.use('/api/v1', appointments);
 app.use('/api/v1', integration);
 app.use('/api/v1', googleCalendar);

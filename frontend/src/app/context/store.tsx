@@ -1,5 +1,6 @@
 'use client';
 
+import { fullCalendarResponse } from '@/utilities/types';
 import { Calendar } from '@prisma/client';
 import { createContext, useContext, Dispatch, SetStateAction, useState } from 'react';
 
@@ -33,8 +34,8 @@ interface ContextProps {
   setAlertOpen: Dispatch<SetStateAction<boolean>>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
-  calendar: Calendar | null;
-  setCalendar: Dispatch<SetStateAction<Calendar | null>>;
+  calendar: fullCalendarResponse | null;
+  setCalendar: Dispatch<SetStateAction<fullCalendarResponse | null>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -55,7 +56,7 @@ export const GlobalContextProvider = ({ children }) => {
   const [alert, setAlert] = useState<UiAlert | null>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [calendar, setCalendar] = useState<null | Calendar>(null);
+  const [calendar, setCalendar] = useState<null | fullCalendarResponse>(null);
 
   return (
     <GlobalContext.Provider

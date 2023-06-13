@@ -1,3 +1,5 @@
+import { Appointment, CalendarIntegration, License, User, Calendar } from '@prisma/client';
+
 export type PersonalForm = {
   question: string;
   inputType: string;
@@ -5,23 +7,35 @@ export type PersonalForm = {
   options?: any;
 };
 
-export interface Calendar {
-  id: number;
-  userHash: string[];
-  licenseHash: string;
+export interface Availability {
+  day: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface fullCalendarResponse {
   appointmentsHash: string[];
-  integrationId: string | null;
-  isActive: boolean;
-  type: string;
-  name: string;
-  timestamp: string;
-  padding: string | null;
-  availabilityHash: string[];
-  hash: string;
-  deleted: boolean;
-  personalForm?: PersonalForm[];
   appointmentsLength: number;
-  image?: string;
-  description?: string;
-  password?: string;
+  breakTime: number;
+  deleted: boolean;
+  description: string | null;
+  hash: string;
+  id: number;
+  image: string | null;
+  integrationId: string[] | null;
+  isActive: boolean;
+  licenseHash: string;
+  minNotice: number;
+  name: string;
+  padding: number;
+  password: string | null;
+  personalForm: PersonalForm[];
+  timeStamp: Date;
+  type: string;
+  userHash: string[];
+  license?: License;
+  availabilities?: Availability[];
+  appointments?: Appointment[];
+  integrations: CalendarIntegration[];
+  users: User[];
 }

@@ -11,7 +11,7 @@ const AvailabilitySettings = () => {
       component: <Availability />,
     },
     {
-      name: 'Duration',
+      name: 'Duration & Breaks',
       component: <Duration />,
     },
     {
