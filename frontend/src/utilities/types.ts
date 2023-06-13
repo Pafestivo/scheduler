@@ -14,27 +14,27 @@ export interface Availability {
 }
 
 export interface fullCalendarResponse {
-  appointmentsHash: string[];
+  appointmentsHash: string[] | undefined;
   appointmentsLength: number;
   breakTime: number;
   deleted: boolean;
-  description: string | null;
+  description: string | undefined;
   hash: string;
   id: number;
-  image: string | null;
-  integrationId: string[] | null;
+  image: string | undefined;
+  integrationId: string[] | undefined;
   isActive: boolean;
   licenseHash: string;
   minNotice: number;
   name: string;
   padding: number;
-  password: string | null;
+  password: string | undefined;
   personalForm: PersonalForm[];
   timeStamp: Date;
   type: string;
   userHash: string[];
   license?: License;
-  availabilities?: Availability[];
+  availabilities?: Availability[] | undefined;
   appointments?: Appointment[];
   integrations: CalendarIntegration[];
   users: User[];

@@ -254,6 +254,8 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     availabilities,
   } = req.body;
 
+  console.log(req.body);
+
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {
@@ -274,7 +276,6 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       });
       return;
     }
-    console.log(availabilities);
 
     // make an update data object to not update undefined
     const updateData: any = {};
