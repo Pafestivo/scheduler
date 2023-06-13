@@ -204,6 +204,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     const day = date.getDay();
     let isWorkDay = true;
     // console.log(date)
+    if(!allCalendarAvailabilities) return false;
 
     // modify the vacationDays array
     allCalendarAvailabilities.forEach(availability => {
