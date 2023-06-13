@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
@@ -25,17 +25,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('')
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
-  const { user, setAlert, setAlertOpen, setLoading, loading } = useGlobalContext()
-
-
-  const getCalendarAvailability = useCallback(async () => {
-    try {
-      const availability = await getData(`/availability/${calendarHash}`)
-      return availability.data
-    } catch(error) {
-      console.log('error getting availabilities', error)
-    }
-  }, [calendarHash])
+  const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext()
 
   const getCurrentCalendar = useCallback(async () => {
     try {
@@ -58,8 +48,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const preparePage = useCallback(async () => {
     const calendar = await getCurrentCalendar()
     const appointments = await getCalendarAppointments()
-    const availabilities = await getCalendarAvailability()
-    setAllCalendarAvailabilities(availabilities)
+    setAllCalendarAvailabilities(calendar.availabilities)
     setAppointments(appointments || [])
     if (user?.hash) setLoggedUser(user)
     setAppointmentsLength(calendar.appointmentsLength)
@@ -67,7 +56,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setPersonalForm(calendar.personalForm || [])
     setCalendarOwner(calendar.userHash)
     setLoading(false)
-  }, [getCurrentCalendar, getCalendarAppointments, getCalendarAvailability, user, setLoading])
+  }, [getCurrentCalendar, getCalendarAppointments, user, setLoading])
 
   // on page load
   useEffect(() => {
@@ -85,9 +74,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const getDailyAvailability = async (date:Date) => {
     const currentDay = date.getDay()
-    const availabilities = await getCalendarAvailability();
-    let currentDayAvailabilities = availabilities.filter((availability: { day: number }) => availability.day === currentDay);
-    if(currentDayAvailabilities.length === 0) currentDayAvailabilities = [{ startTime: '12:00', endTime: '12:00' }]
+    let currentDayAvailabilities = allCalendarAvailabilities.filter((availability: { day: number }) => availability.day === currentDay);
+    if(currentDayAvailabilities.length === 0) currentDayAvailabilities = [{day: 0, startTime: '12:00', endTime: '12:00' }]
     setDailyAvailability(currentDayAvailabilities);
     setLoading(false);
     return currentDayAvailabilities;
@@ -109,7 +97,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       const diffInMinutes = diffInHours * 60;
       sessionsTimeInMinutes.push({startTime, timeInMinutes: diffInMinutes});
     })
-
     return sessionsTimeInMinutes;
   }
 
@@ -154,14 +141,16 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   };
 
   const doesPersonalFormExist = (appointmentStartTime: string) => {
+    setChosenAppointmentTime(appointmentStartTime)
     if(personalForm.length > 0) {
       setShowFormPopup(true)
-      setChosenAppointmentTime(appointmentStartTime)
-    } else promptBooking()
+    } else promptBooking(appointmentStartTime)
   }
 
-  const promptBooking = async (e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
+  const promptBooking = async (appointmentStartTime?: string, e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
+    const appointmentTime = chosenAppointmentTime === '' ? appointmentStartTime : chosenAppointmentTime
+
     if(e) {
       let formFilledProperly = true;
       personalForm?.forEach((question, index) => {
@@ -187,15 +176,16 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       return;
     }
 
-    const confirmed = window.confirm(`Are you sure you want to book an appointment at ${chosenAppointmentTime}?`)
+    const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentTime}?`)
     if(confirmed) {
       setShowFormPopup(false)
       setLoading(true)
+      console.log(startDate, appointmentTime)
       await postData('/appointments', {
         calendarHash,
         userHash: loggedUser.hash,
         date: startDate,
-        time: chosenAppointmentTime,
+        time: appointmentTime,
         length: appointmentsLength,
         answersArray: answers || {}
       })
