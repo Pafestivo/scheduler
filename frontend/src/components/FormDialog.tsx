@@ -7,6 +7,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormInput from './FormInput';
 import FormSelectInput from './FormSelectInput';
+import { Checkbox, FormControlLabel } from '@mui/material';
+import FormCheckInput from './FormCheckboxInput';
 
 interface FormDialogProps {
   open: boolean;
@@ -36,7 +38,7 @@ const  FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleS
           <DialogContentText>
             Fields marked with * are required.
           </DialogContentText>
-          <form onSubmit={(e) => handleSubmit(e, answers)}>
+          <form onSubmit={(e) => handleSubmit('', e, answers)}>
             {personalForm && personalForm.map((question, index) => {
               return (
                 <div key={question.question}>
@@ -48,14 +50,22 @@ const  FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleS
                       fieldIdx = {index}
                     />
                   ) : (
-                    <FormInput 
-                      name = {question.question}
-                      label = {question.question}
-                      title = {question.question}
-                      type = {question.inputType}
-                      fieldIdx = {index}
-                      setState={setAnswers}
+                    question.inputType === 'checkbox' ? (
+                      <FormCheckInput 
+                        label = {question.question}
+                        setState = {setAnswers}
+                        fieldIdx = {index}
                       />
+                    ) : (
+                      <FormInput 
+                        name = {question.question}
+                        label = {question.question}
+                        title = {question.question}
+                        type = {question.inputType}
+                        fieldIdx = {index}
+                        setState={setAnswers}
+                      />
+                    )
                   )}
                 </div>
               )

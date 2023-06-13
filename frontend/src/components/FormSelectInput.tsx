@@ -9,14 +9,15 @@ import { useGlobalContext } from '@/app/context/store';
 
 interface FormSelectInputProps {
   label: string;
-  options: string[];
+  options: { [key: string]: string };
   setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
   fieldIdx?: number;
+  defaultOption?: string;
 }
 
-const FormSelectInput = ({ label, options, setState, fieldIdx }: FormSelectInputProps) => {
+const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption }: FormSelectInputProps) => {
 
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(defaultOption || Object.keys(options)[0]);
   const { alert } = useGlobalContext();
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -36,7 +37,7 @@ const FormSelectInput = ({ label, options, setState, fieldIdx }: FormSelectInput
           onChange={handleChange}
           sx={{ backgroundColor: alert?.code === fieldIdx ? 'rgba(245, 132, 132, 0.44)' : null }}
         >
-          <MenuItem value="">Select an option</MenuItem>
+          {/* <MenuItem value="">Select an option</MenuItem> */}
           {Object.entries(options).map(([key, value]) => (
             <MenuItem key={key} value={key}>{value}</MenuItem>
           ))}

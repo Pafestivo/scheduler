@@ -252,6 +252,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     description,
     password,
     availabilities,
+    personalForm
   } = req.body;
 
   console.log(req.body);
@@ -285,6 +286,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (password) updateData.password = password;
     if (name) updateData.name = name;
     if (availabilities) updateData.availabilities = availabilities;
+    if (personalForm) updateData.personalForm = personalForm;
     if (padding || padding === 0) updateData.padding = padding;
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
     // make sure to add to the integration array and not replacing it
