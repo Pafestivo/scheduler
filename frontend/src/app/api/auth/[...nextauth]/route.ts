@@ -42,6 +42,7 @@ const authOptions: IProviders = {
 };
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [GoogleProvider(authOptions.GoogleProvider)],
   session: {
     strategy: 'jwt',

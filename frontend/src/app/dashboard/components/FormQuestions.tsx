@@ -41,7 +41,6 @@ const FormQuestions = () => {
     // if updated successfully, update in global context
     if(response.success && calendar) {
       calendar.personalForm = newPersonalForm
-      console.log(calendar)
     }
   }
 
@@ -53,7 +52,7 @@ const FormQuestions = () => {
         )
       })}
       <Button onClick={addQuestionRow}>Add Question+</Button>
-      <Button type='submit' >Save!</Button>
+      <Button type='submit'>Save!</Button>
     </Box>
   )
 };
