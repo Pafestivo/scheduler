@@ -7,10 +7,12 @@ import ListSubheader from '@mui/material/ListSubheader';
 
 export default function ScrollableList({ 
   listHeaders, 
-  listItems 
+  listItems,
+  writeableRequired
 } : { 
   listHeaders: string[], 
   listItems: { summary: string }[][]
+  writeableRequired: boolean
 }) {
   return (
     <List
@@ -29,11 +31,16 @@ export default function ScrollableList({
         <li key={`section-${listHeaders[index]}`}>
           <ul>
             {/* use the headers array to get the section header based on index */}
-            <ListSubheader>{listHeaders[index]}</ListSubheader>
+            <ListSubheader sx={{fontWeight: "bold", fontSize: "1.1rem"}}>{listHeaders[index]}</ListSubheader>
             {section.map((item) => (
               <ListItem key={`${listHeaders[index]}-${item.summary}`}>
                 {/* the summary is the name of the calendar */}
-                <ListItemText primary={item.summary} />
+                {listHeaders[index] === 'readOnly' && writeableRequired ? 
+                (
+                  <ListItemText primary={item.summary} sx={{color: "rgba(0, 0, 0, 0.56)", cursor: "not-allowed", userSelect: "none"}} />
+                ) : (
+                  <ListItemText primary={item.summary} sx={{cursor: 'pointer'}}/>
+                  )}
               </ListItem>
             ))}
           </ul>

@@ -68,6 +68,8 @@ model Calendar {
   password         String?
   breakTime        Json?
   minNotice        Int?           // in hours
+  googleWriteInto  String?
+  googleReadFrom   String?
 }
 
 //
@@ -81,8 +83,8 @@ enum IntegrationType {
 
 model Integration {
   id     Int              @id @unique @default(autoincrement())
-  token  String           @db.VarChar(256) // adjust size based on your needs
-  refreshToken String     @db.VarChar(256) // adjust size based on your needs
+  token  String           @db.VarChar(800) // adjust size based on your needs
+  refreshToken String     @db.VarChar(800) // adjust size based on your needs
   expiresAt   Int
   tokenIv String
   refreshTokenIv String   

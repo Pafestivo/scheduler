@@ -43,7 +43,7 @@ function GoogleIntegration() {
       googleCalendars.length > 0 ? (
         <Box>
           {readEventsFromSelection ? (
-            <ScrollableList listHeaders={['readOnly', 'full Access']} listItems={googleCalendars} />
+            <ScrollableList listHeaders={['readOnly', 'full Access']} listItems={googleCalendars} writeableRequired={false} />
           ) : (
             <Button onClick={() => {
               setReadEventsFromSelection(true)
@@ -53,7 +53,7 @@ function GoogleIntegration() {
 
           {writeEventsTo ? (
             // change this to only render the full access calendar, because you can't write into readonly calendar
-              <ScrollableList listHeaders={['readOnly', 'full Access']} listItems={googleCalendars} />
+              <ScrollableList listHeaders={['readOnly', 'full Access']} listItems={googleCalendars} writeableRequired={true} />
             ) : (
               <Button onClick={() => {
                 setReadEventsFromSelection(false)

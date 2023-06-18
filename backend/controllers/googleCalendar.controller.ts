@@ -62,6 +62,7 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
 
 export const getCalendars = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
+
   const auth = await generateGoogleClient(userEmail)
 
   if(!auth) {
