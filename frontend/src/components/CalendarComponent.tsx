@@ -25,11 +25,13 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('')
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
+  const [dailyBreak, setDailyBreak] = useState<{ startTime:string, endTime:string } | null>(null)
   const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext()
 
   const getCurrentCalendar = useCallback(async () => {
     try {
       const calendar = await getData(`/calendars/single/${calendarHash}`)
+      console.log(calendar.data)
       return calendar.data
     } catch(error) {
       console.log('error getting calendar', error)
@@ -51,6 +53,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setAllCalendarAvailabilities(calendar.availabilities)
     setAppointments(appointments || [])
     if (user?.hash) setLoggedUser(user)
+    if (calendar.breakTime?.isActive) setDailyBreak(calendar.breakTime)
     setAppointmentsLength(calendar.appointmentsLength)
     setPadding(calendar.padding)
     setPersonalForm(calendar.personalForm || [])
@@ -91,12 +94,60 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       // add 0 in front if it's single digit
       const start = startTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${startTime}`) : new Date(`2000-01-01T${startTime}`);
       const end = endTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${endTime}`) : new Date(`2000-01-01T${endTime}`);
-      
-      const diffInMilliseconds = end.getTime() - start.getTime();
-      const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
-      const diffInMinutes = diffInHours * 60;
-      sessionsTimeInMinutes.push({startTime, timeInMinutes: diffInMinutes});
-    })
+
+      const startInMilliseconds = start.getTime()
+      const endInMilliseconds = end.getTime()
+      if(dailyBreak) {
+        const breakStartTime = dailyBreak.startTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${dailyBreak.startTime}`) : new Date(`2000-01-01T${dailyBreak.startTime}`);
+        const breakEndTime = dailyBreak.endTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${dailyBreak.endTime}`) : new Date(`2000-01-01T${dailyBreak.endTime}`);
+        const breakStartTimeInMilliseconds = breakStartTime.getTime()
+        const breakEndTimeInMilliseconds = breakEndTime.getTime()
+        // if the break starts after the workday started, 3 options
+        if(startInMilliseconds < breakStartTimeInMilliseconds) {
+          // workday ends after breaks end, split to two availabilities
+          if(endInMilliseconds > breakEndTimeInMilliseconds) {
+            sessionsTimeInMinutes.push({
+              startTime, 
+              timeInMinutes: (breakEndTimeInMilliseconds - startInMilliseconds) / (1000 * 60)
+            });
+            sessionsTimeInMinutes.push({
+              startTime: dailyBreak.endTime,
+              timeInMinutes: (endInMilliseconds - breakStartTimeInMilliseconds) / (1000 * 60)
+            });
+          // workday ends in the middle of the break, shorten workday to end at the start of the break
+          } else if(endInMilliseconds > breakStartTimeInMilliseconds && endInMilliseconds < breakEndTimeInMilliseconds) {
+            sessionsTimeInMinutes.push({
+              startTime, 
+              timeInMinutes: (breakStartTimeInMilliseconds - startInMilliseconds) / (1000 * 60)
+            });
+          // workday ends before break starts, ignore the break
+          } else if(endInMilliseconds < breakStartTimeInMilliseconds) {
+            sessionsTimeInMinutes.push({
+              startTime, 
+              timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60)
+            });
+          }
+        // if the workday starts in the middle of the break, push start time to end of break
+        } else if (startInMilliseconds > breakStartTimeInMilliseconds && startInMilliseconds < breakEndTimeInMilliseconds) {
+          sessionsTimeInMinutes.push({
+            startTime: dailyBreak.endTime,
+            timeInMinutes: (endInMilliseconds - breakEndTimeInMilliseconds) / (1000 * 60)
+          })
+        // if workday starts after break ends, ignore break
+        } else if (startInMilliseconds > breakEndTimeInMilliseconds) {
+          sessionsTimeInMinutes.push({
+            startTime, 
+            timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60)
+          })
+        }
+      // if no break provided
+      } else {
+        sessionsTimeInMinutes.push({
+          startTime, 
+          timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60)
+        })
+      }
+  })
     return sessionsTimeInMinutes;
   }
 
@@ -239,8 +290,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         maxAppointments += appointmentsPerSession[i].amountOfAppointments
       }
 
-     // this function doesn't work because of this code block!
-     // for some reason the amountOfBookedAppointments getting logged as 1, 3 times, instead of incrementing to 3
+
       let amountOfBookedAppointments = 0
       const currentlyCheckedDate = date.toLocaleDateString("en-GB", {
         month: "2-digit",
