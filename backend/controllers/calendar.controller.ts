@@ -255,6 +255,8 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     personalForm
   } = req.body;
 
+  console.log(req.body);
+
   try {
     const calendar = await prisma.calendar.findUnique({
       where: {

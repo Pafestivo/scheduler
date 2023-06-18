@@ -54,5 +54,37 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
   } catch (error:any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
+});
 
+// @desc    Get calendars from google
+// @route   GET /api/v1/googleCalendars/:userEmail
+// @access  Public
+
+export const getCalendars = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+  const { userEmail } = req.params;
+  const auth = await generateGoogleClient(userEmail)
+
+  if(!auth) {
+    res.status(200).json({
+      success: false,
+      data: 'Authentication failed'
+    })
+    return;
+  }
+
+  const calendar = google.calendar({
+    version: 'v3',
+    auth: auth,
+  })
+
+  try {
+    const userCalendars = await calendar.calendarList.list();
+  
+    res.status(200).json({
+      success: true,
+      data: userCalendars.data.items
+    })
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
 });

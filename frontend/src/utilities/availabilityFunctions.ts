@@ -5,13 +5,15 @@ interface DayRange {
   end: number;
 }
 
-export function filterDays(responseArray: { day: number }[]): string {
+export function filterDays(responseArray: { day: number; skip?: boolean }[]): string {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const uniqueDays = new Set<number>();
 
-  responseArray.forEach((availability) => {
-    uniqueDays.add(availability.day);
-  });
+  responseArray
+    .filter((obj) => obj.skip !== true)
+    .forEach((availability) => {
+      uniqueDays.add(availability.day);
+    });
 
   const filteredDays: DayRange[] = days.reduce((result: DayRange[], day: string, index: number) => {
     if (!uniqueDays.has(index)) {

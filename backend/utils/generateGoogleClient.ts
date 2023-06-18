@@ -7,16 +7,14 @@ import prisma from "./prismaClient.js";
 export const generateGoogleClient = async (userEmail:string) => {
   const integrations = await getIntegrationDetails(userEmail)
   const integrationId = integrations[0].id
-  const accessToken = decrypt(integrations[0].token);
-  const refreshToken = decrypt(integrations[0].refreshToken);
+  const accessToken = decrypt(integrations[0].token, integrations[0].tokenIv);
+  const refreshToken = decrypt(integrations[0].refreshToken, integrations[0].refreshTokenIv);
   const expireAt = integrations[0].expiresAt
 
   if(!integrations) {
     return null
   }
 
-  console.log(process.env.NEXT_PUBLIC_GOOGLE_ID)
-  console.log(process.env.NEXT_PUBLIC_GOOGLE_SECRET)
   const auth = new google.auth.OAuth2(
     process.env.NEXT_PUBLIC_GOOGLE_ID,
     process.env.NEXT_PUBLIC_GOOGLE_SECRET,

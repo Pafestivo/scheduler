@@ -50,3 +50,6 @@ export const REGISTER_FORM_DATA = [
     type: 'text',
   },
 ];
+
+export const BASE_START_TIME = '08:00';
+export const BASE_END_TIME = '17:00';
