@@ -19,12 +19,19 @@ interface FormDialogProps {
     inputType: string;
     options?: string[] | undefined;
     required?: boolean;
-  }[]
-  answers?: { [key:string]:string };
-  setAnswers?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
+  }[];
+  answers?: { [key: string]: string };
+  setAnswers?: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
 }
 
-const  FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSubmit }: FormDialogProps) => {
+const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSubmit }: FormDialogProps) => {
+  const handleSetAnswers = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
+    if (!setAnswers) return;
+    setAnswers((prev) => ({
+      ...prev,
+      [name]: e.target.value,
+    }));
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -35,62 +42,46 @@ const  FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleS
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>The booker has some questions for you</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Fields marked with * are required.
-          </DialogContentText>
+          <DialogContentText>Fields marked with * are required.</DialogContentText>
           <form onSubmit={(e) => handleSubmit('', e, answers)}>
-            {personalForm && personalForm.map((question, index) => {
-              return (
-                <div key={question.question}>
-                  {question.inputType === 'select' && question.options ? (
-                    <FormSelectInput 
-                      label = {question.question}
-                      options = {question.options}
-                      setState = {setAnswers}
-                      fieldIdx = {index}
-                    />
-                  ) : (
-                    question.inputType === 'checkbox' ? (
-                      <FormCheckInput 
-                        label = {question.question}
-                        setState = {setAnswers}
-                        fieldIdx = {index}
-                      />
-                    ) : (
-                      <FormInput 
-                        name = {question.question}
-                        label = {question.question}
-                        title = {question.question}
-                        type = {question.inputType}
-                        fieldIdx = {index}
+            {personalForm &&
+              personalForm.map((question, index) => {
+                return (
+                  <div key={question.question}>
+                    {question.inputType === 'select' && question.options ? (
+                      <FormSelectInput
+                        label={question.question}
+                        options={question.options}
                         setState={setAnswers}
+                        fieldIdx={index}
                       />
-                    )
-                  )}
-                </div>
-              )
-            })}
-            <Button 
-              variant="contained" 
-              color='error' 
-              onClick={handleClose}>
-                Cancel
+                    ) : question.inputType === 'checkbox' ? (
+                      <FormCheckInput label={question.question} setState={setAnswers} fieldIdx={index} />
+                    ) : (
+                      <FormInput
+                        name={question.question}
+                        label={question.question}
+                        title={question.question}
+                        type={question.inputType}
+                        fieldIdx={index}
+                        setState={handleSetAnswers}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            <Button variant="contained" color="error" onClick={handleClose}>
+              Cancel
             </Button>
-            <Button 
-              variant="contained"
-              color='success'
-              type='submit'
-              >
-                Book Appointment
+            <Button variant="contained" color="success" type="submit">
+              Book Appointment
             </Button>
           </form>
- 
         </DialogContent>
-        <DialogActions>
-        </DialogActions>
+        <DialogActions></DialogActions>
       </Dialog>
     </div>
   );
-}
+};
 
 export default FormDialog;

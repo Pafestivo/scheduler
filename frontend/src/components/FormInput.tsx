@@ -10,7 +10,7 @@ const FormInput = ({
   type,
   fieldIdx,
   defaultValue,
-  setState
+  setState,
 }: {
   name: string;
   label: string;
@@ -18,7 +18,7 @@ const FormInput = ({
   type: string;
   fieldIdx: number;
   defaultValue?: string;
-  setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
+  setState?: (...args: any) => void;
 }) => {
   const { alert, setAlert } = useGlobalContext();
 
@@ -40,11 +40,8 @@ const FormInput = ({
         setAlert(null);
       }}
       onChange={(e) => {
-        if(!setState) return;
-        setState((prev) => ({
-          ...prev,
-          [name]: e.target.value
-        }));
+        if (!setState) return;
+        setState(e.target.value, name);
       }}
     ></TextField>
   );

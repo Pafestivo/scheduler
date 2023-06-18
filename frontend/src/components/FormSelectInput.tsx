@@ -9,20 +9,19 @@ import { useGlobalContext } from '@/app/context/store';
 
 interface FormSelectInputProps {
   label: string;
-  options: { [key: string]: string };
-  setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
+  options: string[] | { [key: string]: string };
+  setState?: (prevState: any) => void;
   fieldIdx?: number;
   defaultOption?: string;
   name?: string;
 }
 
 const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, name }: FormSelectInputProps) => {
-
   const [value, setValue] = useState(defaultOption || Object.keys(options)[0]);
   const { alert } = useGlobalContext();
 
   const handleChange = (event: SelectChangeEvent) => {
-    if(setState) setState(prevState => ({...prevState, [`${label}`]: event.target.value}));
+    setState?.(event.target.value);
     setValue(event.target.value);
   };
 
@@ -41,12 +40,14 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
         >
           {/* <MenuItem value="">Select an option</MenuItem> */}
           {Object.entries(options).map(([key, value]) => (
-            <MenuItem key={key} value={key}>{value}</MenuItem>
+            <MenuItem key={key} value={key}>
+              {value}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
     </Box>
   );
-}
+};
 
 export default FormSelectInput;
