@@ -16,7 +16,10 @@ export interface Availability {
 export interface fullCalendarResponse {
   appointmentsHash: string[] | undefined;
   appointmentsLength: number;
-  breakTime: number;
+  breakTime: {
+    startTime: string;
+    endTime: string;
+  } | null;
   deleted: boolean;
   description: string | undefined;
   hash: string;

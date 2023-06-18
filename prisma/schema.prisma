@@ -66,7 +66,7 @@ model Calendar {
   image            String?
   description      String?
   password         String?
-  breakTime        String?
+  breakTime        Json?
   minNotice        Int?           // in hours
 }
 

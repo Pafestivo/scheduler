@@ -8,13 +8,15 @@ import { BASE_END_TIME, BASE_START_TIME } from '@/utilities/constants';
 import { putData } from '@/utilities/serverRequests/serverRequests';
 
 interface ManagedAvalability extends AvailabilityInterface {
-  skip: boolean;
+  skip?: boolean;
 }
 
 const Availability = () => {
-  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen } = useGlobalContext();
+  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading } = useGlobalContext();
   const [notAvailableDays, setNotAvailableDays] = React.useState<string>('');
-  const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvalability[]>([]);
+  const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvalability[]>(
+    calendar?.availabilities || Array(7).fill({ startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
+  );
   const [canSubmit, setCanSubmit] = React.useState<boolean>(true);
 
   const handleTimeChange = (value: string, index: number, type: string) => {
@@ -60,7 +62,7 @@ const Availability = () => {
         setCalendar({ ...calendar, availabilities: availablitiesRequest });
       }
 
-      -setLoading(false);
+      setLoading(false);
       setAlert({ message: 'Availability Updated', code: 200, severity: 'success' });
       setAlertOpen(true);
     } catch (error) {
@@ -69,6 +71,9 @@ const Availability = () => {
       setAlertOpen(true);
     }
   };
+  React.useEffect(() => {
+    setLoading(true);
+  }, [setLoading]);
 
   React.useEffect(() => {
     const offDays = filterDays(repeatingList);
@@ -82,7 +87,8 @@ const Availability = () => {
     } else {
       setCanSubmit(true);
     }
-  }, [repeatingList]);
+    setLoading(false);
+  }, [repeatingList, setLoading]);
 
   React.useEffect(() => {
     const getAvailabilities = async () => {
@@ -111,33 +117,41 @@ const Availability = () => {
 
   return (
     <div>
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        {repeatingList.length &&
-          repeatingList.map((obj, index) => {
-            return (
-              <Box
-                key={index}
-                sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <CortexTimePicker
-                  defaultStartTime={obj.startTime ? obj.startTime : BASE_START_TIME}
-                  defaultEndTime={obj.endTime ? obj.endTime : BASE_END_TIME}
-                  index={index}
-                  handleTimeChange={handleTimeChange}
-                  defaultActive={obj.skip ? false : true}
-                  handleCheckboxChange={handleCheckboxChange}
-                />
-              </Box>
-            );
-          })}
-      </Box>
-      <Typography variant="body1" sx={{ flexGrow: 1 }}>
-        Off days:{' '}
-      </Typography>
-      <Typography variant="body2">{notAvailableDays}</Typography>
-      <Button onClick={handleSubmit} disabled={!canSubmit}>
-        Save changes
-      </Button>
+      {!loading && (
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', rowGap: 2, columnGap: 2 }}>
+            {repeatingList.map((obj, index) => {
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <CortexTimePicker
+                    defaultStartTime={obj.startTime ? obj.startTime : BASE_START_TIME}
+                    defaultEndTime={obj.endTime ? obj.endTime : BASE_END_TIME}
+                    index={index}
+                    handleTimeChange={handleTimeChange}
+                    defaultActive={obj.skip ? false : true}
+                    handleCheckboxChange={handleCheckboxChange}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
+          <Typography variant="body1" sx={{ flexGrow: 1 }}>
+            Off days:{' '}
+          </Typography>
+          <Typography variant="body2">{notAvailableDays}</Typography>
+          <Button onClick={handleSubmit} disabled={!canSubmit}>
+            Save changes
+          </Button>
+        </>
+      )}
     </div>
   );
 };

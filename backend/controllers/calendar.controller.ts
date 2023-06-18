@@ -24,6 +24,10 @@ interface CalendarRequest extends Request {
     image: string;
     description: string;
     password: string;
+    breakTime: {
+      startTime: string;
+      endTime: string;
+    };
   };
 }
 
@@ -252,7 +256,8 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     description,
     password,
     availabilities,
-    personalForm
+    personalForm,
+    breakTime,
   } = req.body;
 
   console.log(req.body);
@@ -285,6 +290,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (description) updateData.description = description;
     if (password) updateData.password = password;
     if (name) updateData.name = name;
+    if (breakTime) updateData.breakTime = breakTime;
     if (availabilities) updateData.availabilities = availabilities;
     if (personalForm) updateData.personalForm = personalForm;
     if (padding || padding === 0) updateData.padding = padding;

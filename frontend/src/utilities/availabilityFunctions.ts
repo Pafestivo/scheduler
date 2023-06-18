@@ -52,3 +52,24 @@ export function hasDuplicateDays(array: { day: number }[]) {
 
   return false;
 }
+
+export function formatTime(minutes: number): string {
+  const hours: number = Math.floor(minutes / 60);
+  const mins: number = minutes % 60;
+
+  if (hours === 0) {
+    return `${mins} Minutes`;
+  } else if (mins === 0) {
+    if (hours === 1) {
+      return '1 Hour';
+    } else {
+      return `${hours} Hours`;
+    }
+  } else {
+    if (hours === 1) {
+      return `1 Hr, ${mins} Mins`;
+    } else {
+      return `${hours} Hrs, ${mins} Mins`;
+    }
+  }
+}

@@ -107,7 +107,6 @@ export default function FullDashboard() {
     const getCalendar = async () => {
       const response = await getData(`/calendars/fullCalendar/${params.hash}`);
       setCalendar(response.data);
-      console.log(response.data);
     };
     getCalendar();
   }, [params.hash, setCalendar]);
