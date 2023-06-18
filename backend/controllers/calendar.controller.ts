@@ -30,6 +30,7 @@ interface CalendarRequest extends Request {
     };
     googleReadFrom: string;
     googleWriteInto: string;
+    minNotice: number;
   };
 }
 
@@ -262,6 +263,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     breakTime,
     googleReadFrom,
     googleWriteInto,
+    minNotice,
   } = req.body;
 
   console.log(req.body);
@@ -300,6 +302,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (googleReadFrom) updateData.googleReadFrom = googleReadFrom;
     if (googleWriteInto) updateData.googleWriteInto = googleWriteInto;
     if (padding || padding === 0) updateData.padding = padding;
+    if (minNotice) updateData.minNotice = minNotice;
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
     // make sure to add to the integration array and not replacing it
     if (integrationId) {
