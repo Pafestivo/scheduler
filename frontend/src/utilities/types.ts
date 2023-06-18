@@ -12,14 +12,15 @@ export interface Availability {
   startTime: string;
   endTime: string;
 }
-
+export interface BreakTime {
+  startTime?: string;
+  endTime?: string;
+  isActive?: boolean;
+}
 export interface fullCalendarResponse {
   appointmentsHash: string[] | undefined;
-  appointmentsLength: number;
-  breakTime: {
-    startTime: string;
-    endTime: string;
-  } | null;
+  appointmentsLength: number | undefined;
+  breakTime: BreakTime | undefined;
   deleted: boolean;
   description: string | undefined;
   hash: string;
@@ -30,7 +31,7 @@ export interface fullCalendarResponse {
   licenseHash: string;
   minNotice: number;
   name: string;
-  padding: number;
+  padding: number | undefined;
   password: string | undefined;
   personalForm: PersonalForm[];
   timeStamp: Date;

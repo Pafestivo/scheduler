@@ -15,7 +15,10 @@ const Availability = () => {
   const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading } = useGlobalContext();
   const [notAvailableDays, setNotAvailableDays] = React.useState<string>('');
   const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvalability[]>(
-    calendar?.availabilities || Array(7).fill({ startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
+    calendar?.availabilities ||
+      Array(7)
+        .fill({ startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
+        .map((item, index) => ({ ...item, day: index }))
   );
   const [canSubmit, setCanSubmit] = React.useState<boolean>(true);
 
@@ -54,7 +57,13 @@ const Availability = () => {
       .map((avalability) => {
         return { day: avalability.day, startTime: avalability.startTime, endTime: avalability.endTime };
       });
-
+    const noChanges = JSON.stringify(availablitiesRequest) === JSON.stringify(calendar?.availabilities);
+    if (noChanges) {
+      setLoading(false);
+      setAlert({ message: 'No Changes To Availability', code: 200, severity: 'info' });
+      setAlertOpen(true);
+      return;
+    }
     try {
       await putData('/calendars', { availabilities: availablitiesRequest, hash: calendar?.hash });
 

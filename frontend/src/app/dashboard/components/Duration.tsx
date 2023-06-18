@@ -5,20 +5,22 @@ import { useGlobalContext } from '@/app/context/store';
 import { BASE_BREAK_END_TIME, BASE_BREAK_START_TIME } from '@/utilities/constants';
 import { formatTime } from '@/utilities/availabilityFunctions';
 import { postData, putData } from '@/utilities/serverRequests/serverRequests';
+import { BreakTime } from '@/utilities/types';
 
-interface BreakTime {
-  startTime?: string;
-  endTime?: string;
-  isActive?: boolean;
+interface DurationBody {
+  breakTime?: BreakTime;
+  padding?: number;
+  appointmentsLength?: number;
 }
+
 const Duration = () => {
-  const { calendar, setAlert, setAlertOpen } = useGlobalContext();
+  const { calendar, setCalendar, setAlert, setAlertOpen, setLoading } = useGlobalContext();
   const [breakTime, setBreakTime] = useState<BreakTime>(
-    calendar?.breakTime || { startTime: BASE_BREAK_START_TIME, endTime: BASE_BREAK_END_TIME, isActive: false }
+    calendar?.breakTime || { endTime: BASE_BREAK_END_TIME, startTime: BASE_BREAK_START_TIME, isActive: false }
   );
   const [cantSubmit, setCantSubmit] = useState<boolean>(false);
   const [padding, setPadding] = useState<number>(calendar?.padding || 0);
-  const [length, setLength] = useState<number>(calendar?.appointmentsLength || 0);
+  const [appointmentsLength, setAppointmentLength] = useState<number>(calendar?.appointmentsLength || 0);
   const handleTimeChange = (value: string, index: number, type: string) => {
     let newBreakTime = { ...breakTime, [type]: value };
 
@@ -45,12 +47,11 @@ const Duration = () => {
   useEffect(() => {
     let tempBreakTime: BreakTime = {};
     if (calendar?.breakTime) {
-      tempBreakTime = { ...calendar.breakTime, isActive: true };
+      tempBreakTime = { ...calendar.breakTime };
     } else {
       tempBreakTime = { isActive: false };
     }
     setBreakTime(tempBreakTime);
-    console.log(calendar);
   }, [calendar]);
 
   React.useEffect(() => {
@@ -72,32 +73,48 @@ const Duration = () => {
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let requestBody = {};
-    if (breakTime.isActive && breakTime !== calendar?.breakTime) {
+    let requestBody: DurationBody = {};
+
+    const JSONBreakTime = JSON.stringify(breakTime);
+    const JSONCalendarBreakTime = JSON.stringify(calendar?.breakTime);
+    if (JSONBreakTime !== JSONCalendarBreakTime) {
       requestBody = {
-        breakTime: {
-          startTime: breakTime.startTime,
-          endTime: breakTime.endTime,
-        },
+        breakTime: { ...breakTime },
       };
     }
     if (padding && padding !== calendar?.padding) requestBody = { ...requestBody, padding: padding };
-    if (length && length !== calendar?.appointmentsLength) requestBody = { ...requestBody, appointmentsLength: length };
+    if (appointmentsLength && appointmentsLength !== calendar?.appointmentsLength)
+      requestBody = { ...requestBody, appointmentsLength: appointmentsLength };
     if (Object.keys(requestBody).length === 0) {
-      setAlert({ severity: 'warning', message: 'No changes made', code: 200 });
+      setAlert({ severity: 'warning', message: 'No changes were made', code: 200 });
       setAlertOpen(true);
       return;
     }
+    setLoading(true);
     try {
-      const response = await putData(`/calendar`, { ...requestBody, hash: calendar?.hash });
-      console.log(response);
-    } catch (error) {}
+      const response = await putData(`/calendars`, { ...requestBody, hash: calendar?.hash });
+      if (calendar) {
+        setCalendar({ ...calendar, breakTime: breakTime, padding: padding, appointmentsLength: appointmentsLength });
+      }
+      setLoading(false);
+      setAlert({ severity: 'success', message: 'Availability updated', code: 200 });
+      setAlertOpen(true);
+    } catch (error) {
+      setLoading(false);
+      setAlert({
+        severity: 'error',
+        message: 'Something went wrong on our end. Please try again in a few.',
+        code: 500,
+      });
+      setAlertOpen(true);
+    }
   };
+
   return (
     <Box component={'form'} onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6">Break Time:</Typography>
       <CortexTimePicker
-        defaultActive={breakTime.isActive ? breakTime.isActive : false}
+        defaultActive={breakTime.isActive === true ? true : false}
         defaultStartTime={breakTime.startTime ? breakTime.startTime : BASE_BREAK_START_TIME}
         defaultEndTime={breakTime.endTime ? breakTime.endTime : BASE_BREAK_END_TIME}
         handleCheckboxChange={handleCheckboxChange}
@@ -121,12 +138,12 @@ const Duration = () => {
       </FormControl>
       <Typography variant="h6">Appointment length:</Typography>
       <FormControl sx={{ m: 1 }} variant="standard">
-        <InputLabel id="demo-customized-select-label">{`Padding`}</InputLabel>
+        <InputLabel id="demo-customized-select-label">{`Appointment Length`}</InputLabel>
         <Select
           labelId="demo-customized-select-label"
           id="demo-customized-select"
-          value={length}
-          onChange={(e) => setLength(Number(e.target.value))}
+          value={appointmentsLength}
+          onChange={(e) => setAppointmentLength(Number(e.target.value))}
         >
           {new Array(61).fill(0).map((_, i) => (
             <MenuItem key={Math.random()} value={i * 5}>
