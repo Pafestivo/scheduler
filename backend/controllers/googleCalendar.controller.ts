@@ -13,6 +13,7 @@ interface integrationRequest extends Request {
     expiresAt: number;
     userEmail: string;
     provider: IntegrationType
+    googleReadFrom: string;
   };
 }
 
@@ -22,6 +23,7 @@ interface integrationRequest extends Request {
 
 export const getAppointments = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
+  const { googleReadFrom } = req.body;
   const auth = await generateGoogleClient(userEmail)
 
   if(!auth) {
@@ -41,7 +43,7 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
 
   try {
     const calendarEvents = await calendar.events.list({
-      calendarId: 'primary',
+      calendarId: googleReadFrom || 'primary',
       timeMin: now,
       singleEvents: true,
       orderBy: 'startTime',

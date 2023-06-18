@@ -42,4 +42,6 @@ export interface fullCalendarResponse {
   appointments?: Appointment[];
   integrations: CalendarIntegration[];
   users: User[];
+  googleReadFrom: string;
+  googleWriteInto: string;
 }
