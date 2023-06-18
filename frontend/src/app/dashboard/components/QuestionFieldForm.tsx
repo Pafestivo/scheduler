@@ -16,7 +16,7 @@ const QuestionFieldForm = ({
     <Grid container key={index} direction="row" spacing={2} alignItems={'center'}>
       <Grid item xs={8} sx={{paddingBottom: "8px"}}>
         <FormInput 
-          name="question"
+          name={`question${index}`}
           label="Question"
           title="Question"
           type="text"
@@ -28,6 +28,7 @@ const QuestionFieldForm = ({
       <Grid item xs={3}>
       <FormSelectInput 
         label='Question Type'
+        name={`type${index}`}
         options={{
           text: 'text',
           select: 'select',

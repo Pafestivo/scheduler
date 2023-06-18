@@ -84,6 +84,8 @@ model Integration {
   token  String           @db.VarChar(256) // adjust size based on your needs
   refreshToken String     @db.VarChar(256) // adjust size based on your needs
   expiresAt   Int
+  tokenIv String
+  refreshTokenIv String   
   userEmail   String      
   provider   IntegrationType
 }

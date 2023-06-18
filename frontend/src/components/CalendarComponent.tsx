@@ -232,6 +232,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
       const workingTimeInMinutes = getWorkingTimeInMinutes(currentDayAvailabilities);
       const appointmentsPerSession = calculateAmountOfAppointments(workingTimeInMinutes);
+      if(day === 1) console.log(appointmentsPerSession)
 
       let maxAppointments = 0
       for (let i = 0; i < appointmentsPerSession.length; i++) {

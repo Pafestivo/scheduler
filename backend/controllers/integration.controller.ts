@@ -27,14 +27,14 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
   const encryptedToken = encrypt(token);
   const encryptedRefreshToken = encrypt(refreshToken);
   try {
-    const findItegration = await prisma.integration.findMany({
+    const findIntegration = await prisma.integration.findMany({
       where: {
         userEmail,
         provider,
       },
     });
 
-    if (findItegration.length > 0) {
+    if (findIntegration.length > 0) {
       res.status(200).json({
         success: false,
         message: 'Integration already exists',
@@ -42,8 +42,10 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
     } else {
       const integration = await prisma.integration.create({
         data: {
-          token: encryptedToken,
-          refreshToken: encryptedRefreshToken,
+          token: encryptedToken.encrypted,
+          refreshToken: encryptedRefreshToken.encrypted,
+          tokenIv: encryptedToken.iv,
+          refreshTokenIv: encryptedRefreshToken.iv,
           expiresAt,
           userEmail,
           provider,
@@ -55,6 +57,31 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
         data: integration,
       });
     }
+  } catch (error: any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+  }
+});
+
+// @desc    Get all user integrations
+// @route   GET /api/v1/integration/:userEmail
+// @access  Private
+
+export const getAllUserIntegrations = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+  const { userEmail } = req.params;
+
+  try {
+    const integration = await prisma.integration.findMany({
+      where: {
+        userEmail,
+      },
+    });
+
+      res.status(200).json({
+        success: true,
+        amount: integration.length,
+        data: integration,
+      });
+
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }

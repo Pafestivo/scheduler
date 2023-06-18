@@ -13,9 +13,10 @@ interface FormSelectInputProps {
   setState?: React.Dispatch<React.SetStateAction<{ [key:string]:string }>>;
   fieldIdx?: number;
   defaultOption?: string;
+  name?: string;
 }
 
-const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption }: FormSelectInputProps) => {
+const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, name }: FormSelectInputProps) => {
 
   const [value, setValue] = useState(defaultOption || Object.keys(options)[0]);
   const { alert } = useGlobalContext();
@@ -30,6 +31,7 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption }: 
       <FormControl fullWidth>
         <InputLabel id={label}>{label}</InputLabel>
         <Select
+          name={name}
           labelId={label}
           id={label}
           value={value}
