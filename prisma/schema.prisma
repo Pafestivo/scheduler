@@ -67,7 +67,7 @@ model Calendar {
   description      String?
   password         String?
   breakTime        Json?
-  minNotice        Int?           // in hours
+  minNotice        Int?           @default(0) // in minutes
   googleWriteInto  String?
   googleReadFrom   String?
 }

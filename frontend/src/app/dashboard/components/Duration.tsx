@@ -11,6 +11,7 @@ interface DurationBody {
   breakTime?: BreakTime;
   padding?: number;
   appointmentsLength?: number;
+  minNotice?: number;
 }
 
 const Duration = () => {
@@ -21,6 +22,7 @@ const Duration = () => {
   const [cantSubmit, setCantSubmit] = useState<boolean>(false);
   const [padding, setPadding] = useState<number>(calendar?.padding || 0);
   const [appointmentsLength, setAppointmentLength] = useState<number>(calendar?.appointmentsLength || 0);
+  const [minNotice, setMinNotice] = useState<number>(calendar?.minNotice || 0);
   const handleTimeChange = (value: string, index: number, type: string) => {
     let newBreakTime = { ...breakTime, [type]: value };
 
@@ -82,9 +84,10 @@ const Duration = () => {
         breakTime: { ...breakTime },
       };
     }
-    if (padding && padding !== calendar?.padding) requestBody = { ...requestBody, padding: padding };
+    if (padding !== calendar?.padding) requestBody = { ...requestBody, padding: padding };
     if (appointmentsLength && appointmentsLength !== calendar?.appointmentsLength)
       requestBody = { ...requestBody, appointmentsLength: appointmentsLength };
+    if (minNotice !== calendar?.minNotice) requestBody = { ...requestBody, minNotice: minNotice };
     if (Object.keys(requestBody).length === 0) {
       setAlert({ severity: 'warning', message: 'No changes were made', code: 200 });
       setAlertOpen(true);
@@ -94,7 +97,13 @@ const Duration = () => {
     try {
       const response = await putData(`/calendars`, { ...requestBody, hash: calendar?.hash });
       if (calendar) {
-        setCalendar({ ...calendar, breakTime: breakTime, padding: padding, appointmentsLength: appointmentsLength });
+        setCalendar({
+          ...calendar,
+          breakTime: breakTime,
+          padding: padding,
+          appointmentsLength: appointmentsLength,
+          minNotice: minNotice,
+        });
       }
       setLoading(false);
       setAlert({ severity: 'success', message: 'Availability updated', code: 200 });
@@ -144,6 +153,22 @@ const Duration = () => {
           id="demo-customized-select"
           value={appointmentsLength}
           onChange={(e) => setAppointmentLength(Number(e.target.value))}
+        >
+          {new Array(61).fill(0).map((_, i) => (
+            <MenuItem key={Math.random()} value={i * 5}>
+              {`(${formatTime(i * 5)})`}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Typography variant="h6">Min booking notice:</Typography>
+      <FormControl sx={{ m: 1 }} variant="standard">
+        <InputLabel id="demo-customized-select-label">{`Min booking notice`}</InputLabel>
+        <Select
+          labelId="demo-customized-select-label"
+          id="demo-customized-select"
+          value={minNotice}
+          onChange={(e) => setMinNotice(Number(e.target.value))}
         >
           {new Array(61).fill(0).map((_, i) => (
             <MenuItem key={Math.random()} value={i * 5}>
