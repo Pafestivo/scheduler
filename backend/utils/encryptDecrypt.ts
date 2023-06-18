@@ -15,13 +15,15 @@ export const encrypt = (text: string) => {
 }
 
 export const decrypt = (encryptedText: string, hexIv: string) => {
+  console.log('encryptedText', encryptedText)
   // Convert the hex representation of the IV back to a Buffer.
   const iv = Buffer.from(hexIv, 'hex');
 
   // Create a decipher using the same algorithm, key, and iv as was used to encrypt the original text.
   const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
+  let decrypted = decipher.update(encryptedText, 'hex', 'hex');
+  decrypted += decipher.final('hex');
+  decrypted = Buffer.from(decrypted, 'hex').toString('utf8');
   return decrypted;
 };
