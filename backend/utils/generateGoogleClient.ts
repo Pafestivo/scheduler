@@ -1,5 +1,5 @@
 import { getIntegrationDetails } from "./getIntegrationDetails.js";
-import { decrypt } from "./encryptDecrypt.js";
+import { decrypt, encrypt } from "./encryptDecrypt.js";
 import { google } from "googleapis";
 import dayjs from "dayjs";
 import prisma from "./prismaClient.js";
@@ -38,14 +38,24 @@ export const generateGoogleClient = async (userEmail:string) => {
       refresh_token,
     } = credentials
 
+    let encryptedAccessToken;
+    let encryptedRefreshToken;
+    if(access_token) encryptedAccessToken = encrypt(access_token)
+    if(refresh_token) encryptedRefreshToken = encrypt(refresh_token)
     try {
+      if(!encryptedAccessToken || !encryptedRefreshToken) {
+        console.log('There was a problem encrypting tokens.')
+        return;
+      }
       await prisma.integration.update({
         where: {
           id: integrationId,
         },
         data: {
-          token: access_token as string,
-          refreshToken: refresh_token as string,
+          token: encryptedAccessToken.encrypted,
+          tokenIv: encryptedAccessToken.iv,
+          refreshToken: encryptedRefreshToken.encrypted,
+          refreshTokenIv: encryptedRefreshToken.iv,
           expiresAt: expiry_date ? Math.floor(expiry_date / 1000) : undefined as number | undefined,
         },
       })
