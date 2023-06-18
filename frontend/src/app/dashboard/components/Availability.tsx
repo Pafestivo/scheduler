@@ -32,11 +32,13 @@ const Availability = () => {
 
   const handleCheckboxChange = (index: number) => {
     const newArray = [...repeatingList];
+
     if (newArray[index].skip) {
       newArray[index] = { ...newArray[index], skip: !newArray[index].skip };
     } else {
       newArray[index] = { ...newArray[index], skip: true };
     }
+
     setRepeatingList(newArray);
     const offDays = filterDays(newArray);
     setNotAvailableDays(offDays);
@@ -44,17 +46,21 @@ const Availability = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
+
     const availablitiesRequest = repeatingList
       .filter((avalability) => !avalability.skip)
       .map((avalability) => {
         return { day: avalability.day, startTime: avalability.startTime, endTime: avalability.endTime };
       });
+
     try {
       await putData('/calendars', { availabilities: availablitiesRequest, hash: calendar?.hash });
+
       if (availablitiesRequest && calendar) {
         setCalendar({ ...calendar, availabilities: availablitiesRequest });
       }
-      setLoading(false);
+
+      -setLoading(false);
       setAlert({ message: 'Availability Updated', code: 200, severity: 'success' });
       setAlertOpen(true);
     } catch (error) {
@@ -67,6 +73,7 @@ const Availability = () => {
   React.useEffect(() => {
     const offDays = filterDays(repeatingList);
     setNotAvailableDays(offDays);
+
     const allTimesValid = repeatingList.find(
       (availability) => Number(availability.startTime.replace(':', '')) >= Number(availability.endTime.replace(':', ''))
     );
@@ -80,7 +87,9 @@ const Availability = () => {
   React.useEffect(() => {
     const getAvailabilities = async () => {
       const offDays = filterDays(calendar?.availabilities ? calendar.availabilities : []);
+
       setNotAvailableDays(offDays);
+
       if (!hasDuplicateDays(calendar?.availabilities ? calendar.availabilities : []) && calendar?.availabilities) {
         let newArray = new Array(7)
           .fill({ day: 0, startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
@@ -92,9 +101,11 @@ const Availability = () => {
           const index = obj.day;
           newArray[index] = obj;
         }
+
         setRepeatingList(newArray);
       }
     };
+
     getAvailabilities();
   }, [calendar?.availabilities]);
 
