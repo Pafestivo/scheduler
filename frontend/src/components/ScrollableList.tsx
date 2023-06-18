@@ -8,12 +8,16 @@ import ListSubheader from '@mui/material/ListSubheader';
 export default function ScrollableList({ 
   listHeaders, 
   listItems,
-  writeableRequired
+  writeableRequired,
+  update
 } : { 
   listHeaders: string[], 
   listItems: { summary: string }[][]
   writeableRequired: boolean
-}) {
+  update: (itemSummary: string) => void
+}
+) {
+
   return (
     <List
       sx={{
@@ -39,7 +43,7 @@ export default function ScrollableList({
                 (
                   <ListItemText primary={item.summary} sx={{color: "rgba(0, 0, 0, 0.56)", cursor: "not-allowed", userSelect: "none"}} />
                 ) : (
-                  <ListItemText primary={item.summary} sx={{cursor: 'pointer'}}/>
+                  <ListItemText primary={item.summary} onClick={() => update(item.summary)} sx={{cursor: 'pointer'}}/>
                   )}
               </ListItem>
             ))}
