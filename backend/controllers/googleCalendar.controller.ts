@@ -14,6 +14,11 @@ interface integrationRequest extends Request {
     userEmail: string;
     provider: IntegrationType
     googleReadFrom: string;
+    googleWriteInto: string;
+    summary: string; 
+    date: string;
+    startTime: string;
+    endTime: string;
   };
 }
 
@@ -86,6 +91,57 @@ export const getCalendars = asyncHandler(async (req: integrationRequest, res: Re
     res.status(200).json({
       success: true,
       data: userCalendars.data.items
+    })
+  } catch (error:any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
+// @desc    post appointment to google
+// @route   POST /api/v1/googleAppointments/:userEmail
+// @access  Public
+
+export const postAppointment = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+  const { userEmail } = req.params;
+  const { googleWriteInto, summary, date, startTime, endTime } = req.body;
+
+  const auth = await generateGoogleClient(userEmail)
+
+  if(!auth) {
+    res.status(200).json({
+      success: false,
+      data: 'Authentication failed'
+    })
+    return;
+  }
+
+  const calendar = google.calendar({
+    version: 'v3',
+    auth: auth,
+  })
+
+  const formatDate = date.split('T')[0]
+  console.log('the date:', `${formatDate}T${startTime}:00`)
+
+  try {
+    const calendarEvent = await calendar.events.insert({
+      calendarId: googleWriteInto || 'primary',
+      requestBody: {
+        summary: summary,
+        start: {
+          dateTime: `${formatDate}T${startTime}:00`, // 2023-06-30T12:00
+          timeZone: 'Asia/Jerusalem',
+        },
+        end: {
+          dateTime: `${formatDate}T${endTime}:00`, // 2023-06-30T13:00
+          timeZone: 'Asia/Jerusalem',
+        },
+      },
+    });
+  
+    res.status(200).json({
+      success: true,
+      data: calendarEvent.data
     })
   } catch (error:any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
