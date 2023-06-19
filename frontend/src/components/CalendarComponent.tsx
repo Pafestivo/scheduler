@@ -202,8 +202,13 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const promptBooking = async (appointmentStartTime?: string, e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
-    if (!appointmentStartTime) appointmentStartTime = ''
-    const appointmentTime: string = chosenAppointmentTime === '' ? appointmentStartTime : chosenAppointmentTime
+    
+    let appointmentTime: string
+    if(appointmentStartTime && appointmentStartTime !== chosenAppointmentTime) {
+      appointmentTime = appointmentStartTime
+    } else {
+      appointmentTime = chosenAppointmentTime;
+    }
 
     if(e) {
       let formFilledProperly = true;
