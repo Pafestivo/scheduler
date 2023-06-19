@@ -26,6 +26,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
   const [dailyBreak, setDailyBreak] = useState<{ startTime:string, endTime:string } | null>(null)
+  const [calendar, setCalendar] = useState<{ googleWriteInto: string }>({ googleWriteInto: 'Primary' })
   const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext()
 
   const getCurrentCalendar = useCallback(async () => {
@@ -52,6 +53,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     const appointments = await getCalendarAppointments()
     setAllCalendarAvailabilities(calendar.availabilities)
     setAppointments(appointments || [])
+    setCalendar(calendar)
     if (user?.hash) setLoggedUser(user)
     if (calendar.breakTime?.isActive) setDailyBreak(calendar.breakTime)
     setAppointmentsLength(calendar.appointmentsLength)
@@ -200,7 +202,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const promptBooking = async (appointmentStartTime?: string, e?:React.FormEvent<HTMLFormElement>, answers?: { [key:string]:string }) => {
     e && e.preventDefault()
-    const appointmentTime = chosenAppointmentTime === '' ? appointmentStartTime : chosenAppointmentTime
+    if (!appointmentStartTime) appointmentStartTime = ''
+    const appointmentTime: string = chosenAppointmentTime === '' ? appointmentStartTime : chosenAppointmentTime
 
     if(e) {
       let formFilledProperly = true;
@@ -241,6 +244,14 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         answersArray: answers || {}
       })
       const updatedAppointments = await getCalendarAppointments()
+      const meetingEndTime = addTime(appointmentTime, appointmentsLength)
+      await postData('/googleAppointments/orrodrigez1@gmail.com', {
+        googleWriteInto: calendar.googleWriteInto,
+        summary: `Appointment with client`,
+        date: startDate,
+        startTime: appointmentTime,
+        endTime: meetingEndTime
+      })
       setAppointments(updatedAppointments)
       setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 })
       setAlertOpen(true)
