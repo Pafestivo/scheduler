@@ -70,6 +70,8 @@ model Calendar {
   minNotice        Int?           @default(0) // in minutes
   googleWriteInto  String?
   googleReadFrom   String?
+  watchChannelId   String?        @unique
+  watchChannelToken String?
 }
 
 //

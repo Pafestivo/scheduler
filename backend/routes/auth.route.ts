@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   updateUserDetails,
   updatePassword,
+  getUserByHash
 } from '../controllers/auth.controller.js';
 import { protect } from '../middlewares/authHandler.js';
 
@@ -16,6 +17,7 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/logout', logoutUser);
 router.get('/me', protect, getCurrentUser);
+router.get('/singleUser/:hash', getUserByHash);
 router.put('/updatedetails', protect, updateUserDetails);
 router.put('/updatepassword', protect, updatePassword);
 

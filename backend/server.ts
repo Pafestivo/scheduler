@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import Colors from 'colors.ts';
 import auth from './routes/auth.route.js';
 import calendar from './routes/calendar.route.js';
+import webhooks from './routes/webhooks.route.js';
 import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
 import integration from './routes/integration.route.js';
@@ -40,6 +41,7 @@ app.use('/api/v1', calendar);
 app.use('/api/v1', appointments);
 app.use('/api/v1', integration);
 app.use('/api/v1', googleCalendar);
+app.use('/api/v1/webhooks', webhooks);
 app.use(errorHandler);
 
 const PORT = process.env.BACK_PORT || 8080;

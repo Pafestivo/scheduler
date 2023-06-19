@@ -26,7 +26,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [answers, setAnswers] = useState<{ [key:string]:string }>({});
   const [appointments, setAppointments] = useState<{ date:string, time:string }[]>([])
   const [dailyBreak, setDailyBreak] = useState<{ startTime:string, endTime:string } | null>(null)
-  const [calendar, setCalendar] = useState<{ googleWriteInto: string }>({ googleWriteInto: 'Primary' })
+  const [calendar, setCalendar] = useState<{ userHash: string[], googleWriteInto: string }>({ userHash: [], googleWriteInto: 'Primary' })
   const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext()
 
   const getCurrentCalendar = useCallback(async () => {
@@ -47,6 +47,15 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       console.log('no appointments scheduled for current calendar')
     }
   }, [calendarHash])
+
+  const getCalendarOwner = async (userHash:string) => {
+    try {
+      const calendarOwner = await getData(`/auth/singleUser/${userHash}`)
+      return calendarOwner
+    } catch(error) {
+      console.log('error getting calendar', error)
+    }
+  }
 
   const preparePage = useCallback(async () => {
     const calendar = await getCurrentCalendar()
@@ -250,13 +259,18 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       })
       const updatedAppointments = await getCalendarAppointments()
       const meetingEndTime = addTime(appointmentTime, appointmentsLength)
-      await postData('/googleAppointments/orrodrigez1@gmail.com', {
-        googleWriteInto: calendar.googleWriteInto,
-        summary: `Appointment with client`,
-        date: startDate,
-        startTime: appointmentTime,
-        endTime: meetingEndTime
-      })
+      const calendarOwner = await getCalendarOwner(calendar.userHash[0])
+      const integrations = await getData(`/integration/${calendarOwner?.email}`)
+      const hasGoogleIntegration = integrations.some((integration: {provider: string}) => integration.provider === 'google')
+      if(hasGoogleIntegration) {
+        await postData(`/googleAppointments/${calendarOwner?.email}`, {
+          googleWriteInto: calendar.googleWriteInto,
+          summary: `Appointment with client`,
+          date: startDate,
+          startTime: appointmentTime,
+          endTime: meetingEndTime
+        })
+      }
       setAppointments(updatedAppointments)
       setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 })
       setAlertOpen(true)

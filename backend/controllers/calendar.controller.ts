@@ -6,6 +6,7 @@ import generateHash from '../utils/generateHash.js';
 import excludeFields from '../utils/excludeFields.js';
 import { Appointment, CalendarIntegration, CalendarType, Integration, License, User } from '@prisma/client';
 import { Calendar } from '@prisma/client';
+import updateGoogleWatchHook from '../utils/updateGoogleWatchHook.js';
 
 interface CalendarRequest extends Request {
   body: {
@@ -261,12 +262,10 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     availabilities,
     personalForm,
     breakTime,
-    googleReadFrom,
     googleWriteInto,
     minNotice,
   } = req.body;
 
-  console.log(req.body);
 
   try {
     const calendar = await prisma.calendar.findUnique({
@@ -299,7 +298,6 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (breakTime) updateData.breakTime = breakTime;
     if (availabilities) updateData.availabilities = availabilities;
     if (personalForm) updateData.personalForm = personalForm;
-    if (googleReadFrom) updateData.googleReadFrom = googleReadFrom;
     if (googleWriteInto) updateData.googleWriteInto = googleWriteInto;
     if (padding || padding === 0) updateData.padding = padding;
     if (minNotice) updateData.minNotice = minNotice;
@@ -331,6 +329,102 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       success: true,
       data: updatedCalendar,
     });
+  } catch (error: any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});
+
+// @desc    Update calendar's readFrom google
+// @route   PUT /api/v1/calendars/readFrom
+// @access  Private
+
+export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const {
+    hash,
+    googleReadFrom
+  } = req.body;
+
+  try {
+    const calendar = await prisma.calendar.findUnique({
+      where: {
+        hash,
+      }
+    })
+
+    if(!calendar) {
+      res.status(200).json({
+        success: false,
+        data: 'No calendar with given hash was found.'
+      })
+      return
+    }
+
+    const updatedCalendar = await prisma.calendar.update({
+      where: {
+        hash,
+      },
+      data: {
+        googleReadFrom
+      },
+    });
+
+    if(!calendar.userHash || !Array.isArray(calendar.userHash)) {
+      res.status(200).json({
+        success: false,
+        data: 'Calendar is not associated with any user.'
+      })
+      return
+    }
+
+    const ownerHash = JSON.stringify(calendar.userHash[0])
+    const calendarOwner = await prisma.user.findUnique({
+      where: {
+        hash: ownerHash
+      }
+    })
+    if(!calendarOwner) {
+      res.status(200).json({
+        success: false,
+        data: 'There was a problem retrieving this calendar owner.'
+      })
+      return
+    }
+    const ownerEmail = calendarOwner.email
+    if (!ownerEmail || !updatedCalendar.googleReadFrom) {
+      res.status(200).json({
+        success: false,
+        data: 'There was a problem retrieving this calendar owner email.'
+      })
+      return
+    }
+
+    // update google watch hook
+    const googleWatchInfo = await updateGoogleWatchHook(ownerEmail, updatedCalendar.googleReadFrom)
+
+    if(!googleWatchInfo) {
+      res.status(500).json({
+        success: false,
+        data: 'There was a problem updating the google watch hook.'
+      })
+      return
+    }
+
+    await prisma.calendar.update({
+      where: {
+        hash,
+      },
+      data: {
+        watchChannelId: googleWatchInfo.channelId,
+        watchChannelToken: googleWatchInfo.channelToken
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: 'Calendar preferences updated successfully.'
+    })
+
+
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }

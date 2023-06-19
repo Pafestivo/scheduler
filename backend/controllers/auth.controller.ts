@@ -242,3 +242,31 @@ export const updatePassword = asyncHandler(async (req: AuthRequest, res: Respons
     }
   }
 });
+
+// @desc    Get user by hash
+// @route   GET /api/v1/auth/singleUser/:hash
+// @access  Public
+
+export const getUserByHash = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { userHash } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        hash: userHash
+      }
+    })
+
+    if(!user) {
+      return next(new ErrorResponse({ message: 'User not found', statusCode: 404 }));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user 
+    });
+    
+  } catch (error: any) {
+    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+  }
+});

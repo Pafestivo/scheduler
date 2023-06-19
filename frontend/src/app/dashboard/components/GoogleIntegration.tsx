@@ -38,15 +38,13 @@ function GoogleIntegration() {
 
   const updateReadFrom = async (itemSummary: string) => {
     setLoading(true)
-    const res = await putData('/calendars', {
+    const res = await putData('/calendars/readFrom', {
       hash: calendar?.hash,
       googleReadFrom: itemSummary
     })
-    console.log(res)
     if(calendar && res.success) {
       calendar.googleReadFrom = itemSummary
       setCalendar(calendar)
-      console.log(calendar)
     }
     setLoading(false)
     setReadEventsFromSelection(false)
