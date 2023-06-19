@@ -3,7 +3,7 @@ import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from '../middlewares/asyncHandler.js';
 import { IntegrationType } from '@prisma/client';
 import { generateGoogleClient } from '../utils/generateGoogleClient.js';
-import { google } from 'googleapis'
+import { google } from 'googleapis';
 import dayjs from 'dayjs';
 
 interface integrationRequest extends Request {
@@ -12,10 +12,10 @@ interface integrationRequest extends Request {
     refreshToken: string;
     expiresAt: number;
     userEmail: string;
-    provider: IntegrationType
+    provider: IntegrationType;
     googleReadFrom: string;
     googleWriteInto: string;
-    summary: string; 
+    summary: string;
     date: string;
     startTime: string;
     endTime: string;
@@ -29,22 +29,22 @@ interface integrationRequest extends Request {
 export const getAppointments = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
   const { googleReadFrom } = req.body;
-  const auth = await generateGoogleClient(userEmail)
+  const auth = await generateGoogleClient(userEmail);
 
-  if(!auth) {
+  if (!auth) {
     res.status(200).json({
       success: false,
-      data: 'Authentication failed'
-    })
+      data: 'Authentication failed',
+    });
     return;
   }
 
   const calendar = google.calendar({
     version: 'v3',
     auth: auth,
-  })
+  });
 
-  const now = (new Date()).toISOString();
+  const now = new Date().toISOString();
 
   try {
     const calendarEvents = await calendar.events.list({
@@ -53,12 +53,12 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
       singleEvents: true,
       orderBy: 'startTime',
     });
-  
+
     res.status(200).json({
       success: true,
-      data: calendarEvents.data.items
-    })
-  } catch (error:any) {
+      data: calendarEvents.data.items,
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -70,29 +70,29 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
 export const getCalendars = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
 
-  const auth = await generateGoogleClient(userEmail)
+  const auth = await generateGoogleClient(userEmail);
 
-  if(!auth) {
+  if (!auth) {
     res.status(200).json({
       success: false,
-      data: 'Authentication failed'
-    })
+      data: 'Authentication failed',
+    });
     return;
   }
 
   const calendar = google.calendar({
     version: 'v3',
     auth: auth,
-  })
+  });
 
   try {
     const userCalendars = await calendar.calendarList.list();
-  
+
     res.status(200).json({
       success: true,
-      data: userCalendars.data.items
-    })
-  } catch (error:any) {
+      data: userCalendars.data.items,
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
@@ -105,23 +105,23 @@ export const postAppointment = asyncHandler(async (req: integrationRequest, res:
   const { userEmail } = req.params;
   const { googleWriteInto, summary, date, startTime, endTime } = req.body;
 
-  const auth = await generateGoogleClient(userEmail)
+  const auth = await generateGoogleClient(userEmail);
 
-  if(!auth) {
+  if (!auth) {
     res.status(200).json({
       success: false,
-      data: 'Authentication failed'
-    })
+      data: 'Authentication failed',
+    });
     return;
   }
 
   const calendar = google.calendar({
     version: 'v3',
     auth: auth,
-  })
+  });
 
-  const formatDate = date.split('T')[0]
-  console.log('the date:', `${formatDate}T${startTime}:00`)
+  const formatDate = date.split('T')[0];
+  console.log('the date:', `${formatDate}T${startTime}:00`);
 
   try {
     const calendarEvent = await calendar.events.insert({
@@ -138,12 +138,13 @@ export const postAppointment = asyncHandler(async (req: integrationRequest, res:
         },
       },
     });
-  
+    console.log(calendarEvent.data);
+
     res.status(200).json({
       success: true,
-      data: calendarEvent.data
-    })
-  } catch (error:any) {
+      data: calendarEvent.data,
+    });
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });

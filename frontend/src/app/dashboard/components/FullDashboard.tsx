@@ -105,7 +105,7 @@ export default function FullDashboard() {
   const params = useParams();
   const router = useRouter();
   const [hasAccess, setHasAccess] = React.useState(false);
-  const { calendar, setCalendar, user } = useGlobalContext();
+  const { calendar, setCalendar, user, setLoading } = useGlobalContext();
   React.useEffect(() => {
     const getCalendar = async () => {
       const response = await getData(`/calendars/fullCalendar/${params.hash}`);
@@ -114,12 +114,15 @@ export default function FullDashboard() {
     getCalendar();
   }, [params.hash, setCalendar]);
   React.useEffect(() => {
-    if (!user?.calendars.includes(params.hash)) {
+    setLoading(true);
+    if (user && !user?.calendars.includes(params.hash)) {
+      setLoading(false);
       router.push('/notfound');
-    } else {
+    } else if (user && user?.calendars.includes(params.hash)) {
       setHasAccess(true);
+      setLoading(false);
     }
-  }, [params.hash, router, user?.calendars]);
+  }, [params.hash, router, user, user?.calendars]);
 
   const SETTING_COMPONENTS = [
     {

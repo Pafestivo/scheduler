@@ -184,6 +184,7 @@ model Appointment {
   cancelTime   String?         // assuming timestamp and it is optional
   isConfirmed  Boolean           @default(false)
   answersArray Json?          // the answers to the personalForm questions
+  googleEventId String?         // assuming this corresponds to integrationId
   hash         String           @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])

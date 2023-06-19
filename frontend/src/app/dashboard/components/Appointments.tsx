@@ -50,6 +50,13 @@ const Appointments = () => {
     setSelectedStatus(status);
   };
 
+  // Handle number of records per page
+  const handlePerPageChange = (event: any) => {
+    const perPageValue = event.target.value as number;
+    setPerPage(perPageValue);
+    setCurrentPage(1);
+  };
+
   // Apply pagination, sorting, and status filtering to the data
   const startIndex: number = (currentPage - 1) * perPage;
   const endIndex: number = startIndex + perPage;
@@ -106,6 +113,14 @@ const Appointments = () => {
           <MenuItem value="rescheduled">Rescheduled</MenuItem>
           <MenuItem value="confirmed">Confirmed</MenuItem>
           <MenuItem value="completed">Completed</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl>
+        <InputLabel>Per Page</InputLabel>
+        <Select value={perPage} onChange={handlePerPageChange}>
+          <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={20}>20</MenuItem>
+          <MenuItem value={30}>30</MenuItem>
         </Select>
       </FormControl>
       <TableContainer component={Paper}>
