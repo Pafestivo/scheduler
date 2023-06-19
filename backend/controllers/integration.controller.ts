@@ -52,6 +52,24 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
         },
       });
 
+      const user = await prisma.user.findUnique({
+        where: {
+          email: userEmail,
+        },
+      });
+
+      if (user) {
+        prisma.calendar.updateMany({
+          where: {
+            owner: user.hash,
+          },
+          data: {
+            integrationId: {
+              push: integration.id,
+            },
+          },
+        });
+      }
       res.status(200).json({
         success: true,
         data: integration,
@@ -66,23 +84,24 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
 // @route   GET /api/v1/integration/:userEmail
 // @access  Private
 
-export const getAllUserIntegrations = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
-  const { userEmail } = req.params;
+export const getAllUserIntegrations = asyncHandler(
+  async (req: integrationRequest, res: Response, next: NextFunction) => {
+    const { userEmail } = req.params;
 
-  try {
-    const integration = await prisma.integration.findMany({
-      where: {
-        userEmail,
-      },
-    });
+    try {
+      const integration = await prisma.integration.findMany({
+        where: {
+          userEmail,
+        },
+      });
 
       res.status(200).json({
         success: true,
         amount: integration.length,
         data: integration,
       });
-
-  } catch (error: any) {
-    return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+    } catch (error: any) {
+      return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+    }
   }
-});
+);

@@ -4,29 +4,15 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import { IntegrationType } from '@prisma/client';
 import { generateGoogleClient } from '../utils/generateGoogleClient.js';
 import { google } from 'googleapis';
+import prisma from '../utils/prismaClient.js';
 import dayjs from 'dayjs';
-
-interface integrationRequest extends Request {
-  body: {
-    token: string;
-    refreshToken: string;
-    expiresAt: number;
-    userEmail: string;
-    provider: IntegrationType;
-    googleReadFrom: string;
-    googleWriteInto: string;
-    summary: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-  };
-}
+import { IntegrationRequest } from '../models/types.js';
 
 // @desc    Get appointments from google
 // @route   GET /api/v1/googleAppointments/:userEmail
 // @access  Public
 
-export const getAppointments = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+export const getAppointments = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
   const { googleReadFrom } = req.body;
   const auth = await generateGoogleClient(userEmail);
@@ -67,7 +53,7 @@ export const getAppointments = asyncHandler(async (req: integrationRequest, res:
 // @route   GET /api/v1/googleCalendars/:userEmail
 // @access  Public
 
-export const getCalendars = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+export const getCalendars = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
 
   const auth = await generateGoogleClient(userEmail);
@@ -101,9 +87,9 @@ export const getCalendars = asyncHandler(async (req: integrationRequest, res: Re
 // @route   POST /api/v1/googleAppointments/:userEmail
 // @access  Public
 
-export const postAppointment = asyncHandler(async (req: integrationRequest, res: Response, next: NextFunction) => {
+export const postAppointment = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
   const { userEmail } = req.params;
-  const { googleWriteInto, summary, date, startTime, endTime } = req.body;
+  const { googleWriteInto, summary, date, startTime, endTime, hash } = req.body;
 
   const auth = await generateGoogleClient(userEmail);
 
@@ -138,7 +124,14 @@ export const postAppointment = asyncHandler(async (req: integrationRequest, res:
         },
       },
     });
-    console.log(calendarEvent.data);
+    const updatedAppointment = await prisma.appointment.update({
+      where: {
+        hash: hash,
+      },
+      data: {
+        googleEventId: calendarEvent.data.id,
+      },
+    });
 
     res.status(200).json({
       success: true,
