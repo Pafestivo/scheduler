@@ -96,8 +96,7 @@ const Availability = () => {
     } else {
       setCanSubmit(true);
     }
-    setLoading(false);
-  }, [repeatingList, setLoading]);
+  }, [repeatingList]);
 
   React.useEffect(() => {
     const getAvailabilities = async () => {
@@ -116,13 +115,13 @@ const Availability = () => {
           const index = obj.day;
           newArray[index] = obj;
         }
-
         setRepeatingList(newArray);
       }
+      setLoading(false);
     };
 
     getAvailabilities();
-  }, [calendar?.availabilities]);
+  }, [calendar?.availabilities, setLoading]);
 
   return (
     <div>
@@ -132,7 +131,7 @@ const Availability = () => {
             {repeatingList.map((obj, index) => {
               return (
                 <Box
-                  key={index}
+                  key={Math.random()}
                   sx={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -158,6 +157,14 @@ const Availability = () => {
           <Typography variant="body2">{notAvailableDays}</Typography>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
             Save changes
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              console.log(repeatingList);
+            }}
+          >
+            log
           </Button>
         </>
       )}

@@ -102,7 +102,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function FullDashboard() {
   const params = useParams();
-  const { calendar, setCalendar } = useGlobalContext();
+  const { calendar, setCalendar, user } = useGlobalContext();
   React.useEffect(() => {
     const getCalendar = async () => {
       const response = await getData(`/calendars/fullCalendar/${params.hash}`);
