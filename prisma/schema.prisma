@@ -173,6 +173,7 @@ enum AppointmentStatus {
   completed
   canceled
   rescheduled
+  readOnly
 }
 
 model Appointment {
@@ -182,12 +183,13 @@ model Appointment {
   timestamp    DateTime?         @default(now())
   status       AppointmentStatus
   date         String          // the date of the meeting in format mm/dd/yy
-  time         String           // the time of meeting in format '17:53'
+  startTime    String           // the time of meeting in format '17:53'
+  endTime      String
   transaction  Int?               // assuming this corresponds to transactionID
   cancelTime   String?         // assuming timestamp and it is optional
   isConfirmed  Boolean           @default(false)
   answersArray Json?          // the answers to the personalForm questions
-  googleEventId String?         // assuming this corresponds to integrationId
+  googleEventId String?         @unique // assuming this corresponds to integrationId
   hash         String           @unique  
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])

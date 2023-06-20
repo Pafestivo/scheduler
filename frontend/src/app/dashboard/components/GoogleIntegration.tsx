@@ -41,7 +41,7 @@ function GoogleIntegration() {
 
   const updateReadFrom = async (itemSummary: string) => {
     setLoading(true);
-    const res = await putData('/calendars/readFrom', {
+    const res = await putData('/calendars', {
       hash: calendar?.hash,
       googleReadFrom: itemSummary,
     });
@@ -55,7 +55,7 @@ function GoogleIntegration() {
 
   const updateWriteInto = async (itemSummary: string) => {
     setLoading(true);
-    const res = await putData('/calendars', {
+    const res = await putData('/calendars/writeInto', {
       hash: calendar?.hash,
       googleWriteInto: itemSummary,
     });

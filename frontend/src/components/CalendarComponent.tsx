@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import FormDialog from './FormDialog';
-import { hash } from 'bcrypt';
+import findAvailableSlots from '@/utilities/findAvailableSlots';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -64,6 +64,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       console.log('error getting calendar', error);
     }
   };
+  
 
   const preparePage = useCallback(async () => {
     const calendar = await getCurrentCalendar();
@@ -219,17 +220,21 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setDailyAmountOfAppointments(appointments);
   };
 
-  const addTime = (timeString: string, minutesToAdd: number) => {
-    const [hours, minutes] = timeString.split(':');
-    const dateObj = new Date();
-    dateObj.setHours(Number(hours));
-    dateObj.setMinutes(Number(minutes));
-    dateObj.setMinutes(dateObj.getMinutes() + minutesToAdd);
-
-    const newHours = String(dateObj.getHours()).padStart(2, '0');
-    const newMinutes = String(dateObj.getMinutes()).padStart(2, '0');
-
-    return `${newHours}:${newMinutes}`;
+  const addTime = (time: string, minutes: number): string => {
+    // Parse hours and minutes from the input time string
+    const [hourStr, minuteStr] = time.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hourStr, 10));
+    date.setMinutes(parseInt(minuteStr, 10));
+  
+    // Add the specified number of minutes
+    date.setMinutes(date.getMinutes() + minutes);
+  
+    // Format the new time string
+    const hours = date.getHours().toString().padStart(2, '0');
+    const mins = date.getMinutes().toString().padStart(2, '0');
+  
+    return `${hours}:${mins}`;
   };
 
   const doesPersonalFormExist = (appointmentStartTime: string) => {
@@ -286,8 +291,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         calendarHash,
         userHash: loggedUser.hash,
         date: startDate,
-        time: appointmentTime,
-        length: appointmentsLength,
+        startTime: appointmentTime,
+        endTime: addTime(appointmentTime, appointmentsLength),
         answersArray: answers || {},
       });
       const updatedAppointments = await getCalendarAppointments();
