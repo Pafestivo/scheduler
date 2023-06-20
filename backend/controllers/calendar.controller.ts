@@ -283,7 +283,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     availabilities,
     personalForm,
     breakTime,
-    googleWriteInto,
+    googleReadFrom,
     minNotice,
   } = req.body;
 
@@ -318,7 +318,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (breakTime) updateData.breakTime = breakTime;
     if (availabilities) updateData.availabilities = availabilities;
     if (personalForm) updateData.personalForm = personalForm;
-    if (googleWriteInto) updateData.googleWriteInto = googleWriteInto;
+    if (googleReadFrom) updateData.googleReadFrom = googleReadFrom;
     if (padding || padding === 0) updateData.padding = padding;
     if (minNotice) updateData.minNotice = minNotice;
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
@@ -354,12 +354,12 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
   }
 });
 
-// @desc    Update calendar's readFrom google
-// @route   PUT /api/v1/calendars/readFrom
+// @desc    Update calendar's writeInto google
+// @route   PUT /api/v1/calendars/writeInto
 // @access  Private
 
-export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
-  const { hash, googleReadFrom } = req.body;
+export const updateWriteIntoCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
+  const { hash, googleWriteInto } = req.body;
 
   try {
     const calendar = await prisma.calendar.findUnique({
@@ -381,11 +381,11 @@ export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, 
         hash,
       },
       data: {
-        googleReadFrom,
+        googleWriteInto,
       },
     });
 
-    if (!calendar.userHash || !Array.isArray(calendar.userHash)) {
+    if (!calendar.userHash || !calendar.owner) {
       res.status(200).json({
         success: false,
         data: 'Calendar is not associated with any user.',
@@ -393,10 +393,9 @@ export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, 
       return;
     }
 
-    const ownerHash = JSON.stringify(calendar.userHash[0]);
     const calendarOwner = await prisma.user.findUnique({
       where: {
-        hash: ownerHash,
+        hash: calendar.owner,
       },
     });
     if (!calendarOwner) {
@@ -407,7 +406,7 @@ export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, 
       return;
     }
     const ownerEmail = calendarOwner.email;
-    if (!ownerEmail || !updatedCalendar.googleReadFrom) {
+    if (!ownerEmail || !updatedCalendar.googleWriteInto) {
       res.status(200).json({
         success: false,
         data: 'There was a problem retrieving this calendar owner email.',
@@ -416,7 +415,7 @@ export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, 
     }
 
     // update google watch hook
-    const googleWatchInfo = await updateGoogleWatchHook(ownerEmail, updatedCalendar.googleReadFrom);
+    const googleWatchInfo = await updateGoogleWatchHook(ownerEmail, updatedCalendar.googleWriteInto);
 
     if (!googleWatchInfo) {
       res.status(500).json({
@@ -426,6 +425,7 @@ export const updateReadFromCalendar = asyncHandler(async (req: CalendarRequest, 
       return;
     }
 
+    // update calendar with google watch info
     await prisma.calendar.update({
       where: {
         hash,

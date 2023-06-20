@@ -20,7 +20,8 @@ interface AppointmentsRequest extends Request {
     userHash?: string;
     status?: AppointmentStatus;
     date: string;
-    time: string;
+    startTime: string;
+    endTime: string;
     hash?: string;
     transaction?: number;
     answersArray?: { [key:string]:string };
@@ -32,13 +33,13 @@ interface AppointmentsRequest extends Request {
 // @access  Private
 
 export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { calendarHash, userHash, date, time, answersArray } = req.body;
+  const { calendarHash, userHash, date, startTime, endTime, answersArray } = req.body;
   const hash = generateHash(calendarHash, date);
 
   if(!calendarHash) {
     return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
   }
-  if(!date || !time) {
+  if(!date || !startTime || !endTime) {
     return next(new ErrorResponse({ message: 'Missing information(date and time is required)', statusCode: 400 }));
   }
 
@@ -49,7 +50,8 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
         userHash: userHash || 'Guest',
         status: 'new',
         date,
-        time,
+        startTime,
+        endTime,
         answersArray,
         hash
       },
@@ -149,7 +151,7 @@ export const getAllCalendarAppointments = asyncHandler(async (req: AppointmentsR
 // @access  Private
 
 export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { hash, date, time, status, transaction } = req.body;
+  const { hash, date, startTime, endTime, status, transaction } = req.body;
 
   if (!hash) {
     return next(new ErrorResponse({ message: 'No hash provided', statusCode: 400 }));
@@ -176,7 +178,8 @@ export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, r
     // make update object to skip null values
     const updateData: any = {};
     if (date) updateData.date = date;
-    if (time) updateData.time = time;
+    if (startTime) updateData.startTime = startTime;
+    if (endTime) updateData.endTime = endTime;
     if (status) updateData.status = status;
     if (cancelTime) updateData.cancelTime = cancelTime;
     if (isConfirmed) updateData.isConfirmed = isConfirmed;
