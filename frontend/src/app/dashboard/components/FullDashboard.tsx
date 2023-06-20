@@ -115,14 +115,27 @@ export default function FullDashboard() {
   }, [params.hash, setCalendar]);
   React.useEffect(() => {
     setLoading(true);
-    if (user && !user?.calendars.includes(params.hash)) {
+    if (user && user.calendars && params.hash && !user.calendars.includes(params.hash)) {
       setLoading(false);
       router.push('/notfound');
-    } else if (user && user?.calendars.includes(params.hash)) {
+      return;
+    }
+    if (user && user.calendars && params.hash && user?.calendars.includes(params.hash)) {
       setHasAccess(true);
       setLoading(false);
+      return;
     }
-  }, [params.hash, router, user, user?.calendars]);
+    if (user && params.hash && !user.calendars) {
+      setLoading(false);
+      router.push('/notfound');
+      return;
+    }
+    if (user === undefined) {
+      setLoading(false);
+      router.push('/notfound');
+      return;
+    }
+  }, [params.hash, router, setLoading, user, user?.calendars]);
 
   const SETTING_COMPONENTS = [
     {
@@ -235,7 +248,7 @@ export default function FullDashboard() {
                   >
                     {activeSetting !== null && calendar ? (
                       SETTING_COMPONENTS[activeSetting].component
-                    ) : calendar ? (
+                    ) : calendar?.hash === params.hash ? (
                       <GeneralSettings />
                     ) : null}
                   </Paper>

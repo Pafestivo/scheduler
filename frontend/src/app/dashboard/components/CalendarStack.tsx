@@ -4,10 +4,10 @@ import CalendarBar from './CalendarBar';
 import { Typography } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 import { getData } from '@/utilities/serverRequests/serverRequests';
-import { Calendar } from '@/utilities/types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import NewCalendarModal from './NewCalendarModal';
 import IconButton from '@mui/material/IconButton';
+import { Calendar } from '@prisma/client';
 
 export default function CalendarStack() {
   const { user, setLoading } = useGlobalContext();
@@ -15,12 +15,12 @@ export default function CalendarStack() {
   const [calendars, setCalendars] = React.useState<never[] | Calendar[]>([]);
 
   React.useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     const getCalendars: () => Promise<void> = async () => {
       if (!user) return;
       const response = await getData(`/calendars/${user.hash}`);
-      if(response.amount) setCalendars(response.data);
-      setLoading(false)
+      if (response.amount) setCalendars(response.data);
+      setLoading(false);
     };
     getCalendars();
   }, [user, setLoading]);

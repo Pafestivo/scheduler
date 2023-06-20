@@ -26,8 +26,8 @@ export interface UiAlert {
   severity: 'success' | 'error' | 'info' | 'warning';
 }
 interface ContextProps {
-  user: User | null;
-  setUser: Dispatch<SetStateAction<User | null>>;
+  user: User | null | undefined;
+  setUser: Dispatch<SetStateAction<User | null | undefined>>;
   alert: UiAlert | null;
   setAlert: Dispatch<SetStateAction<UiAlert | null>>;
   alertOpen: boolean;
@@ -52,7 +52,7 @@ const GlobalContext = createContext<ContextProps>({
 });
 //@ts-ignore
 export const GlobalContextProvider = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null | undefined>(null);
   const [alert, setAlert] = useState<UiAlert | null>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
