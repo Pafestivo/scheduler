@@ -10,7 +10,7 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
   const channelId = crypto.randomBytes(20).toString('hex'); // A unique ID for the channel
   const channelToken = crypto.randomBytes(20).toString('hex'); // An arbitrary string delivered with each notification
   // const channelAddress = `${process.env.NEXT_PUBLIC_BASE_URL}/webhooks/googleCalendar`; // webhook URL for remote
-  const channelAddress = 'https://a169-147-235-209-217.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
+  const channelAddress = 'https://40af-147-235-209-217.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
 
   const auth = await generateGoogleClient(userEmail);
 
@@ -49,8 +49,7 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
         address: channelAddress,
         token: channelToken,
         params: {
-          ttl: '3600', // Expires after one hour - cron has to run every hour
-          // in production, change hour to a week
+          ttl: '1209600', // expires after two weeks, cron jobs runs every 1 week
         },
       },
     });

@@ -12,7 +12,6 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "diagnostics": true
     // "resolveJsonModule": true
   },
   "include": ["./backend/**/*"],

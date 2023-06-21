@@ -14,6 +14,7 @@ import { findExtraAppointments, findExtraEvents } from '../utils/FindExtraIds.js
 export const HandleGoogleWebhook = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const channelId = req.header('X-Goog-Channel-ID');
   const resourceState = req.header('X-Goog-Resource-State');
+  let isFirstRun = true
 
   if (!channelId || !resourceState) {
     console.log('operation failed because of missing info');
@@ -21,94 +22,101 @@ export const HandleGoogleWebhook = asyncHandler(async (req: Request, res: Respon
     return;
   }
   try {
-    const calendar: Calendar | null = await prisma.calendar.findUnique({
+    const calendars: Calendar[] | null = await prisma.calendar.findMany({
       where: {
         watchChannelId: channelId,
       },
     });
 
     // kill if the channelSid is outdated
-    if (!calendar) {
-      res.status(200).end();
+    if (!calendars.length) {
+      res.status(404).end();
       return;
     }
 
-    const calendarOwner: User | null = await prisma.user.findUnique({
-      where: {
-        hash: calendar?.owner,
-      },
-    });
-    if (!calendarOwner || !calendarOwner.email || !calendar?.googleWriteInto) {
-      console.log('There was a problem requesting events from google, missing information');
-      res.status(401).end();
-      return;
-    }
-
-    // get all the events ids from google
-    let eventsFromGoogle = await getFutureGoogleAppointments(calendarOwner.email, calendar?.googleWriteInto);
-    if (!eventsFromGoogle || !eventsFromGoogle.length) eventsFromGoogle = [];
-    const eventIdsArray = eventsFromGoogle.map((event) => (event.id ? event.id : ''));
-    // get all the appointments ids from the db
-    const appointmentsFromDb: Appointment[] = await prisma.appointment.findMany({
-      where: {
-        calendarHash: calendar?.hash,
-      },
-    });
-
-    const appointmentsIds = appointmentsFromDb.map((appointment: Appointment) => appointment.googleEventId || 'no Id');
-
-    // add event
-    const idsToAdd = findExtraEvents(appointmentsIds, eventIdsArray);
-    idsToAdd.forEach(async (id: string) => {
-      const event = eventsFromGoogle.find((event) => event.id === id);
-      if (event && event.start?.dateTime && event.end?.dateTime) {
-        console.log('adding event');
-        await prisma.appointment.create({
-          data: {
-            calendarHash: calendar?.hash,
-            userHash: 'Calendar owner',
-            status: 'new',
-            date: event.start.dateTime,
-            startTime: event.start.dateTime?.split('T')[1].slice(0, 5),
-            endTime: event.end.dateTime?.split('T')[1].slice(0, 5),
-            hash: generateHash(calendar?.hash, event.start.dateTime),
-            googleEventId: event.id,
-            isConfirmed: true,
-          },
-        });
+    for(const calendar of calendars) {
+      const calendarOwner: User | null = await prisma.user.findUnique({
+        where: {
+          hash: calendar?.owner,
+        },
+      });
+      
+      if (!calendarOwner || !calendarOwner.email || !calendar?.googleWriteInto) {
+        console.log('There was a problem requesting events from google, missing information');
+        res.status(401).end();
+        continue;
       }
-    });
-
-    if (eventIdsArray.length !== appointmentsIds.length) {
-      // delete event
-      const idToRemove = findExtraAppointments(appointmentsIds, eventIdsArray);
-      if (idToRemove.length) {
-        idToRemove.forEach(async (id: string) => {
-          console.log('deleting event');
-          await prisma.appointment.delete({
-            where: {
-              googleEventId: id,
+   
+      // get all the events ids from google
+      let eventsFromGoogle = await getFutureGoogleAppointments(calendarOwner.email, calendar?.googleWriteInto);
+      if (!eventsFromGoogle || !eventsFromGoogle.length) eventsFromGoogle = [];
+      const eventIdsArray = eventsFromGoogle.map((event) => (event.id ? event.id : ''));
+      // get all the appointments ids from the db
+      const appointmentsFromDb: Appointment[] = await prisma.appointment.findMany({
+        where: {
+          calendarHash: calendar?.hash,
+        },
+      });
+      
+      const appointmentsIds = appointmentsFromDb.map((appointment: Appointment) => appointment.googleEventId || 'no Id');
+      
+      // add event
+      const idsToAdd = findExtraEvents(appointmentsIds, eventIdsArray);
+      for(const id of idsToAdd) {
+        const event = eventsFromGoogle.find((event) => event.id === id);
+        if (event && event.start?.dateTime && event.end?.dateTime) {
+          console.log('adding event');
+          await prisma.appointment.create({
+            data: {
+              calendarHash: calendar?.hash,
+              userHash: 'Calendar owner',
+              status: 'new',
+              date: event.start.dateTime,
+              startTime: event.start.dateTime?.split('T')[1].slice(0, 5),
+              endTime: event.end.dateTime?.split('T')[1].slice(0, 5),
+              hash: generateHash(calendar?.hash, event.start.dateTime),
+              googleEventId: event.id,
+              isConfirmed: true,
             },
           });
-        });
+        }
       }
-    } else {
-      // edit event
-      console.log('editing event');
-      const eventToEdit = eventsFromGoogle[0];
-      if (eventToEdit && eventToEdit.id && eventToEdit.start?.dateTime && eventToEdit.end?.dateTime) {
-        await prisma.appointment.update({
-          where: {
-            googleEventId: eventToEdit.id,
-          },
-          data: {
-            date: eventToEdit.start.dateTime,
-            startTime: eventToEdit.start.dateTime?.split('T')[1].slice(0, 5),
-            endTime: eventToEdit.end.dateTime?.split('T')[1].slice(0, 5),
-          },
-        });
+      if (eventIdsArray.length !== appointmentsIds.length) {
+        // delete event
+        if(!isFirstRun) continue // it's the same googleEventId, this will delete all duplicates
+        const idToRemove = findExtraAppointments(appointmentsIds, eventIdsArray);
+        if (idToRemove.length) {
+          for(const id of idToRemove) {
+            console.log('deleting event');
+            await prisma.appointment.deleteMany({
+              where: {
+                googleEventId: id,
+              },
+            });
+          }
+          isFirstRun = false
+        }
+      } else {
+        // edit event
+        if(!isFirstRun) continue // it's the same googleEventId, this will edit all duplicates
+        console.log('editing event');
+        const eventToEdit = eventsFromGoogle[0];
+        if (eventToEdit && eventToEdit.id && eventToEdit.start?.dateTime && eventToEdit.end?.dateTime) {
+          await prisma.appointment.updateMany({
+            where: {
+              googleEventId: eventToEdit.id,
+            },
+            data: {
+              date: eventToEdit.start.dateTime,
+              startTime: eventToEdit.start.dateTime?.split('T')[1].slice(0, 5),
+              endTime: eventToEdit.end.dateTime?.split('T')[1].slice(0, 5),
+            },
+          });
+        }
+        isFirstRun = false
       }
     }
+
     res.status(200).end();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
