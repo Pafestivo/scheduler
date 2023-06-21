@@ -3,8 +3,9 @@ import updateGoogleWatchHook from './utils/updateGoogleWatchHook.js';
 import prisma from './utils/prismaClient.js';
 
 
-// cron job to renew expired watch request on google, runs every sunday at 00:00('0 0 * * 0')
-export const renewExpiredWatchRequests = schedule.scheduleJob('*/7 * * * * *', async () => {
+// cron job to renew expired watch request on google, runs every sunday at 00:00('0 0 * * 0'), every hour in development
+export const renewExpiredWatchRequests = schedule.scheduleJob('0 * * * *', async () => {
+
   // get all calendars with watch requests
   const calendarsToRenew = await prisma.calendar.findMany({
     where: {
@@ -13,6 +14,8 @@ export const renewExpiredWatchRequests = schedule.scheduleJob('*/7 * * * * *', a
       }
     }
   })
+
+  const renewedWatches: {userEmail: string, calendar: string}[] = []
 
   calendarsToRenew.forEach(async (calendar) => {
     const user = await prisma.user.findUnique({
@@ -25,7 +28,11 @@ export const renewExpiredWatchRequests = schedule.scheduleJob('*/7 * * * * *', a
     const givenUserCalendar = calendar.googleWriteInto
     const renewal = true
 
-    if(!userEmail || !givenUserCalendar) return; 
+    if(!userEmail || !givenUserCalendar) return;
+    // if the same calendar has already a renewed watch, we don't need a second watch
+    if(renewedWatches.find(renewed => renewed.userEmail === userEmail && renewed.calendar === givenUserCalendar)) return 
+
+
     const renewalData = await updateGoogleWatchHook(userEmail, givenUserCalendar, renewal)
 
     if(!renewalData) return;
@@ -37,5 +44,6 @@ export const renewExpiredWatchRequests = schedule.scheduleJob('*/7 * * * * *', a
         watchChannelToken: renewalData.channelToken
       }
     })
+    renewedWatches.push({userEmail: userEmail, calendar: givenUserCalendar})
   })
 });
