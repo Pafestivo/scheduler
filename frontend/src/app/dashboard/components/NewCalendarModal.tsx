@@ -11,6 +11,7 @@ import FormInput from '@/components/FormInput';
 import { Box } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
+import { calendar } from 'googleapis/build/src/apis/calendar';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -30,7 +31,7 @@ export default function NewCalendarModal({
   setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setCalendars: React.Dispatch<React.SetStateAction<never[] | any[]>>;
 }) {
-  const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext();
+  const { user, setUser, setAlert, setAlertOpen, setLoading } = useGlobalContext();
   const [image, setImage] = React.useState<File | null>(null);
 
   const handleClose = () => {
@@ -47,6 +48,12 @@ export default function NewCalendarModal({
       setFormOpen(false);
       await postData('/calendars', { name, userHash: user.hash, image });
       const response = await getData(`/calendars/${user.hash}`);
+      setUser({
+        ...user,
+        calendars: response.data.map((calendar: { hash: string }) => {
+          return calendar.hash;
+        }),
+      });
       setCalendars(response.data);
       setAlert({ message: `Calendar '${name}' created`, severity: 'success', code: 0 });
       setAlertOpen(true);

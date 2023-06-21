@@ -83,6 +83,7 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
 
       sendTokenResponse(user, 200, res);
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -131,7 +132,7 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
   if (!isMatch) {
     return next(new ErrorResponse({ message: 'Invalid credentials', statusCode: 401 }));
   }
-
+  //
   sendTokenResponse(user, 200, res);
 });
 
@@ -139,7 +140,7 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
 // @route   GET /api/v1/auth/logout
 // @access  Private
 
-export const logoutUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie('token', {
     // Set cookie to expire in 10 seconds
     expires: new Date(Date.now() + 1 * 1000),
@@ -155,7 +156,7 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response, next:
 // @route   GET /api/v1/auth/me/
 // @access  Private
 
-export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response) => {
   // the middlewear 'protect' sets the req.user if token was verified
   if (req.user) {
     const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
@@ -167,7 +168,7 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
 // @route   PUT /api/v1/auth/updatedetails
 // @access  Private
 
-export const updateUserDetails = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const updateUserDetails = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { email, name, phone, asWhatsapp, acceptPromotions, pfp, hash } = req.body;
 
   if (!hash) {
@@ -200,7 +201,7 @@ export const updateUserDetails = asyncHandler(async (req: AuthRequest, res: Resp
 // @route   PUT /api/v1/auth/updatepassword
 // @access  Private
 
-export const updatePassword = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const updatePassword = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { currentPassword, newPassword, hash } = req.body;
 
   if (!hash) {
@@ -264,6 +265,7 @@ export const getUserByHash = asyncHandler(async (req: AuthRequest, res: Response
       success: true,
       data: user,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }

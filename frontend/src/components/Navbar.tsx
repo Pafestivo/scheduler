@@ -12,7 +12,7 @@ import { useGlobalContext } from '@/app/context/store';
 import theme from '@/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import UserMenu from './UserMenu';
-import { usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation';
 
 const pages = ['HOME', 'Pricing'];
 
@@ -31,6 +31,8 @@ function Navbar() {
       const userResponse = await getData('/auth/me');
       if (userResponse.data.hash) {
         setUser(userResponse.data);
+      } else {
+        setUser(undefined);
       }
     };
 
@@ -59,7 +61,6 @@ function Navbar() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-
 
   return (
     <>

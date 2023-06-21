@@ -2,9 +2,10 @@ import jwt from 'jsonwebtoken';
 import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from './asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { UserRequest } from '../models/types.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 interface HashVerified {
   hash: string;
   expiresIn: number;
@@ -28,12 +29,12 @@ export const protect = asyncHandler(async (req: UserRequest, res: Response, next
 
   // Make sure token exists
   if (!token) {
-    return next(console.error('No user logged in'))
+    return next(console.error('No user logged in'));
   }
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as HashVerified;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as HashVerified;
 
     const foundUser = await prisma.user.findUnique({ where: { hash: decoded.hash } });
     if (!foundUser) {
@@ -52,7 +53,7 @@ export const protect = asyncHandler(async (req: UserRequest, res: Response, next
 // Pass in a comma separated list of roles
 export const authorize = (...roles: string[]) => {
   return (req: UserRequest, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user?.type!)) {
+    if (req.user && !roles.includes(req.user.type)) {
       const message = `User role '${req.user?.type}' is not authorized to access this route`;
       return next(new ErrorResponse({ message, statusCode: 403 }));
     }

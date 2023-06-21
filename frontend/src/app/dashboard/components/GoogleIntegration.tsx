@@ -2,6 +2,7 @@ import { useGlobalContext } from '@/app/context/store';
 import ScrollableList from '@/components/ScrollableList';
 import { getData, putData } from '@/utilities/serverRequests/serverRequests';
 import { Box, Button } from '@mui/material';
+import { signIn } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 
 function GoogleIntegration() {
@@ -119,7 +120,13 @@ function GoogleIntegration() {
       <p>No calendars found for this google account</p>
     )
   ) : (
-    <Button>Integrate with google</Button>
+    <Button
+      onClick={() => {
+        signIn('google');
+      }}
+    >
+      Integrate with google
+    </Button>
   );
 }
 
