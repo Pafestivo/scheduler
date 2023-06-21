@@ -11,7 +11,7 @@ enum AppointmentStatus {
   confirmed = 'confirmed',
   completed = 'completed',
   canceled = 'canceled',
-  rescheduled = 'rescheduled'
+  rescheduled = 'rescheduled',
 }
 
 interface AppointmentsRequest extends Request {
@@ -24,7 +24,7 @@ interface AppointmentsRequest extends Request {
     endTime: string;
     hash?: string;
     transaction?: number;
-    answersArray?: { [key:string]:string };
+    answersArray?: { [key: string]: string };
   };
 }
 
@@ -36,10 +36,10 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
   const { calendarHash, userHash, date, startTime, endTime, answersArray } = req.body;
   const hash = generateHash(calendarHash, date);
 
-  if(!calendarHash) {
+  if (!calendarHash) {
     return next(new ErrorResponse({ message: 'No calendar hash provided', statusCode: 400 }));
   }
-  if(!date || !startTime || !endTime) {
+  if (!date || !startTime || !endTime) {
     return next(new ErrorResponse({ message: 'Missing information(date and time is required)', statusCode: 400 }));
   }
 
@@ -53,17 +53,17 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
         startTime,
         endTime,
         answersArray,
-        hash
+        hash,
       },
     });
 
-    const updatedCalendar = await addToAppointmentsArray(calendarHash, hash)
+    const updatedCalendar = await addToAppointmentsArray(calendarHash, hash);
 
-    if(!updatedCalendar) {
+    if (!updatedCalendar) {
       await prisma.availability.delete({
         where: {
-          hash
-        }
+          hash,
+        },
       });
       return next(new ErrorResponse({ message: 'Calendar not found or deleted.', statusCode: 404 }));
     }
@@ -72,7 +72,8 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
       success: true,
       data: appointment,
     });
-  } catch (error:any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
 });
@@ -81,70 +82,77 @@ export const addAppointment = asyncHandler(async (req: AppointmentsRequest, res:
 // @route   GET /api/v1/appointments/single/:appointmentHash
 // @access  Public
 
-export const getSingleAppointment = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { appointmentHash } = req.params;
+export const getSingleAppointment = asyncHandler(
+  async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
+    const { appointmentHash } = req.params;
 
-  if(!appointmentHash) {
-    return next(new ErrorResponse({ message: 'No appointment hash provided', statusCode: 400 }));
-  }
+    if (!appointmentHash) {
+      return next(new ErrorResponse({ message: 'No appointment hash provided', statusCode: 400 }));
+    }
 
-  try {
-    const appointment = await prisma.appointment.findUnique({
-      where: {
-        hash: appointmentHash
+    try {
+      const appointment = await prisma.appointment.findUnique({
+        where: {
+          hash: appointmentHash,
+        },
+      });
+      if (!appointment) {
+        return next(new ErrorResponse({ message: 'Appointment not found', statusCode: 404 }));
       }
-    })
-    if(!appointment) {
-      return next(new ErrorResponse({ message: 'Appointment not found', statusCode: 404 }));
+
+      res.status(200).json({
+        success: true,
+        data: appointment,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+    }
   }
-
-  res.status(200).json({
-    success: true,
-    data: appointment
-  })
-
-} catch (error:any) {
-  return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
-}})
+);
 
 // @desc    Get all calendar appointments
 // @route   GET /api/v1/appointments/:calendarHash
 // @access  Public
 
-export const getAllCalendarAppointments = asyncHandler(async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
-  const { calendarHash } = req.params;
+export const getAllCalendarAppointments = asyncHandler(
+  async (req: AppointmentsRequest, res: Response, next: NextFunction) => {
+    const { calendarHash } = req.params;
 
-  if(!calendarHash) {
-    return next(new ErrorResponse({ message: 'No appointment hash provided', statusCode: 400 }));
-  }
-
-  try {
-    const appointments = await prisma.appointment.findMany({
-      where: {
-        calendarHash
-      }
-    })
-
-    if(appointments.length === 0) {
-      return next(new ErrorResponse({ message: 'No appointments found for given calendar', statusCode: 404 }));
+    if (!calendarHash) {
+      return next(new ErrorResponse({ message: 'No appointment hash provided', statusCode: 400 }));
     }
 
-    // exclude unnecessary fields from each object
-    const response:any[] = []
-    appointments.forEach(appointment => {
-      const appointmentToSend = excludeFields(appointment, ['calendarHash', 'id', 'timestamp'])
-      response.push(appointmentToSend)
-    })
+    try {
+      const appointments = await prisma.appointment.findMany({
+        where: {
+          calendarHash,
+        },
+      });
 
-    res.status(200).json({
-      success: true,
-      amount: response.length,
-      data: response
-    })
+      if (appointments.length === 0) {
+        return next(new ErrorResponse({ message: 'No appointments found for given calendar', statusCode: 404 }));
+      }
 
-} catch (error:any) {
-  return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
-}})
+      // exclude unnecessary fields from each object
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: any[] = [];
+      appointments.forEach((appointment) => {
+        const appointmentToSend = excludeFields(appointment, ['calendarHash', 'id', 'timestamp']);
+        response.push(appointmentToSend);
+      });
+
+      res.status(200).json({
+        success: true,
+        amount: response.length,
+        data: response,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
+    }
+  }
+);
 
 // @desc    update appointment details
 // @route   PUT /api/v1/appointments
@@ -161,21 +169,22 @@ export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, r
   try {
     const appointment = await prisma.appointment.findUnique({
       where: {
-        hash
-      }
-    })
+        hash,
+      },
+    });
 
-    if(!appointment) {
+    if (!appointment) {
       return next(new ErrorResponse({ message: 'Appointment not found', statusCode: 404 }));
     }
 
     // handle status change
     let cancelTime = appointment.cancelTime;
     let isConfirmed = appointment.isConfirmed;
-    if(status === 'canceled' && !cancelTime) cancelTime = new Date().toISOString();
-    if(status === 'confirmed' && !isConfirmed) isConfirmed = true;
+    if (status === 'canceled' && !cancelTime) cancelTime = new Date().toISOString();
+    if (status === 'confirmed' && !isConfirmed) isConfirmed = true;
 
     // make update object to skip null values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (date) updateData.date = date;
     if (startTime) updateData.startTime = startTime;
@@ -188,17 +197,17 @@ export const updateAppointment = asyncHandler(async (req: AppointmentsRequest, r
     // actually update the value
     const updatedAppointment = await prisma.appointment.update({
       where: {
-        hash
+        hash,
       },
-      data: updateData
-    })
+      data: updateData,
+    });
 
     res.status(200).json({
       success: true,
-      data: updatedAppointment
-    })
-
-  } catch (error:any) {
+      data: updatedAppointment,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
-})
+});

@@ -3,10 +3,7 @@ import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import { IntegrationType } from '@prisma/client';
-import { getIntegrationDetails } from '../utils/getIntegrationDetails.js';
-import { google } from 'googleapis';
-import dayjs from 'dayjs';
-import { encrypt, decrypt } from '../utils/encryptDecrypt.js';
+import { encrypt } from '../utils/encryptDecrypt.js';
 
 interface integrationRequest extends Request {
   body: {
@@ -75,6 +72,7 @@ export const addIntegration = asyncHandler(async (req: integrationRequest, res: 
         data: integration,
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
@@ -100,6 +98,7 @@ export const getAllUserIntegrations = asyncHandler(
         amount: integration.length,
         data: integration,
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
     }

@@ -4,7 +4,7 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
 import excludeFields from '../utils/excludeFields.js';
-import { Appointment, CalendarIntegration, CalendarType, Integration, License, User } from '@prisma/client';
+import { Appointment, Availability, CalendarIntegration, CalendarType, License, User } from '@prisma/client';
 import { Calendar } from '@prisma/client';
 import updateGoogleWatchHook from '../utils/updateGoogleWatchHook.js';
 
@@ -13,11 +13,11 @@ interface CalendarRequest extends Request {
     userHash: string;
     name: string;
     padding?: number;
-    availabilities?: any[];
+    availabilities?: Availability[];
     licenseHash?: string;
     deleted: boolean;
     hash: string;
-    appointmentsHash: any[];
+    appointmentsHash: string[];
     type: CalendarType;
     personalForm?: string[];
     integrationId?: number[];
@@ -32,6 +32,7 @@ interface CalendarRequest extends Request {
     googleReadFrom: string;
     googleWriteInto: string;
     minNotice: number;
+    isActive: boolean;
   };
 }
 
@@ -44,7 +45,7 @@ interface fullCalendarResponse extends Calendar {
 
 // @desc    Add Calendar
 // @route   POST /api/v1/calendars
-// @access  Private
+// @access  Privates
 
 export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Response, next: NextFunction) => {
   const { userHash, name, image } = req.body;
@@ -73,7 +74,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
     })) as userContains;
 
     if (user) {
-      const newUser = await prisma.user.update({
+      await prisma.user.update({
         where: {
           hash: userHash,
         },
@@ -94,7 +95,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         },
       });
 
-      const updatedCalendar = await prisma.calendar.update({
+      await prisma.calendar.update({
         where: {
           hash: calendar.hash,
         },
@@ -110,6 +111,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
       success: true,
       data: response,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 500, errorCode: error.code }));
   }
@@ -144,6 +146,7 @@ export const getCalendars = asyncHandler(async (req: CalendarRequest, res: Respo
         data: calendars,
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -178,6 +181,7 @@ export const getDeletedCalendars = asyncHandler(async (req: CalendarRequest, res
         data: calendars,
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -213,6 +217,7 @@ export const getCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
         data: calendar,
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -259,6 +264,7 @@ export const deleteCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       success: true,
       data: 'Calendar deleted successfully.',
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -309,6 +315,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     }
 
     // make an update data object to not update undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (appointmentsHash) updateData.appointmentsHash = appointmentsHash;
     if (type) updateData.type = type;
@@ -349,6 +356,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
       success: true,
       data: updatedCalendar,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -440,6 +448,7 @@ export const updateWriteIntoCalendar = asyncHandler(async (req: CalendarRequest,
       success: true,
       data: 'Calendar preferences updated successfully.',
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -513,6 +522,7 @@ export const getFullCalendar = asyncHandler(async (req: CalendarRequest, res: Re
       success: true,
       data: calendar,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }

@@ -1,11 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from '../middlewares/asyncHandler.js';
-import { IntegrationType } from '@prisma/client';
 import { generateGoogleClient } from '../utils/generateGoogleClient.js';
 import { google } from 'googleapis';
 import prisma from '../utils/prismaClient.js';
-import dayjs from 'dayjs';
 import { IntegrationRequest } from '../models/types.js';
 
 // @desc    Get appointments from google
@@ -44,6 +42,7 @@ export const getAppointments = asyncHandler(async (req: IntegrationRequest, res:
       success: true,
       data: calendarEvents.data.items,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -78,6 +77,7 @@ export const getCalendars = asyncHandler(async (req: IntegrationRequest, res: Re
       success: true,
       data: userCalendars.data.items,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
@@ -124,7 +124,7 @@ export const postAppointment = asyncHandler(async (req: IntegrationRequest, res:
         },
       },
     });
-    const updatedAppointment = await prisma.appointment.update({
+    await prisma.appointment.update({
       where: {
         hash: hash,
       },
@@ -137,6 +137,7 @@ export const postAppointment = asyncHandler(async (req: IntegrationRequest, res:
       success: true,
       data: calendarEvent.data,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }

@@ -1,12 +1,11 @@
-import { generateGoogleClient } from "./generateGoogleClient.js";
-import { google } from "googleapis";
+import { generateGoogleClient } from './generateGoogleClient.js';
+import { google } from 'googleapis';
 
-const getFutureGoogleAppointments = async (userEmail:string, googleCalendarName:string) => {
-
+const getFutureGoogleAppointments = async (userEmail: string, googleCalendarName: string) => {
   const auth = await generateGoogleClient(userEmail);
 
   if (!auth) {
-    console.log("Authentication failed")
+    console.log('Authentication failed');
     return [];
   }
 
@@ -25,9 +24,10 @@ const getFutureGoogleAppointments = async (userEmail:string, googleCalendarName:
       orderBy: 'updated',
     });
 
-    if(!calendarEvents.data.items) return []
-    const descUpdated = calendarEvents.data.items?.reverse()
+    if (!calendarEvents.data.items) return [];
+    const descUpdated = calendarEvents.data.items?.reverse();
     return descUpdated;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log('error getting future appointments', error);
     return [];
