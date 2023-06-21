@@ -1,6 +1,6 @@
 import schedule from 'node-schedule';
-import updateGoogleWatchHook from './utils/updateGoogleWatchHook';
-import prisma from './utils/prismaClient';
+import updateGoogleWatchHook from './utils/updateGoogleWatchHook.js';
+import prisma from './utils/prismaClient.js';
 
 
 // cron job to renew expired watch request on google, runs every sunday at 00:00('0 0 * * 0')
