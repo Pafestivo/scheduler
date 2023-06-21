@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 import prisma from './prismaClient.js';
 import { Calendar } from '@prisma/client';
 
-const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string) => {
+const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string, renewal = false) => {
   const calendarId = givenUserCalendar || 'Primary';
 
   const channelId = crypto.randomBytes(20).toString('hex'); // A unique ID for the channel
@@ -26,18 +26,20 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
 
   try {
 
-    // check if watch already exists for given calendar
-    const existingWatch: Calendar | null = await prisma.calendar.findFirst({
-      where: {
-        googleWriteInto: calendarId,
-        watchChannelId: {
-          not: null
+    if(!renewal) {
+      // check if watch already exists for given calendar
+      const existingWatch: Calendar | null = await prisma.calendar.findFirst({
+        where: {
+          googleWriteInto: calendarId,
+          watchChannelId: {
+            not: null
+          }
         }
+      })
+      // if it exists just return the existing watch details
+      if(existingWatch) {
+        return { channelId: existingWatch.watchChannelId, channelToken: existingWatch.watchChannelToken }
       }
-    })
-    // if it exists just return the existing watch details
-    if(existingWatch) {
-      return { channelId: existingWatch.watchChannelId, channelToken: existingWatch.watchChannelToken }
     }
 
 
@@ -55,7 +57,7 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
       },
     })
 
-    console.log('Google watch created:', googleWatch.data);
+    renewal ? console.log('Google watch renewed:') : console.log('Google watch created:', googleWatch.data);
     return { googleWatch, channelId, channelToken }
 
   } catch(err) {

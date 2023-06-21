@@ -11,11 +11,14 @@ import appointments from './routes/appointments.route.js';
 import integration from './routes/integration.route.js';
 import googleCalendar from './routes/googleCalendar.route.js';
 import cookieParser from 'cookie-parser';
+import { renewExpiredWatchRequests } from './cron-job.js'
+
+// run this cronjob
+renewExpiredWatchRequests;
 
 dotenv.config();
 
 Colors.enable();
-
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
