@@ -1,6 +1,8 @@
 import { postData } from '@/utilities/serverRequests/serverRequests';
-import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import NextAuth, { Account, Profile, Session, User as NextAuthUser } from 'next-auth';
+import { encrypt } from '@/../../backend/utils/encryptDecrypt'
+
 
 interface IGoogleProvider {
   clientId: string;
@@ -41,6 +43,40 @@ const authOptions: IProviders = {
   GoogleProvider: googleProviderOptions,
 };
 
+interface IUser extends NextAuthUser {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresAt?: number;
+}
+
+interface IAccount extends Account {
+  access_token?: string;
+  expires_at?: number;
+  refresh_token?: string;
+}
+interface INextAuthSignInParams {
+  user: IUser;
+  account: IAccount | null;
+  profile?: Profile;
+  email?: { verificationRequest?: boolean };
+  credentials?: Record<string, unknown>;
+}
+interface INextAuthJwtParams {
+  token: any;
+  user: IUser | null;
+  account: IAccount | null;
+  profile?: Profile;
+  isNewUser?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  session?: any;
+}
+
+interface Isession extends Session {
+  accessToken?: { encrypted: string, iv: string};
+  refreshToken?: { encrypted: string, iv: string};
+  expiresAt?: string;
+}
+
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   providers: [GoogleProvider(authOptions.GoogleProvider)],
@@ -48,22 +84,34 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn(user) {
-      const { email } = user.user;
-      if (user.account) {
-        const { provider, access_token, expires_at, refresh_token } = user.account;
+    async signIn({ user, account }: INextAuthSignInParams) {
+      if (account) {
+        // post integration
         await postData('/integration', {
-          token: access_token,
-          refreshToken: refresh_token,
-          expiresAt: expires_at,
-          userEmail: email,
-          provider,
+          token: account.access_token,
+          refreshToken: account.refresh_token,
+          expiresAt: account.expires_at,
+          userEmail: user.email,
+          provider: account.provider,
         });
       }
       return true;
     },
+    
+    async jwt({ token, account }: INextAuthJwtParams) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+      }
+      return token;
+    },
 
-    async session({ session }) {
+    async session({ session, token }: { session: Isession, token: any }) {
+      const encryptedToken = encrypt(token.accessToken)
+      const encryptedRefreshToken = encrypt(token.refreshToken)
+      session.accessToken = encryptedToken;
+      session.refreshToken = encryptedRefreshToken;
+      session.expiresAt = token.expiresAt;
       return session;
     },
 
