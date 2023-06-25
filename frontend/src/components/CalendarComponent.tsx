@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
@@ -53,7 +53,11 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const getCalendarAppointments = useCallback(async () => {
     try {
       const appointments = await getData(`/appointments/${calendarHash}`);
-      return appointments.data;
+      const allAppointments = appointments.data
+      const notCanceledAppointments = allAppointments.filter((appointment: { status: string }) => {
+        return appointment.status !== 'canceled';
+      });
+      return notCanceledAppointments;
     } catch (error) {
       console.log('no appointments scheduled for current calendar');
     }
