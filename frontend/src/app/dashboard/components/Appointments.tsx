@@ -1,6 +1,7 @@
-import { getData, postData, putData } from '@/utilities/serverRequests/serverRequests';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getData, putData } from '@/utilities/serverRequests/serverRequests';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Appointment } from '@prisma/client';
 import dayjs from 'dayjs';
 import {
@@ -26,18 +27,17 @@ const Appointments = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page number
   const [sorting, setSorting] = useState<string>('upcoming'); // Sorting option
   const [selectedStatus, setSelectedStatus] = useState<string>('All'); // Selected status for filtering
-  const [reRender, setReRender] = useState<boolean>(false);
   const { setLoading, setAlert, setAlertOpen } = useGlobalContext()
   const params = useParams();
 
-  const getAppointments = async () => {
+  const getAppointments = useCallback(async () => {
     const response = await getData(`/appointments/${params.hash}`);
     setAppointments(response.data);
-  };
+  }, [params.hash]);
 
   useEffect(() => {
     getAppointments();
-  }, [params.hash]);
+  }, [params.hash, getAppointments]);
 
   // Handle pagination
   const handlePagination = (page: number) => {
@@ -113,9 +113,28 @@ const Appointments = () => {
   };
 
   // Function to handle approving an appointment
-  const handleApproveAppointment = (appointmentHash: string) => {
-    // Implement the approve appointment logic here
-    console.log(`Approve appointment: ${appointmentHash}`);
+  const handleApproveAppointment = async (appointmentHash: string) => {
+    setLoading(true)
+    const cancelAppointment = await putData('/appointments', {
+      hash: appointmentHash,
+      status: "confirmed"
+    })
+    if(cancelAppointment.success) {
+      setAlert({
+        message: 'Appointment confirmed successfully',
+        severity: 'success',
+        code: 0,
+      });
+      getAppointments()
+    } else {
+      setAlert({
+        message: 'Failed to confirm appointment, please try again later',
+        severity: 'error',
+        code: 0,
+      });
+    }
+    setAlertOpen(true);
+    setLoading(false);
   };
 
   return (
@@ -174,7 +193,7 @@ const Appointments = () => {
                 <TableCell>
                   <Button onClick={() => handleCancelAppointment(appointment.hash)}>Cancel</Button>
                   <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>Reschedule</Button>
-                  <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>
+                  {appointment.status !== 'confirmed' && <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>}
                 </TableCell>
                 )}
               </TableRow>
