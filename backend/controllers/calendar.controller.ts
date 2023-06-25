@@ -327,7 +327,7 @@ export const updateCalendar = asyncHandler(async (req: CalendarRequest, res: Res
     if (personalForm) updateData.personalForm = personalForm;
     if (googleReadFrom) updateData.googleReadFrom = googleReadFrom;
     if (padding || padding === 0) updateData.padding = padding;
-    if (minNotice) updateData.minNotice = minNotice;
+    if (minNotice || minNotice === 0) updateData.minNotice = minNotice;
     if (appointmentsLength) updateData.appointmentsLength = appointmentsLength;
     // make sure to add to the integration array and not replacing it
     if (integrationId) {

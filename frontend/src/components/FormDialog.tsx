@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
+// import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -7,12 +7,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormInput from './FormInput';
 import FormSelectInput from './FormSelectInput';
-import { Checkbox, FormControlLabel } from '@mui/material';
+// import { Checkbox, FormControlLabel } from '@mui/material';
 import FormCheckInput from './FormCheckboxInput';
 
 interface FormDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSubmit: (...args: any[]) => Promise<void>;
   personalForm?: {
     question: string;
@@ -25,11 +26,11 @@ interface FormDialogProps {
 }
 
 const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSubmit }: FormDialogProps) => {
-  const handleSetAnswers = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
+  const handleSetAnswers = (textFieldValue: string, name: string) => {
     if (!setAnswers) return;
     setAnswers((prev) => ({
       ...prev,
-      [name]: e.target.value,
+      [name]: textFieldValue,
     }));
   };
 

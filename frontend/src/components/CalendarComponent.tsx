@@ -14,12 +14,11 @@ interface CalendarComponentProps {
 const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [startDate, setStartDate] = useState(new Date());
   const [showAvailableTime, setShowAvailableTime] = useState(false);
-  const [dailyAvailability, setDailyAvailability] = useState<{ startTime: string; endTime: string }[]>([]);
   const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<
     { day: number; startTime: string; endTime: string }[]
   >([]);
   const [appointmentsLength, setAppointmentsLength] = useState(60);
-  const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<{ startTime: string }[]>([]);
+  const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
   const [personalForm, setPersonalForm] = useState<
     { question: string; inputType: string; options?: string[]; required: boolean }[]
@@ -29,9 +28,13 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [calendarOwner, setCalendarOwner] = useState<string>('');
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [appointments, setAppointments] = useState<{ date: string; time: string }[]>([]);
-  const [dailyBreak, setDailyBreak] = useState<{ startTime: string; endTime: string } | null>(null);
-  const [calendar, setCalendar] = useState<{ userHash: string[]; googleWriteInto: string }>({
+  const [appointments, setAppointments] = useState<{ date: string, startTime: string, endTime: string }[]>([]);
+  const [calendar, setCalendar] = useState<{ 
+    userHash: string[],
+    googleWriteInto: string, 
+    minNotice?: number,
+    breakTime?:{ startTime: string; endTime: string; isActive: boolean }
+  }>({
     userHash: [],
     googleWriteInto: 'Primary',
   });
@@ -49,7 +52,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
 
   const getCalendarAppointments = useCallback(async () => {
     try {
-      let appointments = await getData(`/appointments/${calendarHash}`);
+      const appointments = await getData(`/appointments/${calendarHash}`);
       return appointments.data;
     } catch (error) {
       console.log('no appointments scheduled for current calendar');
@@ -73,7 +76,6 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setAppointments(appointments || []);
     setCalendar(calendar);
     if (user?.hash) setLoggedUser(user);
-    if (calendar.breakTime?.isActive) setDailyBreak(calendar.breakTime);
     setAppointmentsLength(calendar.appointmentsLength);
     setPadding(calendar.padding);
     setPersonalForm(calendar.personalForm || []);
@@ -90,9 +92,16 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setStartDate(date);
     setShowAvailableTime(true);
     const currentDayAvailabilities = await getDailyAvailability(date);
-    const timeWorking = getWorkingTimeInMinutes(currentDayAvailabilities);
-    const AmountOfAppointmentsPerSession = calculateAmountOfAppointments(timeWorking);
-    modifyAmountOfMeetings(AmountOfAppointmentsPerSession);
+    const meetingsForTheDay = findAvailableSlots(
+      currentDayAvailabilities,
+      appointments,
+      appointmentsLength, 
+      calendar.breakTime, 
+      padding, 
+      calendar.minNotice, 
+      date.toLocaleDateString()
+    )
+    setDailyAmountOfAppointments(meetingsForTheDay)
   };
 
   const getDailyAvailability = async (date: Date) => {
@@ -102,122 +111,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     );
     if (currentDayAvailabilities.length === 0)
       currentDayAvailabilities = [{ day: 0, startTime: '12:00', endTime: '12:00' }];
-    setDailyAvailability(currentDayAvailabilities);
     setLoading(false);
     return currentDayAvailabilities;
-  };
-
-  const getWorkingTimeInMinutes = (currentDayAvailabilities: { startTime: string; endTime: string }[]) => {
-    const sessionsTimeInMinutes: { startTime: string; timeInMinutes: number }[] = [];
-
-    currentDayAvailabilities.forEach((availability) => {
-      const startTime = availability.startTime;
-      let endTime = availability.endTime;
-      if (endTime == '00:00') endTime = '24:00'; // make sure end time is not lower than start time
-      // add 0 in front if it's single digit
-      const start =
-        startTime.split(':')[0].length === 1
-          ? new Date(`2000-01-01T0${startTime}`)
-          : new Date(`2000-01-01T${startTime}`);
-      const end =
-        endTime.split(':')[0].length === 1 ? new Date(`2000-01-01T0${endTime}`) : new Date(`2000-01-01T${endTime}`);
-
-      const startInMilliseconds = start.getTime();
-      const endInMilliseconds = end.getTime();
-      if (dailyBreak) {
-        const breakStartTime =
-          dailyBreak.startTime.split(':')[0].length === 1
-            ? new Date(`2000-01-01T0${dailyBreak.startTime}`)
-            : new Date(`2000-01-01T${dailyBreak.startTime}`);
-        const breakEndTime =
-          dailyBreak.endTime.split(':')[0].length === 1
-            ? new Date(`2000-01-01T0${dailyBreak.endTime}`)
-            : new Date(`2000-01-01T${dailyBreak.endTime}`);
-        const breakStartTimeInMilliseconds = breakStartTime.getTime();
-        const breakEndTimeInMilliseconds = breakEndTime.getTime();
-        // if the break starts after the workday started, 3 options
-        if (startInMilliseconds < breakStartTimeInMilliseconds) {
-          // workday ends after breaks end, split to two availabilities
-          if (endInMilliseconds > breakEndTimeInMilliseconds) {
-            sessionsTimeInMinutes.push({
-              startTime,
-              timeInMinutes: (breakEndTimeInMilliseconds - startInMilliseconds) / (1000 * 60),
-            });
-            sessionsTimeInMinutes.push({
-              startTime: dailyBreak.endTime,
-              timeInMinutes: (endInMilliseconds - breakStartTimeInMilliseconds) / (1000 * 60),
-            });
-            // workday ends in the middle of the break, shorten workday to end at the start of the break
-          } else if (
-            endInMilliseconds > breakStartTimeInMilliseconds &&
-            endInMilliseconds < breakEndTimeInMilliseconds
-          ) {
-            sessionsTimeInMinutes.push({
-              startTime,
-              timeInMinutes: (breakStartTimeInMilliseconds - startInMilliseconds) / (1000 * 60),
-            });
-            // workday ends before break starts, ignore the break
-          } else if (endInMilliseconds < breakStartTimeInMilliseconds) {
-            sessionsTimeInMinutes.push({
-              startTime,
-              timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60),
-            });
-          }
-          // if the workday starts in the middle of the break, push start time to end of break
-        } else if (
-          startInMilliseconds > breakStartTimeInMilliseconds &&
-          startInMilliseconds < breakEndTimeInMilliseconds
-        ) {
-          sessionsTimeInMinutes.push({
-            startTime: dailyBreak.endTime,
-            timeInMinutes: (endInMilliseconds - breakEndTimeInMilliseconds) / (1000 * 60),
-          });
-          // if workday starts after break ends, ignore break
-        } else if (startInMilliseconds > breakEndTimeInMilliseconds) {
-          sessionsTimeInMinutes.push({
-            startTime,
-            timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60),
-          });
-        }
-        // if no break provided
-      } else {
-        sessionsTimeInMinutes.push({
-          startTime,
-          timeInMinutes: (endInMilliseconds - startInMilliseconds) / (1000 * 60),
-        });
-      }
-    });
-    return sessionsTimeInMinutes;
-  };
-
-  const calculateAmountOfAppointments = (timeWorking: { startTime: string; timeInMinutes: number }[]) => {
-    const AmountOfAppointmentsPerSession: { startTime: string; amountOfAppointments: number }[] = [];
-
-    timeWorking.forEach((sessionLength) => {
-      const AmountOfAppointments = Math.floor(sessionLength.timeInMinutes / (appointmentsLength + padding));
-      AmountOfAppointmentsPerSession.push({
-        startTime: sessionLength.startTime,
-        amountOfAppointments: AmountOfAppointments,
-      });
-    });
-
-    return AmountOfAppointmentsPerSession;
-  };
-
-  const modifyAmountOfMeetings = (AmountOfAppointments: { startTime: string; amountOfAppointments: number }[]) => {
-    const appointments: { startTime: string }[] = [];
-
-    AmountOfAppointments.forEach((appointmentsAmount) => {
-      for (let i = 0; i < appointmentsAmount.amountOfAppointments; i++) {
-        const minutesToAdd = i * (appointmentsLength + padding);
-        if (dailyAvailability.length > 0 && !dailyAvailability[0].startTime) return;
-        const meetingStartTime = addTime(appointmentsAmount.startTime, minutesToAdd);
-        appointments.push({
-          startTime: meetingStartTime,
-        });
-      }
-    });
-    setDailyAmountOfAppointments(appointments);
   };
 
   const addTime = (time: string, minutes: number): string => {
@@ -351,36 +246,11 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       const currentDayAvailabilities = allCalendarAvailabilities.filter((availability) => {
         return availability.day === day;
       });
+      const availableAppointmentsForGivenDay = findAvailableSlots(currentDayAvailabilities, appointments, appointmentsLength, calendar.breakTime, padding, calendar.minNotice, date.toLocaleDateString())
 
-      const workingTimeInMinutes = getWorkingTimeInMinutes(currentDayAvailabilities);
-      const appointmentsPerSession = calculateAmountOfAppointments(workingTimeInMinutes);
-      let maxAppointments = 0;
-      for (let i = 0; i < appointmentsPerSession.length; i++) {
-        maxAppointments += appointmentsPerSession[i].amountOfAppointments;
-      }
-
-      let amountOfBookedAppointments = 0;
-      const currentlyCheckedDate = date
-        .toLocaleDateString('en-GB', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric',
-        })
-        .split('/')
-        .reverse()
-        .join('-');
-
-      for (const appointment of appointments) {
-        if (appointment.date.split('T')[0] == currentlyCheckedDate) {
-          amountOfBookedAppointments += 1;
-        }
-      }
-
-      if (amountOfBookedAppointments >= maxAppointments) {
-        isWorkDay = false;
-      }
+      if(availableAppointmentsForGivenDay.length) isWorkDay = true;
+      else isWorkDay = false;
     }
-
     return isWorkDay;
   };
 
@@ -394,7 +264,8 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         setAnswers={setAnswers}
         handleSubmit={promptBooking}
       />
-
+  
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore */}
       <DatePicker
         selected={startDate}
@@ -404,44 +275,23 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
         // excludeDates={[new Date(), subDays(new Date(), 1)]}
         inline
       />
-
+  
       <div>
         {showAvailableTime && (
           <div>
             <h1>Available appointments:</h1>
-            {dailyAmountOfAppointments.length > 0 ? (
-              dailyAmountOfAppointments.map((appointment: { startTime: string }) => {
-                let appointmentBooked = false;
-                appointments.forEach((appoint) => {
-                  if (
-                    appoint.date.split('T')[0] == startDate.toISOString().split('T')[0] &&
-                    appoint.time == appointment.startTime
-                  ) {
-                    appointmentBooked = true;
-                  }
-                });
-                // if appointment booked don't respond to clicks
-                if (appointmentBooked)
-                  return (
-                    <h1 key={appointment.startTime} style={{ color: 'grey', cursor: 'not-allowed' }}>
-                      {appointment.startTime}
-                    </h1>
-                  );
-                // else if it isn't booked, allow clicking to book it
-                return (
-                  <h1 onClick={() => doesPersonalFormExist(appointment.startTime)} key={appointment.startTime}>
-                    {appointment.startTime}
-                  </h1>
-                );
-              })
-            ) : (
-              <h1>None, try another day...</h1>
-            )}
+            {dailyAmountOfAppointments.map((appointmentStartTime: string) => {
+              return (
+                <h1 onClick={() => doesPersonalFormExist(appointmentStartTime)} key={appointmentStartTime}>
+                  {appointmentStartTime}
+                </h1>
+              );
+            })}
           </div>
         )}
       </div>
     </div>
-  );
+  );  
 };
 
 export default CalendarComponent;
