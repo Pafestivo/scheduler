@@ -8,22 +8,32 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import NewCalendarModal from './NewCalendarModal';
 import IconButton from '@mui/material/IconButton';
 import { Calendar } from '@prisma/client';
+import { useRouter } from 'next/navigation';
 
 export default function CalendarStack() {
-  const { user, setLoading } = useGlobalContext();
+  const { user, setLoading, setUser } = useGlobalContext();
   const [formOpen, setFormOpen] = React.useState(false);
   const [calendars, setCalendars] = React.useState<never[] | Calendar[]>([]);
+  const router = useRouter();
 
   React.useEffect(() => {
     setLoading(true);
     const getCalendars: () => Promise<void> = async () => {
-      if (!user) return;
+      if (!user) {
+        const userResponse = await getData('/auth/me');
+        setUser(userResponse.data);
+      }
+      if (!user?.hash) {
+        setLoading(false);
+        router.push('/login');
+        return;
+      }
       const response = await getData(`/calendars/${user.hash}`);
       if (response.amount) setCalendars(response.data);
       setLoading(false);
     };
     getCalendars();
-  }, [user, setLoading]);
+  }, [user, setLoading, setUser, router]);
 
   return (
     <>

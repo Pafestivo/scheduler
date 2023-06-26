@@ -3,7 +3,7 @@ import * as React from 'react';
 import { AppBar, Box, Button, Container, IconButton, Menu, Toolbar, Typography } from '@mui/material';
 
 import MenuItem from '@mui/material/MenuItem';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useSession } from 'next-auth/react';
@@ -13,6 +13,7 @@ import theme from '@/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import UserMenu from './UserMenu';
 import { usePathname } from 'next/navigation';
+import { Isession } from '@/utilities/types';
 
 const pages = ['HOME', 'Pricing'];
 
@@ -22,14 +23,16 @@ function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const { user, setUser } = useGlobalContext();
   const pathname = usePathname();
-  const sessionData = useSession();
+  const sessionData: { data: Isession | null } = useSession();
 
   useEffect(() => {
+    console.log('sessionData', sessionData);
     // fix unnecessary re-rendering
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
       const userResponse = await getData('/auth/me');
       if (userResponse.data.hash) {
+        console.log(userResponse.data);
         setUser(userResponse.data);
       } else {
         setUser(undefined);
@@ -37,23 +40,38 @@ function Navbar() {
     };
 
     const registerUser = async () => {
-      if (sessionData.data?.user && !user) {
+      if (sessionData.data?.user && user === undefined) {
         const { email, name } = sessionData.data.user;
-        console.log('sessionData', sessionData)
         const response = await postData('/auth/register', { email, name });
         if (response.message === 'User already exists') {
-          await postData('/auth/login', { email, name, provider: true });
+          await getData('/auth/me');
         }
       }
       getUser(); // Call getUser after registering the user
     };
+
+    if (sessionData.data?.accessToken && user?.hash) {
+      const reqBody = {
+        token: sessionData.data.accessToken.encrypted,
+        aTiv: sessionData.data.accessToken.iv,
+        refreshToken: sessionData.data.refreshToken?.encrypted,
+        rTiv: sessionData.data.refreshToken?.iv,
+        userHash: user.hash,
+        expiresAt: sessionData.data.expires,
+        provider: 'google',
+        userEmail: sessionData.data.user?.email,
+      };
+      console.log('sessionData', sessionData);
+      console.log('reqBody', reqBody);
+      postData('/integration', reqBody);
+    }
 
     const initialize = async () => {
       await registerUser(); // Register the user and call getUser after registration
     };
 
     initialize();
-  }, [sessionData.data?.user, user, setUser]);
+  }, [sessionData.data?.user, user, setUser, sessionData]);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

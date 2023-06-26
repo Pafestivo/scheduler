@@ -14,7 +14,7 @@ function GoogleIntegration() {
 
   const getGoogleCalendars = useCallback(async () => {
     if (!user) return;
-    const response = await getData(`/googleCalendars/${user?.email}`);
+    const response = await getData(`/googleCalendars/${user?.hash}`);
     const calendars = response.data;
     const readOnlyCalendars = calendars.filter((calendar: { accessRole: string }) => calendar.accessRole === 'reader');
     const fullAccessCalendars = calendars.filter(
@@ -27,7 +27,8 @@ function GoogleIntegration() {
   }, [user]);
 
   const getUserIntegrations = useCallback(async () => {
-    const response = await getData(`/integration/${user?.email}`);
+    if (!user) return;
+    const response = await getData(`/integration/${user.hash}`);
     const integrations = response.data;
     const userGoogleIntegration = integrations.filter(
       (integration: { provider: string }) => integration.provider === 'google'

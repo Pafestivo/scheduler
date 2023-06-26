@@ -1,8 +1,8 @@
 import { postData } from '@/utilities/serverRequests/serverRequests';
 import GoogleProvider from 'next-auth/providers/google';
-import NextAuth, { Account, Profile, Session, User as NextAuthUser } from 'next-auth';
-import { encrypt } from '@/../../backend/utils/encryptDecrypt'
-
+import NextAuth, { Account, Profile, User as NextAuthUser } from 'next-auth';
+import { Isession } from '@/utilities/types';
+import { encrypt } from '@/utilities/encryptDecrypt';
 
 interface IGoogleProvider {
   clientId: string;
@@ -71,12 +71,6 @@ interface INextAuthJwtParams {
   session?: any;
 }
 
-interface Isession extends Session {
-  accessToken?: { encrypted: string, iv: string};
-  refreshToken?: { encrypted: string, iv: string};
-  expiresAt?: string;
-}
-
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   providers: [GoogleProvider(authOptions.GoogleProvider)],
@@ -84,20 +78,10 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn({ user, account }: INextAuthSignInParams) {
-      if (account) {
-        // post integration
-        await postData('/integration', {
-          token: account.access_token,
-          refreshToken: account.refresh_token,
-          expiresAt: account.expires_at,
-          userEmail: user.email,
-          provider: account.provider,
-        });
-      }
+    async signIn() {
       return true;
     },
-    
+
     async jwt({ token, account }: INextAuthJwtParams) {
       if (account) {
         token.accessToken = account.access_token;
@@ -106,9 +90,9 @@ const handler = NextAuth({
       return token;
     },
 
-    async session({ session, token }: { session: Isession, token: any }) {
-      const encryptedToken = encrypt(token.accessToken)
-      const encryptedRefreshToken = encrypt(token.refreshToken)
+    async session({ session, token }: { session: Isession; token: any }) {
+      const encryptedToken = encrypt(token.accessToken);
+      const encryptedRefreshToken = encrypt(token.refreshToken);
       session.accessToken = encryptedToken;
       session.refreshToken = encryptedRefreshToken;
       session.expiresAt = token.expiresAt;

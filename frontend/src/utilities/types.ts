@@ -1,4 +1,5 @@
 import { Appointment, CalendarIntegration, License, User, Calendar } from '@prisma/client';
+import { Session } from 'next-auth';
 
 export type PersonalForm = {
   question: string;
@@ -44,4 +45,10 @@ export interface fullCalendarResponse {
   users: User[];
   googleReadFrom: string;
   googleWriteInto: string;
+}
+
+export interface Isession extends Session {
+  accessToken?: { encrypted: string; iv: string };
+  refreshToken?: { encrypted: string; iv: string };
+  expiresAt?: string;
 }

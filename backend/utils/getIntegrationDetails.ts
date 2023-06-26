@@ -1,11 +1,11 @@
 import prisma from './prismaClient.js';
 
-export const getIntegrationDetails = async (userEmail:string) => {
-  const integrationDetails = await prisma.integration.findMany({
+export const getIntegrationDetails = async (userHash: string) => {
+  const integrationDetails = await prisma.integration.findFirst({
     where: {
-      userEmail,
-      provider: 'google'
-    }
-  })
+      userHash,
+      provider: 'google',
+    },
+  });
   return integrationDetails;
-}
+};

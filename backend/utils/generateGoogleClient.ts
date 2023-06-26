@@ -4,16 +4,16 @@ import { google } from 'googleapis';
 import dayjs from 'dayjs';
 import prisma from './prismaClient.js';
 
-export const generateGoogleClient = async (userEmail: string) => {
-  const integrations = await getIntegrationDetails(userEmail);
-  const integrationId = integrations[0].id;
-  const accessToken = decrypt(integrations[0].token, integrations[0].tokenIv);
-  const refreshToken = decrypt(integrations[0].refreshToken, integrations[0].refreshTokenIv);
-  const expireAt = integrations[0].expiresAt;
-
+export const generateGoogleClient = async (userHash: string) => {
+  const integrations = await getIntegrationDetails(userHash);
   if (!integrations) {
     return null;
   }
+
+  const integrationId = integrations.id;
+  const accessToken = decrypt(integrations.token, integrations.tokenIv);
+  const refreshToken = decrypt(integrations.refreshToken, integrations.refreshTokenIv);
+  const expireAt = integrations.expiresAt;
 
   const auth = new google.auth.OAuth2(process.env.NEXT_PUBLIC_GOOGLE_ID, process.env.NEXT_PUBLIC_GOOGLE_SECRET);
 

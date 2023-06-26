@@ -5,6 +5,7 @@ import { generateGoogleClient } from '../utils/generateGoogleClient.js';
 import { google } from 'googleapis';
 import prisma from '../utils/prismaClient.js';
 import { IntegrationRequest } from '../models/types.js';
+import { integrations } from 'googleapis/build/src/apis/integrations/index.js';
 
 // @desc    Get appointments from google
 // @route   GET /api/v1/googleAppointments/:userEmail
@@ -53,33 +54,45 @@ export const getAppointments = asyncHandler(async (req: IntegrationRequest, res:
 // @access  Public
 
 export const getCalendars = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
-  const { userEmail } = req.params;
-
-  const auth = await generateGoogleClient(userEmail);
-
-  if (!auth) {
-    res.status(200).json({
-      success: false,
-      data: 'Authentication failed',
-    });
-    return;
-  }
-
-  const calendar = google.calendar({
-    version: 'v3',
-    auth: auth,
+  const { userHash } = req.params;
+  console.log(userHash);
+  const integration = await prisma.integration.findFirst({
+    where: {
+      userHash,
+      provider: 'google',
+    },
   });
+  console.log('integration', integration);
 
-  try {
-    const userCalendars = await calendar.calendarList.list();
+  if (!integration) {
+    return next(new ErrorResponse({ message: 'No user hash found', statusCode: 400, errorCode: 'no_user_hash' }));
+  }
+  if (integration.userHash) {
+    const auth = await generateGoogleClient(integration.userHash);
+    if (!auth) {
+      res.status(200).json({
+        success: false,
+        data: 'Authentication failed',
+      });
+      return;
+    }
 
-    res.status(200).json({
-      success: true,
-      data: userCalendars.data.items,
+    const calendar = google.calendar({
+      version: 'v3',
+      auth: auth,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+
+    try {
+      const userCalendars = await calendar.calendarList.list();
+
+      res.status(200).json({
+        success: true,
+        data: userCalendars.data.items,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
+    }
   }
 });
 

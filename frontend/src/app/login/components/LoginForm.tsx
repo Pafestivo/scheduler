@@ -37,7 +37,7 @@ const LoginForm = () => {
         if (response.success) {
           setUser(response.data);
         }
-        router.push('/');
+        router.push('/dashboard');
       } else {
         setAlert({ message: 'Wrong credentials', code: 1, severity: 'error' });
         return;

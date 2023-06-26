@@ -91,7 +91,7 @@ export const addCalendar = asyncHandler(async (req: CalendarRequest, res: Respon
       }
       const integrations = await prisma.integration.findMany({
         where: {
-          userEmail: user.email,
+          userHash: userHash,
         },
       });
 

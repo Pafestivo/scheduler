@@ -49,7 +49,7 @@ const SignUpForm = () => {
       };
       try {
         await postData('/auth/register', newUser);
-        router.push('/');
+        router.push('/dashboard');
       } catch (error) {
         setAlert({
           message: 'Email already exists in our database',

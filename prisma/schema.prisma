@@ -93,6 +93,7 @@ model Integration {
   refreshTokenIv String   
   userEmail   String      
   provider   IntegrationType
+  userHash  String?      @unique
 }
 
 model CalendarIntegration {
