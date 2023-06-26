@@ -18,6 +18,7 @@ const FormInput = ({
   type: string;
   fieldIdx: number;
   defaultValue?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setState?: (...args: any) => void;
 }) => {
   const { alert, setAlert } = useGlobalContext();

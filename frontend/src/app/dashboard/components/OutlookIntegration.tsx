@@ -2,7 +2,7 @@ import React from 'react'
 
 function OutlookIntegration() {
   return (
-    <div>OutlookIntegration</div>
+    <div>Coming soon</div>
   )
 }
 
