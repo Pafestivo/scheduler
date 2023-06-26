@@ -23,8 +23,13 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
   const [personalForm, setPersonalForm] = useState<
-    { question: string; inputType: string; options?: string[]; required: boolean }[]
-  >([]);
+    { question: string; inputType: string; options?: { [key: string]: string }; required: boolean }[]
+  >([
+    {question: 'What is your name?', inputType: 'text', required: true},
+    {question: 'What is your phone number?', inputType: 'text', required: true},
+    {question: 'What is your email?', inputType: 'email', required: true},
+    {question: 'preferred channel of communication?', inputType: 'select', options: {'email': 'Email', 'phone': 'Phone'},  required: true},
+    ]);
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [loggedUser, setLoggedUser] = useState<{ hash?: string }>({});
   const [calendarOwner, setCalendarOwner] = useState<string>('');
@@ -91,9 +96,10 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if (user?.hash) setLoggedUser(user);
     setAppointmentsLength(calendar.appointmentsLength);
     setPadding(calendar.padding);
-    setPersonalForm(calendar.personalForm || []);
+    setPersonalForm([...personalForm, ...calendar.personalForm]);
     setCalendarOwner(calendar.userHash);
     setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getCurrentCalendar, getCalendarAppointments, user, setLoading, getCurrentAppointment]);
 
   // on page load
@@ -178,9 +184,8 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         setLoading(false);
         router.push(`/thankyou/${calendarHash}`)
       }
-    } else if (personalForm.length > 0) {
-      setShowFormPopup(true);
-    } else promptBooking(appointmentStartTime);
+
+    } else setShowFormPopup(true);
   };
 
   const promptBooking = async (
@@ -212,11 +217,12 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           return;
         }
       });
+      console.log(answers)
       if (!formFilledProperly) return;
     }
 
     if (loggedUser.hash && calendarOwner == loggedUser.hash) {
-      setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 0 });
+      setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 1000 });
       setAlertOpen(true);
       return;
     }
@@ -226,6 +232,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       setShowFormPopup(false);
       setLoading(true);
       console.log(startDate, appointmentTime);
+      if(!answers) return;
       const appointment = await postData('/appointments', {
         calendarHash,
         userHash: loggedUser.hash,
@@ -234,6 +241,17 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         endTime: addTime(appointmentTime, appointmentsLength),
         answersArray: answers || {},
       });
+      // check if booker exists before posting booker
+      // if booker exists just add the appointment hash to the appointments array of the booker
+      // make a route to edit the appointment hash of the booker
+      // preferably make an external function to handle this
+      const booker = await postData('/bookers', {
+        name: answers['What is your name?'],
+        email: answers['What is your email?'],
+        phone: answers['What is your phone number?'],
+        preferredChannel: answers['preferred channel of communication?'],
+        appointmentHash: appointment.data.hash
+      })
       const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
       const integrations = await getData(`/integration/${calendar.owner}`);

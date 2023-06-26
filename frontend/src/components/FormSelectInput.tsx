@@ -10,7 +10,8 @@ import { useGlobalContext } from '@/app/context/store';
 interface FormSelectInputProps {
   label: string;
   options: string[] | { [key: string]: string };
-  setState?: (prevState: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setState?: (...args: any) => void;
   fieldIdx?: number;
   defaultOption?: string;
   name?: string;
@@ -21,9 +22,13 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
   const { alert } = useGlobalContext();
 
   const handleChange = (event: SelectChangeEvent) => {
-    setState?.(event.target.value);
+    setState?.(event.target.value, name);
     setValue(event.target.value);
   };
+
+  React.useEffect(() => {
+    setState?.(value, name);
+  }, [name, setState, value])
 
   return (
     <Box sx={{ minWidth: 120 }}>

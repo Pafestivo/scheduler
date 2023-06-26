@@ -30,7 +30,6 @@ const Appointments = () => {
   const { setLoading, setAlert, setAlertOpen } = useGlobalContext()
   const params = useParams();
   const calendarHash = params.hash
-  const router = useRouter();
 
   const getAppointments = useCallback(async () => {
     const response = await getData(`/appointments/${params.hash}`);
