@@ -96,9 +96,6 @@ export const getSingleAppointment = asyncHandler(
           hash: appointmentHash,
         },
       });
-      if (!appointment) {
-        return next(new ErrorResponse({ message: 'Appointment not found', statusCode: 404 }));
-      }
 
       res.status(200).json({
         success: true,

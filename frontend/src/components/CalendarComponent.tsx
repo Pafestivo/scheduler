@@ -2,16 +2,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getData, postData } from '@/utilities/serverRequests/serverRequests';
+import { getData, postData, putData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import FormDialog from './FormDialog';
 import findAvailableSlots from '@/utilities/findAvailableSlots';
+import { useRouter } from 'next/navigation';
 
 interface CalendarComponentProps {
   calendarHash: string;
+  appointmentHash: string;
 }
 
-const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
+const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentProps) => {
   const [startDate, setStartDate] = useState(new Date());
   const [showAvailableTime, setShowAvailableTime] = useState(false);
   const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<
@@ -29,16 +31,20 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [appointments, setAppointments] = useState<{ date: string, startTime: string, endTime: string }[]>([]);
+  const [currentAppointment, setCurrentAppointment] = useState(null)
   const [calendar, setCalendar] = useState<{ 
+    owner: string,
     userHash: string[],
     googleWriteInto: string, 
     minNotice?: number,
     breakTime?:{ startTime: string; endTime: string; isActive: boolean }
   }>({
+    owner: '',
     userHash: [],
     googleWriteInto: 'Primary',
   });
   const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext();
+  const router = useRouter();
 
   const getCurrentCalendar = useCallback(async () => {
     try {
@@ -63,19 +69,22 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     }
   }, [calendarHash]);
 
-  const getCalendarOwner = async (userHash: string) => {
+  const getCurrentAppointment = useCallback(async () => {
+    if(!appointmentHash) return
     try {
-      const calendarOwner = await getData(`/auth/singleUser/${userHash}`);
-      return calendarOwner.data;
+      const currentAppointment = await getData(`/appointments/single/${appointmentHash}`);
+      console.log('theappointment:', currentAppointment.data)
+      return currentAppointment.data
     } catch (error) {
-      console.log('error getting calendar', error);
+      console.log('The appointment you are trying to reschedule does not exist')
     }
-  };
-  
+  }, [appointmentHash])
 
   const preparePage = useCallback(async () => {
+    const currentAppointment = await getCurrentAppointment();
     const calendar = await getCurrentCalendar();
     const appointments = await getCalendarAppointments();
+    setCurrentAppointment(currentAppointment)
     setAllCalendarAvailabilities(calendar.availabilities);
     setAppointments(appointments || []);
     setCalendar(calendar);
@@ -85,7 +94,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     setPersonalForm(calendar.personalForm || []);
     setCalendarOwner(calendar.userHash);
     setLoading(false);
-  }, [getCurrentCalendar, getCalendarAppointments, user, setLoading]);
+  }, [getCurrentCalendar, getCalendarAppointments, user, setLoading, getCurrentAppointment]);
 
   // on page load
   useEffect(() => {
@@ -136,9 +145,40 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
     return `${hours}:${mins}`;
   };
 
-  const doesPersonalFormExist = (appointmentStartTime: string) => {
+  const prepareBeforeBooking = async (appointmentStartTime: string) => {
     setChosenAppointmentTime(appointmentStartTime);
-    if (personalForm.length > 0) {
+    if (appointmentHash) {
+      if(!currentAppointment) {
+        alert('The appointment you are trying to reschedule does not exist');
+        return;
+      } 
+      const confirmed = window.confirm(`Are you sure you want to reschedule your appointment to ${startDate.getDate()}/${startDate.getMonth()+1} at ${appointmentStartTime}?`);
+      if(confirmed) {
+        setLoading(true)
+        const updatedAppointment = await putData('/appointments', {
+          hash: appointmentHash,
+          date: startDate,
+          startTime: appointmentStartTime,
+          endTime: addTime(appointmentStartTime, appointmentsLength),
+        })
+        if(updatedAppointment.success) {
+          setAlert({
+            message: 'Appointment details updated',
+            severity: 'success',
+            code: 0,
+          });
+        } else {
+          setAlert({
+            message: 'There was a problem updating appointment',
+            severity: 'error',
+            code: 0,
+          });
+        }
+        setAlertOpen(true);
+        setLoading(false);
+        router.push(`/thankyou/${calendarHash}`)
+      }
+    } else if (personalForm.length > 0) {
       setShowFormPopup(true);
     } else promptBooking(appointmentStartTime);
   };
@@ -196,14 +236,13 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       });
       const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
-      const calendarOwner = await getCalendarOwner(calendar.userHash[0]);
-      const integrations = await getData(`/integration/${calendarOwner.email}`);
+      const integrations = await getData(`/integration/${calendar.owner}`);
 
       const hasGoogleIntegration = integrations.data.length
         ? integrations.data.some((integration: { provider: string }) => integration.provider === 'google')
         : false;
       if (hasGoogleIntegration) {
-        await postData(`/googleAppointments/${calendarOwner.email}`, {
+        await postData(`/googleAppointments/${calendar.owner}`, {
           googleWriteInto: calendar.googleWriteInto,
           summary: `Appointment with client`,
           date: startDate,
@@ -218,6 +257,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
       setShowAvailableTime(false);
       setAnswers({});
       setLoading(false);
+      router.push(`/thankyou/${calendarHash}`)
     } else return;
   };
 
@@ -286,7 +326,7 @@ const CalendarComponent = ({ calendarHash }: CalendarComponentProps) => {
             <h1>Available appointments:</h1>
             {dailyAmountOfAppointments.map((appointmentStartTime: string) => {
               return (
-                <h1 onClick={() => doesPersonalFormExist(appointmentStartTime)} key={appointmentStartTime}>
+                <h1 onClick={() => prepareBeforeBooking(appointmentStartTime)} key={appointmentStartTime}>
                   {appointmentStartTime}
                 </h1>
               );

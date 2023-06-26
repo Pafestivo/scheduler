@@ -4,8 +4,8 @@ import { getAppointments, getCalendars, postAppointment } from '../controllers/g
 
 const router = express.Router();
 
-router.get('/googleAppointments/:userEmail', getAppointments);
+router.get('/googleAppointments/:userHash', getAppointments);
 router.get('/googleCalendars/:userHash', getCalendars);
-router.post('/googleAppointments/:userEmail', postAppointment);
+router.post('/googleAppointments/:userHash', postAppointment);
 
 export default router;
