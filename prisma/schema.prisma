@@ -71,7 +71,7 @@ model Calendar {
   availabilities   Json?          // assuming this corresponds to availabilityHash array
   hash             String         @unique  
   deleted          Boolean        @default(false)
-  personalForm     Json?          // holds the questions for the personal form
+  personalForm     Json?          @default("[]")// holds the questions for the personal form
   appointmentsLength Int          @default(60) // in minutes
   image            String?
   description      String?
@@ -200,7 +200,7 @@ model Appointment {
   transaction  Int?               // assuming this corresponds to transactionID
   cancelTime   String?         // assuming timestamp and it is optional
   isConfirmed  Boolean           @default(false)
-  answersArray Json?          // the answers to the personalForm questions
+  answersArray Json?             // the answers to the personalForm questions
   googleEventId String?         // assuming this corresponds to integrationId
   hash         String           @unique  
   // Relations

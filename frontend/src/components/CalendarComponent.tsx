@@ -29,13 +29,13 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     {question: 'What is your name?', inputType: 'text', required: true},
     {question: 'What is your phone number?', inputType: 'text'},
     {question: 'What is your email?', inputType: 'email'},
-    {question: 'preferred channel of communication?', inputType: 'select', options: {'email': 'Email', 'phone': 'Phone'},  required: true},
+    {question: 'preferred channel of communication?', inputType: 'select', options: {'email': 'email', 'phone': 'phone'},  required: true},
     ]);
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [loggedUser, setLoggedUser] = useState<{ hash?: string }>({});
   const [calendarOwner, setCalendarOwner] = useState<string>('');
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
-  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+  const [answers, setAnswers] = useState<{ [key: string]: string }>({'preferred channel of communication?': 'email'});
   const [appointments, setAppointments] = useState<{ date: string, startTime: string, endTime: string }[]>([]);
   const [currentAppointment, setCurrentAppointment] = useState(null)
   const [calendar, setCalendar] = useState<{ 
@@ -79,7 +79,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if(!appointmentHash) return
     try {
       const currentAppointment = await getData(`/appointments/single/${appointmentHash}`);
-      console.log('theappointment:', currentAppointment.data)
       return currentAppointment.data
     } catch (error) {
       console.log('The appointment you are trying to reschedule does not exist')
@@ -303,7 +302,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     const vacationDays = [0, 1, 2, 3, 4, 5, 6];
     const day = date.getDay();
     let isWorkDay = true;
-    // console.log(date)
     if (!allCalendarAvailabilities) return false;
 
     // modify the vacationDays array

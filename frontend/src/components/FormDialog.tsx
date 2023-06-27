@@ -45,42 +45,6 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
         <DialogContent>
           <DialogContentText>Fields marked with * are required.</DialogContentText>
           <form onSubmit={(e) => handleSubmit('', e, answers)}>
-            {/* default questions */}
-            {/* <FormInput
-              name={'What is your name?'}
-              label={'What is your name?'}
-              title={'What is your name?'}
-              type={'text'}
-              fieldIdx={0}
-              setState={handleSetAnswers}
-            />
-
-            <FormInput
-              name={'What is your phone number?'}
-              label={'What is your phone number?'}
-              title={'What is your phone number?'}
-              type={'text'}
-              fieldIdx={1}
-              setState={handleSetAnswers}
-            />
-
-            <FormInput
-              name={'What is your email?'}
-              label={'What is your email?'}
-              title={'What is your email?'}
-              type={'text'}
-              fieldIdx={2}
-              setState={handleSetAnswers}
-            />
-
-            <FormSelectInput
-              label={'preferred channel of communication?'}
-              options={{'email': 'Email', 'phone': 'Phone'}}
-              setState={setAnswers}
-              fieldIdx={3}
-            /> */}
-
-            {/* personal questions */}
             {personalForm &&
               personalForm.map((question, index) => {
                 return (
@@ -90,6 +54,7 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
                         name={question.question}
                         label={question.question}
                         options={question.options}
+                        defaultOption={question.options[0]}
                         setState={handleSetAnswers}
                         fieldIdx={index}
                       />
