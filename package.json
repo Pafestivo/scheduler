@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node ./build/server.js",
     "dev": "concurrently \"tsc -w\" \"nodemon ./build/server.js\" \"npm run dev --prefix frontend\"",
-    "postinstall": "tsc",
+    "postinstall": "npm install typescript && tsc",
     "debug": "node frontend/src/app/book/[hash]/page.js"
   },
   "repository": {
@@ -65,6 +65,7 @@
     "morgan": "^1.10.0",
     "next-auth": "^4.22.1",
     "node-schedule": "^2.1.1",
-    "prisma": "^4.14.1"
+    "prisma": "^4.14.1",
+    "typescript": "^5.2.0-dev.20230621"
   }
 }
