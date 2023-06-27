@@ -28,7 +28,7 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
 
   return (
     <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
+      <FormControl fullWidth margin='normal'>
         <InputLabel id={label}>{label}</InputLabel>
         <Select
           name={name}

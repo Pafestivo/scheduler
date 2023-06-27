@@ -1,3 +1,17 @@
-.react-datepicker__month-container {
-  transform: scale(1);
+body {
+  background-color: #EEEDFF;
+}
+
+.react-datepicker {
+  zoom: 1.5;
+}
+
+.react-datepicker__day:hover {
+  border-radius:50%;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--selected:hover {
+  background-color: #2671c7;
+  border-radius: 50%;
 }

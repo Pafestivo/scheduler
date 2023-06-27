@@ -8,10 +8,12 @@ import FormDialog from './FormDialog';
 import findAvailableSlots from '@/utilities/findAvailableSlots';
 import { useRouter } from 'next/navigation';
 import { Appointment } from '@prisma/client';
+import '../styles/calendarComponent.css';
+import { Box } from '@mui/material';
 
 interface CalendarComponentProps {
   calendarHash: string;
-  appointmentHash: string;
+  appointmentHash?: string;
 }
 
 const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentProps) => {
@@ -291,7 +293,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       setLoading(true);
       const appointment = await postAppointment(appointmentTime);
       const booker = await getOrPostBooker(appointment);
-      // const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
       const hasGoogleIntegration = integrations.length
         ? integrations.some((integration: { provider: string }) => integration.provider === 'google')
@@ -306,7 +307,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           hash: appointment.hash,
         });
       }
-      // setAppointments(updatedAppointments);
       setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 });
       setAlertOpen(true);
       setShowAvailableTime(false);
@@ -361,7 +361,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   };
 
   return (
-    <div>
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <FormDialog
         open={showFormPopup}
         setOpen={setShowFormPopup}
@@ -382,21 +382,39 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         inline
       />
 
-      <div>
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         {showAvailableTime && (
-          <div>
-            <h1>Available appointments:</h1>
+          <Box
+            sx={{
+              width: '400px',
+              display: 'flex',
+              justifyContent: 'center',
+              columnGap: '7px',
+              flexWrap: 'wrap',
+            }}
+          >
             {dailyAmountOfAppointments.map((appointmentStartTime: string) => {
               return (
-                <h1 onClick={() => prepareBeforeBooking(appointmentStartTime)} key={appointmentStartTime}>
+                <h1
+                  style={{
+                    backgroundColor: '#2671c7',
+                    color: 'white',
+                    padding: '5px',
+                    borderRadius: '10px',
+                    fontSize: '1.5rem',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => prepareBeforeBooking(appointmentStartTime)}
+                  key={appointmentStartTime}
+                >
                   {appointmentStartTime}
                 </h1>
               );
             })}
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
