@@ -1,7 +1,7 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import Colors from 'colors.ts';
 import auth from './routes/auth.route.js';
 import calendar from './routes/calendar.route.js';
@@ -23,6 +23,7 @@ Colors.enable();
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
+console.log(process.env.NEXT_PUBLIC_BASE_URL);
 app.use(
   cors({
     origin: process.env.NEXT_PUBLIC_BASE_URL,

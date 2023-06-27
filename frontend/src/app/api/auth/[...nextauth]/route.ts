@@ -102,7 +102,7 @@ const handler = NextAuth({
     },
 
     redirect({ baseUrl }) {
-      return process.env.BASE_URL || baseUrl;
+      return 'https://cortex-dev.onrender.com';
     },
   },
 });
