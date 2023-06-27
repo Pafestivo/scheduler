@@ -22,7 +22,7 @@ const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
-    domain: 'cortex-dev-api.onrender.com',
+    domain: process.env.NEXT_PUBLIC_API_BASE_URL,
     sameSite: 'none',
   };
 

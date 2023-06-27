@@ -146,7 +146,8 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
     expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    domain: process.env.NEXT_PUBLIC_API_BASE_URL,
+    sameSite: 'none',
   });
 
   res.status(200).json({ success: true, data: {} });
