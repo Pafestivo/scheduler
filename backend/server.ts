@@ -10,9 +10,9 @@ import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
 import integration from './routes/integration.route.js';
 import googleCalendar from './routes/googleCalendar.route.js';
-import bookers from './routes/bookers.route.js'
+import bookers from './routes/bookers.route.js';
 import cookieParser from 'cookie-parser';
-import { renewExpiredWatchRequests } from './cron-job.js'
+import { renewExpiredWatchRequests } from './cron-job.js';
 
 // run this cronjob
 renewExpiredWatchRequests;
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.NEXT_PUBLIC_BASE_URL,
     credentials: true,
   })
 );
