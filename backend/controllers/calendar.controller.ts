@@ -522,6 +522,7 @@ export const getFullCalendar = asyncHandler(async (req: CalendarRequest, res: Re
       success: true,
       data: calendar,
     });
+    console.log(calendar);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));

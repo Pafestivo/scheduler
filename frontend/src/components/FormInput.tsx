@@ -11,6 +11,7 @@ const FormInput = ({
   fieldIdx,
   defaultValue,
   setState,
+  noFocus,
 }: {
   name: string;
   label: string;
@@ -20,6 +21,7 @@ const FormInput = ({
   defaultValue?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setState?: (...args: any) => void;
+  noFocus?: boolean;
 }) => {
   const { alert, setAlert } = useGlobalContext();
 
@@ -28,7 +30,7 @@ const FormInput = ({
   }, [setAlert]);
   return (
     <TextField
-      autoFocus
+      autoFocus={!noFocus ? true : false}
       type={type}
       name={name}
       fullWidth
@@ -42,7 +44,8 @@ const FormInput = ({
       }}
       onChange={(e) => {
         if (!setState) return;
-        setState(e.target.value, name);
+        const secondArg = name ? name : fieldIdx;
+        setState(e.target.value, secondArg);
       }}
     ></TextField>
   );

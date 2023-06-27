@@ -6,6 +6,7 @@ export type PersonalForm = {
   inputType: string;
   required: boolean;
   options?: any;
+  id: string;
 };
 
 export interface Availability {
