@@ -43,6 +43,9 @@ const reducer = (state: State, action: Action): State => {
       return updatedQuestions;
     case 'UPDATE_TYPE':
       updatedQuestions[action.index].inputType = action.value;
+      if (action.value === 'select') {
+        updatedQuestions[action.index].options = [{ id: generateHash(Math.random().toString()), value: 'New Option' }];
+      }
       return updatedQuestions;
     case 'UPDATE_REQUIRED':
       updatedQuestions[action.index].required = action.value;

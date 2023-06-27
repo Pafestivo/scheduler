@@ -18,7 +18,7 @@ interface FormDialogProps {
   personalForm?: {
     question: string;
     inputType: string;
-    options?: {[key: string]: string} | undefined;
+    options?: { [key: string]: string } | undefined;
     required?: boolean;
   }[];
   answers?: { [key: string]: string };
@@ -52,18 +52,22 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
                     {question.inputType === 'select' && question.options ? (
                       <FormSelectInput
                         name={question.question}
-                        label={question.required ? `${question.question}*`: question.question}
+                        label={question.required ? `${question.question}*` : question.question}
                         options={question.options}
-                        defaultOption={question.options[0]}
+                        defaultOption={Object.keys(question.options)[0]}
                         setState={handleSetAnswers}
                         fieldIdx={index}
                       />
                     ) : question.inputType === 'checkbox' ? (
-                      <FormCheckInput label={question.required ? `${question.question}*`: question.question} setState={setAnswers} fieldIdx={index} />
+                      <FormCheckInput
+                        label={question.required ? `${question.question}*` : question.question}
+                        setState={setAnswers}
+                        fieldIdx={index}
+                      />
                     ) : (
                       <FormInput
                         name={question.question}
-                        label={question.required ? `${question.question}*`: question.question}
+                        label={question.required ? `${question.question}*` : question.question}
                         title={question.question}
                         type={question.inputType}
                         fieldIdx={index}
@@ -73,10 +77,15 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
                   </div>
                 );
               })}
-            <Button variant="contained" color="success" type="submit" sx={{width: '100%', marginBottom: '10px'}}>
+            <Button variant="contained" color="success" type="submit" sx={{ width: '100%', marginBottom: '10px' }}>
               Book Appointment
             </Button>
-            <Button variant="contained" color="error" onClick={handleClose} sx={{width: '100%', marginBottom: '10px'}}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleClose}
+              sx={{ width: '100%', marginBottom: '10px' }}
+            >
               Cancel
             </Button>
           </form>

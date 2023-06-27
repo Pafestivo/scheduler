@@ -26,9 +26,15 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
     setValue(event.target.value);
   };
 
+  React.useEffect(() => {
+    setState?.(defaultOption, name);
+
+    console.log('rerender', defaultOption, name);
+  }, []);
+
   return (
     <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth margin='normal'>
+      <FormControl fullWidth margin="normal">
         <InputLabel id={label}>{label}</InputLabel>
         <Select
           name={name}
