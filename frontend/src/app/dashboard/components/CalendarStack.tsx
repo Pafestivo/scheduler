@@ -19,15 +19,15 @@ export default function CalendarStack() {
   React.useEffect(() => {
     setLoading(true);
     const getCalendars: () => Promise<void> = async () => {
-      if (!user) {
+      if (user === null) {
         const userResponse = await getData('/auth/me');
-        setUser(userResponse.data);
-      }
-      if (!user?.hash) {
+        if(!userResponse.success) setUser(undefined)
+      } else if (user === undefined) {
         setLoading(false);
         router.push('/login');
         return;
       }
+      if (!user) return;
       const response = await getData(`/calendars/${user.hash}`);
       if (response.amount) setCalendars(response.data);
       setLoading(false);
