@@ -9,6 +9,7 @@ const FormInput = ({
   title,
   type,
   fieldIdx,
+  listid,
   defaultValue,
   setState,
   noFocus,
@@ -18,6 +19,7 @@ const FormInput = ({
   title: string;
   type: string;
   fieldIdx: number;
+  listid?: string;
   defaultValue?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setState?: (...args: any) => void;
@@ -44,7 +46,7 @@ const FormInput = ({
       }}
       onChange={(e) => {
         if (!setState) return;
-        const secondArg = name ? name : fieldIdx;
+        const secondArg = name ? name : listid;
         setState(e.target.value, secondArg);
       }}
     ></TextField>

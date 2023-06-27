@@ -26,10 +26,6 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
     setValue(event.target.value);
   };
 
-  React.useEffect(() => {
-    setState?.(value, name);
-  }, [name, setState, value])
-
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
