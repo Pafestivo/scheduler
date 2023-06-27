@@ -88,7 +88,7 @@ export default function ShareUrlModal({
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 <Tab label="URL" {...a11yProps(0)} />
-                <Tab label="Button" {...a11yProps(1)} />
+                {/* <Tab label="Button" {...a11yProps(1)} /> */}
                 <Tab label="Embed" {...a11yProps(2)} />
               </Tabs>
             </Box>
@@ -111,10 +111,10 @@ export default function ShareUrlModal({
                 </Button>
               </Box>
             </TabPanel>
-            <TabPanel value={value} index={1}>
+            {/* <TabPanel value={value} index={1}>
               Item Two
-            </TabPanel>
-            <TabPanel value={value} index={2}>
+            </TabPanel> */}
+            <TabPanel value={value} index={1}>
               <Box textAlign={'center'}>
                 <Typography variant="h6" fontWeight={700}>
                   Your booking page URL

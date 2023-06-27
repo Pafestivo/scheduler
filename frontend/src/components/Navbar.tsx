@@ -26,13 +26,11 @@ function Navbar() {
   const sessionData: { data: Isession | null } = useSession();
 
   useEffect(() => {
-    console.log('sessionData', sessionData);
     // fix unnecessary re-rendering
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
       const userResponse = await getData('/auth/me');
       if (userResponse.data.hash) {
-        console.log(userResponse.data);
         setUser(userResponse.data);
       } else {
         setUser(undefined);
@@ -63,8 +61,6 @@ function Navbar() {
         provider: 'google',
         userEmail: sessionData.data.user?.email,
       };
-      console.log('sessionData', sessionData);
-      console.log('reqBody', reqBody);
       postData('/integration', reqBody);
     }
 
