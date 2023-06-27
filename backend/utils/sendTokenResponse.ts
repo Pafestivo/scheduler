@@ -6,6 +6,8 @@ interface TokenOptions {
   expires: Date;
   httpOnly: boolean;
   secure?: boolean;
+  domain?: string;
+  sameSite?: string;
 }
 
 // Get token from model, create cookie and send response
@@ -20,6 +22,8 @@ const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
+    domain: '.onrender.com',
+    sameSite: 'none',
   };
 
   // It's up to the client-side to decide how to handle the token
