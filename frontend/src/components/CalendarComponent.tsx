@@ -46,11 +46,11 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [ownerEmail, setOwnerEmail] = useState<string>('');
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
   const [answers, setAnswers] = useState<{ [key: string]: string }>({
-      'What is your name?': Cookies.get('name') || '',
-      'What is your phone number?': Cookies.get('phone') || '',
-      'What is your email?': Cookies.get('email') || '',
-      'preferred channel of communication?': Cookies.get('preferredWay') || '' 
-    });
+    'What is your name?': Cookies.get('name') || '',
+    'What is your phone number?': Cookies.get('phone') || '',
+    'What is your email?': Cookies.get('email') || '',
+    'preferred channel of communication?': Cookies.get('preferredWay') || '',
+  });
   const [appointments, setAppointments] = useState<{ date: string; startTime: string; endTime: string }[]>([]);
   const [currentAppointment, setCurrentAppointment] = useState(null);
   const [calendar, setCalendar] = useState<{
@@ -70,7 +70,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const getCurrentCalendar = useCallback(async () => {
     try {
       const calendar = await getData(`/calendars/single/${calendarHash}`);
-      console.log(calendar.data);
       return calendar.data;
     } catch (error) {
       console.log('error getting calendar', error);
@@ -120,7 +119,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     setAppointmentsLength(calendar.appointmentsLength);
     setPadding(calendar.padding);
     setPersonalForm([...personalForm, ...calendar.personalForm]);
-    Cookies.get()
+    Cookies.get();
     setCalendarOwner(calendar.userHash);
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,11 +285,11 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         alert('You have to fill either phone or email.');
         return;
       }
-      if(!answers) return;
-      Cookies.set('name', answers['What is your name?'], { expires: 365 })
-      Cookies.set('email', answers['What is your email?'], { expires: 365 })
-      Cookies.set('phone', answers['What is your phone number?'], { expires: 365 })
-      Cookies.set('preferredWay', answers['preferred channel of communication?'], { expires: 365 })
+      if (!answers) return;
+      Cookies.set('name', answers['What is your name?'], { expires: 365 });
+      Cookies.set('email', answers['What is your email?'], { expires: 365 });
+      Cookies.set('phone', answers['What is your phone number?'], { expires: 365 });
+      Cookies.set('preferredWay', answers['preferred channel of communication?'], { expires: 365 });
     }
 
     if (loggedUser.hash && calendarOwner == loggedUser.hash) {

@@ -41,7 +41,7 @@ export default function NewCalendarModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return console.log('no user');
+    if (!user) return;
     const formData = new FormData(e.target as HTMLFormElement);
     const name = formData.get('name');
     try {

@@ -16,7 +16,6 @@ export const encrypt = (text: string) => {
 };
 
 export const decrypt = (encryptedText: string, hexIv: string) => {
-  console.log('key', originalKey);
   // Convert the hex representation of the IV back to a Buffer.
   const iv = Buffer.from(hexIv, 'hex');
   // Create a decipher using the same algorithm, key, and iv as was used to encrypt the original text.
