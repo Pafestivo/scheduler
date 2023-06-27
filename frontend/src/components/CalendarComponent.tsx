@@ -34,6 +34,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [loggedUser, setLoggedUser] = useState<{ hash?: string }>({});
   const [calendarOwner, setCalendarOwner] = useState<string>('');
+  const [integrations, setIntegrations] = useState([])
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
   const [answers, setAnswers] = useState<{ [key: string]: string }>({'preferred channel of communication?': 'email'});
   const [appointments, setAppointments] = useState<{ date: string, startTime: string, endTime: string }[]>([]);
@@ -88,8 +89,10 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const preparePage = useCallback(async () => {
     const currentAppointment = await getCurrentAppointment();
     const calendar = await getCurrentCalendar();
+    const integrations = await getData(`/integration/${calendar.owner}`);
     const appointments = await getCalendarAppointments();
     setCurrentAppointment(currentAppointment)
+    setIntegrations(integrations.data)
     setAllCalendarAvailabilities(calendar.availabilities);
     setAppointments(appointments || []);
     setCalendar(calendar);
@@ -271,15 +274,13 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       setLoading(true);
       const appointment = await postAppointment(appointmentTime);
       const booker = await getOrPostBooker(appointment);
-      const updatedAppointments = await getCalendarAppointments();
+      // const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
-      const integrations = await getData(`/integration/${calendar.owner}`);
-
-      const hasGoogleIntegration = integrations.data.length
-        ? integrations.data.some((integration: { provider: string }) => integration.provider === 'google')
+      const hasGoogleIntegration = integrations.length
+        ? integrations.some((integration: { provider: string }) => integration.provider === 'google')
         : false;
       if (hasGoogleIntegration) {
-        await postData(`/googleAppointments/${calendar.owner}`, {
+        postData(`/googleAppointments/${calendar.owner}`, {
           googleWriteInto: calendar.googleWriteInto,
           summary: `Appointment with ${booker.name}`,
           date: startDate,
@@ -288,7 +289,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           hash: appointment.hash,
         });
       }
-      setAppointments(updatedAppointments);
+      // setAppointments(updatedAppointments);
       setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 });
       setAlertOpen(true);
       setShowAvailableTime(false);
