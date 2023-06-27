@@ -1,64 +1,3 @@
-// import { useGlobalContext } from '@/app/context/store';
-// import React, { useState } from 'react';
-// import QuestionFieldForm from './QuestionFieldForm';
-// import { Box, Button } from '@mui/material';
-// import { putData } from '@/utilities/serverRequests/serverRequests';
-
-// const FormQuestions = () => {
-//   const { calendar, setAlertOpen, setAlert, setLoading } = useGlobalContext();
-//   const [questions, setQuestions] = useState(
-//     calendar?.personalForm.map((question) => {
-//       if (question.options) {
-//         return {
-//           ...question,
-//           options: Object.keys(question.options),
-//         };
-//       }
-//       return question;
-//     }) || []
-//   );
-//   const addQuestionRow = () => {
-//     setQuestions((prevQuestions) => [
-//       ...prevQuestions,
-//       {
-//         question: '',
-//         inputType: 'text',
-//         required: false,
-//       },
-//     ]);
-//   };
-
-//   const handleDelete = (index: number) => {
-//     const newQuestions = [...questions];
-//     newQuestions.splice(index, 1);
-//     setQuestions(newQuestions);
-//   };
-
-//   return (
-//     <Box component="form" onSubmit={updatePersonalForm}>
-//       {questions.map((question, index) => {
-//         console.log(question);
-//         return (
-//           <Box key={question.question} sx={{ display: 'flex', alignItems: 'center' }}>
-//             <QuestionFieldForm
-//               index={index}
-//               setQuestions={setQuestions}
-//               defaultOption={question.inputType}
-//               defaultValue={question.question}
-//               defaultRequired={question.required}
-//               defaultOptions={question.options ? question.options : undefined}
-//               handleDelete={handleDelete}
-//             />
-//           </Box>
-//         );
-//       })}
-//       <Button onClick={addQuestionRow}>Add Question+</Button>
-//       <Button type="submit">Save!</Button>
-//     </Box>
-//   );
-// };
-
-// export default FormQuestions;
 import React, { useReducer } from 'react';
 import QuestionFieldForm from './QuestionFieldForm';
 import { Box, Button } from '@mui/material';
@@ -76,8 +15,10 @@ type Action =
   | { type: 'UPDATE_QUESTION'; value: string; index: number }
   | { type: 'UPDATE_TYPE'; value: string; index: number }
   | { type: 'UPDATE_REQUIRED'; value: boolean; index: number }
-  | { type: 'UPDATE_OPTIONS'; value: OptionObject; index: number }
+  | { type: 'UPDATE_OPTIONS'; value: OptionObject[]; index: number }
   | { type: 'ADD_QUESTION' }
+  | { type: 'ADD_OPTION'; index: number }
+  | { type: 'DELETE_OPTION'; id: string; index: number }
   | { type: 'DELETE_QUESTION'; index: number };
 
 const initialState = (calendar: fullCalendarResponse | null) =>
@@ -85,7 +26,10 @@ const initialState = (calendar: fullCalendarResponse | null) =>
     if (question.options) {
       return {
         ...question,
-        options: Object.keys(question.options),
+        options: Object.keys(question.options).map((key) => ({
+          id: generateHash(Math.random().toString()),
+          value: question.options[key],
+        })),
       };
     }
     return question;
@@ -103,30 +47,38 @@ const reducer = (state: State, action: Action): State => {
     case 'UPDATE_REQUIRED':
       updatedQuestions[action.index].required = action.value;
       return updatedQuestions;
-    // case 'UPDATE_OPTIONS':
-    //   updatedQuestions[action.index].options = action.value;
-    //   return updatedQuestions;
     case 'UPDATE_OPTIONS': {
-      const questionToUpdate = updatedQuestions.find((question) => question.id === action.value.id);
-
-      if (questionToUpdate) {
-        questionToUpdate.options = action.value;
-      }
+      const questionToUpdate = updatedQuestions[action.index];
+      action.value.forEach((newOption) => {
+        const existingOption = questionToUpdate.options.find((option: OptionObject) => option.id === newOption.id);
+        if (existingOption) {
+          existingOption.value = newOption.value;
+        }
+      });
 
       return updatedQuestions;
     }
+
     case 'ADD_QUESTION':
       return [
         ...state,
         {
-          question: '',
+          question: 'Insert Question Here',
           inputType: 'text',
           required: false,
           id: generateHash(Math.random().toString()),
         },
       ];
+    case 'ADD_OPTION':
+      updatedQuestions[action.index].options.push({ id: generateHash(Math.random().toString()), value: 'New Option' });
+      return updatedQuestions;
     case 'DELETE_QUESTION':
       updatedQuestions.splice(action.index, 1);
+      return updatedQuestions;
+    case 'DELETE_OPTION':
+      updatedQuestions[action.index].options = updatedQuestions[action.index].options.filter(
+        (option: OptionObject) => option.id !== action.id
+      );
       return updatedQuestions;
     default:
       throw new Error();
@@ -151,24 +103,25 @@ const FormQuestions = () => {
     // update in database
     try {
       setLoading(true);
-      const response = await putData(`/calendars`, {
+      const modifiedQuestionStructure = questions.map((question) => {
+        if (question.options) {
+          return {
+            ...question,
+            options: question.options.reduce((acc: { [key: string]: string }, option: { [key: string]: string }) => {
+              return { ...acc, [option.value]: option.value };
+            }, {}),
+          };
+        }
+        return question;
+      });
+      await putData(`/calendars`, {
         hash: calendar?.hash,
-        personalForm: questions.map((question) => {
-          if (question.options) {
-            return {
-              ...question,
-              options: question.options.reduce((acc: any, option: string) => {
-                return { ...acc, [option]: option };
-              }, {}),
-            };
-          }
-          return question;
-        }),
+        personalForm: modifiedQuestionStructure,
       });
       // if updated successfully, update in global context
       if (calendar) {
         setLoading(false);
-        calendar.personalForm = questions;
+        calendar.personalForm = modifiedQuestionStructure;
         setAlert({ code: 200, message: 'Personal form updated!', severity: 'success' });
         setAlertOpen(true);
       }
@@ -182,7 +135,6 @@ const FormQuestions = () => {
   return (
     <Box component="form" onSubmit={updatePersonalForm}>
       {questions.map((question, index) => {
-        console.log(question);
         return (
           <Box key={question.id} sx={{ display: 'flex', alignItems: 'center' }}>
             <QuestionFieldForm
@@ -191,7 +143,7 @@ const FormQuestions = () => {
               defaultOption={question.inputType}
               defaultValue={question.question}
               defaultRequired={question.required}
-              defaultOptions={question.options ? question.options : undefined}
+              defaultOptions={question.options ? question.options : []}
               handleDelete={handleDelete}
             />
           </Box>

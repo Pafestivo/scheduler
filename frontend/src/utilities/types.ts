@@ -1,4 +1,5 @@
-import { Appointment, CalendarIntegration, License, User, Calendar } from '@prisma/client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Appointment, CalendarIntegration, License, User } from '@prisma/client';
 import { Session } from 'next-auth';
 
 export type PersonalForm = {
