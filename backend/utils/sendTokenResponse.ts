@@ -22,7 +22,7 @@ const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
   };
 
   // Send secure cookie in production
-  if (process.env.NODE_ENV === 'production') {
+  if (!process.env.NODE_ENV) {
     options.secure = true;
   }
 
