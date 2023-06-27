@@ -70,6 +70,7 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
                         label={question.required ? `${question.question}*` : question.question}
                         title={question.question}
                         type={question.inputType}
+                        defaultValue={answers ? answers[question.question] : ''}
                         fieldIdx={index}
                         setState={handleSetAnswers}
                       />

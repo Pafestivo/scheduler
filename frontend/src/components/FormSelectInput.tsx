@@ -28,8 +28,6 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
 
   React.useEffect(() => {
     setState?.(defaultOption, name);
-
-    console.log('rerender', defaultOption, name);
   }, []);
 
   return (
