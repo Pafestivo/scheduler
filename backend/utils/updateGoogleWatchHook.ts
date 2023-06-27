@@ -9,8 +9,14 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
 
   const channelId = crypto.randomBytes(20).toString('hex'); // A unique ID for the channel
   const channelToken = crypto.randomBytes(20).toString('hex'); // An arbitrary string delivered with each notification
-  // const channelAddress = `${process.env.NEXT_PUBLIC_BASE_URL}/webhooks/googleCalendar`; // webhook URL for remote
-  const channelAddress = 'https://40af-147-235-209-217.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
+  let channelAddress;
+  if(process.env.NODE_ENV === 'production') {
+    channelAddress = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/webhooks/googleCalendar`; // webhook URL for remote
+  } else {
+    channelAddress = 'https://40af-147-235-209-217.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
+  }
+  
+  
 
   const auth = await generateGoogleClient(userEmail);
 
