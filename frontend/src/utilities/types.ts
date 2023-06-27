@@ -50,5 +50,6 @@ export interface fullCalendarResponse {
 export interface Isession extends Session {
   accessToken?: { encrypted: string; iv: string };
   refreshToken?: { encrypted: string; iv: string };
+  provider?: string;
   expiresAt?: string;
 }

@@ -1,11 +1,11 @@
 import express from 'express';
 
 import {
-  postBooker
+  postOrUpdateBooker
 } from '../controllers/bookers.controllers.js';
 
 const router = express.Router();
 
-router.post('/bookers', postBooker);
+router.post('/bookers', postOrUpdateBooker);
 
 export default router;

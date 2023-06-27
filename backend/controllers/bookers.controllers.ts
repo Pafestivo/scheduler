@@ -18,22 +18,63 @@ interface BookerRequest extends Request {
 // @route   POST /api/v1/bookers
 // @access  Public
 
-export const postBooker = asyncHandler(async (req: BookerRequest, res: Response, next: NextFunction) => {
+export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: Response, next: NextFunction) => {
   const { name, email, phone, preferredChannel, appointmentHash } = req.body;
 
   if(!email && !phone) return next(new ErrorResponse({ message: 'Missing information, email or phone required', statusCode: 403 })); 
 
   try {
-    const booker = await prisma.booker.create({
-      data: {
-        name,
-        email,
-        phone,
-        preferredChannel,
-        appointmentHash: [appointmentHash]
-      }
-    })
+    let booker = null;
 
+    // if phone was given, look for a booker by phone
+    if (phone) {
+      booker = await prisma.booker.findUnique({
+        where: {
+          phone
+        }
+      });
+    }
+    
+    // if no booker found but we have an email, look for booker by email
+    if (!booker && email) {
+      booker = await prisma.booker.findUnique({
+        where: {
+          email
+        }
+      });
+    }
+
+    // if no booker found, create a new one
+    if(!booker) {
+      booker = await prisma.booker.create({
+        data: {
+          name,
+          email,
+          phone,
+          preferredChannel,
+          appointmentHash: [appointmentHash]
+        }
+      })
+    // if a booker found, add the appointment to it's appointments array
+    } else {
+      let appointmentHashArray = [];
+      if (Array.isArray(booker.appointmentHash)) {
+        appointmentHashArray = [...booker.appointmentHash, appointmentHash];
+      } else {
+        appointmentHashArray = [appointmentHash];
+      }
+      await prisma.booker.update({
+        where: {
+          id: booker.id
+        },
+        data: {
+          appointmentHash: appointmentHashArray
+        }
+      })
+    }
+   
+
+    // update the appointment with the booker's info
     await prisma.appointment.update({
       where: {
         hash: appointmentHash

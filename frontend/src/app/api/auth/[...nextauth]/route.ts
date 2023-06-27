@@ -86,6 +86,7 @@ const handler = NextAuth({
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
+        token.provider = account.provider;
       }
       return token;
     },
@@ -96,6 +97,7 @@ const handler = NextAuth({
       session.accessToken = encryptedToken;
       session.refreshToken = encryptedRefreshToken;
       session.expiresAt = token.expiresAt;
+      session.provider = token.provider;
       return session;
     },
 

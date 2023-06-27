@@ -7,6 +7,7 @@ import { useGlobalContext } from '@/app/context/store';
 import FormDialog from './FormDialog';
 import findAvailableSlots from '@/utilities/findAvailableSlots';
 import { useRouter } from 'next/navigation';
+import { Appointment } from '@prisma/client';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -227,31 +228,45 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       return;
     }
 
+    const postAppointment = async (appointmentTime : string) => {
+      try {
+        const appointment = await postData('/appointments', {
+          calendarHash,
+          userHash: loggedUser.hash,
+          date: startDate,
+          startTime: appointmentTime,
+          endTime: addTime(appointmentTime, appointmentsLength),
+          answersArray: answers || {},
+        });
+        return appointment.data;
+      } catch (error) {
+        console.error('err', error)
+      }
+    }
+
+    const getOrPostBooker = async (appointment: Appointment) => {
+      if (!answers) return;
+      try {
+        // this post route handles all the booker logic
+        const booker = await postData('/bookers', {
+          name: answers['What is your name?'],
+          email: answers['What is your email?'],
+          phone: answers['What is your phone number?'],
+          preferredChannel: answers['preferred channel of communication?'],
+          appointmentHash: appointment.hash
+        })
+        return booker.data;
+      } catch (error) {
+        console.error('err', error)
+      }
+    }
+
     const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentTime}?`);
     if (confirmed) {
       setShowFormPopup(false);
       setLoading(true);
-      console.log(startDate, appointmentTime);
-      if(!answers) return;
-      const appointment = await postData('/appointments', {
-        calendarHash,
-        userHash: loggedUser.hash,
-        date: startDate,
-        startTime: appointmentTime,
-        endTime: addTime(appointmentTime, appointmentsLength),
-        answersArray: answers || {},
-      });
-      // check if booker exists before posting booker
-      // if booker exists just add the appointment hash to the appointments array of the booker
-      // make a route to edit the appointment hash of the booker
-      // preferably make an external function to handle this
-      const booker = await postData('/bookers', {
-        name: answers['What is your name?'],
-        email: answers['What is your email?'],
-        phone: answers['What is your phone number?'],
-        preferredChannel: answers['preferred channel of communication?'],
-        appointmentHash: appointment.data.hash
-      })
+      const appointment = await postAppointment(appointmentTime);
+      const booker = await getOrPostBooker(appointment.data);
       const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
       const integrations = await getData(`/integration/${calendar.owner}`);
@@ -262,7 +277,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       if (hasGoogleIntegration) {
         await postData(`/googleAppointments/${calendar.owner}`, {
           googleWriteInto: calendar.googleWriteInto,
-          summary: `Appointment with client`,
+          summary: `Appointment with ${booker.name}`,
           date: startDate,
           startTime: appointmentTime,
           endTime: meetingEndTime,
