@@ -105,7 +105,7 @@ const Availability = () => {
       setNotAvailableDays(offDays);
 
       if (!hasDuplicateDays(calendar?.availabilities ? calendar.availabilities : []) && calendar?.availabilities) {
-        let newArray = new Array(7)
+        const newArray = new Array(7)
           .fill({ day: 0, startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
           .map((obj, index) => {
             return { ...obj, day: index };
@@ -157,14 +157,6 @@ const Availability = () => {
           <Typography variant="body2">{notAvailableDays}</Typography>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
             Save changes
-          </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              console.log(repeatingList);
-            }}
-          >
-            log
           </Button>
         </>
       )}
