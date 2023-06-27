@@ -50,6 +50,7 @@ const GlobalContext = createContext<ContextProps>({
   calendar: null,
   setCalendar: (): null => null,
 });
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 export const GlobalContextProvider = ({ children }) => {
   const [user, setUser] = useState<User | null | undefined>(null);
