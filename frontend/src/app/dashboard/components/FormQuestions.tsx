@@ -81,7 +81,7 @@ type Action =
   | { type: 'DELETE_QUESTION'; index: number };
 
 const initialState = (calendar: fullCalendarResponse | null) =>
-  calendar?.personalForm.map((question) => {
+  calendar?.personalForm?.map((question) => {
     if (question.options) {
       return {
         ...question,

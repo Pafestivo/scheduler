@@ -19,6 +19,7 @@ model Booker {
   email           String?   @unique
   preferredChannel String
   appointmentHash Json
+  hash            String    @unique
 }
 
 //user 
@@ -82,6 +83,7 @@ model Calendar {
   watchChannelId   String? 
   watchChannelToken String?
   owner             String        @default("abra kadabra")
+  thankYouMessage   String?
 }
 
 //

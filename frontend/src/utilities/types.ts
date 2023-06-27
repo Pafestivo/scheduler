@@ -46,6 +46,7 @@ export interface fullCalendarResponse {
   users: User[];
   googleReadFrom: string;
   googleWriteInto: string;
+  thankYouMessage: string;
 }
 
 export interface Isession extends Session {

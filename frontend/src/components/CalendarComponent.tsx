@@ -183,7 +183,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         }
         setAlertOpen(true);
         setLoading(false);
-        router.push(`/thankyou/${calendarHash}`)
+        router.push(`/reschedule`)
       }
 
     } else setShowFormPopup(true);
@@ -295,7 +295,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       setShowAvailableTime(false);
       setAnswers({});
       setLoading(false);
-      router.push(`/thankyou/${calendarHash}`)
+      router.push(`/thankyou/${calendarHash}/${booker.hash}`)
     } else return;
   };
 
