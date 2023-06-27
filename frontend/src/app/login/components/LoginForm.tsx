@@ -12,7 +12,7 @@ import { signIn } from 'next-auth/react';
 import { validateEmail } from '@/utilities/emailValidator';
 
 const LoginForm = () => {
-  const { alert, setAlert, setUser, user } = useGlobalContext();
+  const { alert, setAlert, setUser } = useGlobalContext();
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -42,6 +42,7 @@ const LoginForm = () => {
         setAlert({ message: 'Wrong credentials', code: 1, severity: 'error' });
         return;
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAlert({ message: 'Wrong credentials', code: 1, severity: 'error' });
     }

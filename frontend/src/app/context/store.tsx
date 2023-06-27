@@ -1,7 +1,6 @@
 'use client';
 
 import { fullCalendarResponse } from '@/utilities/types';
-import { Calendar } from '@prisma/client';
 import { createContext, useContext, Dispatch, SetStateAction, useState } from 'react';
 
 export interface User {

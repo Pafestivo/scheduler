@@ -3,7 +3,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
-import { Box, Checkbox, Switch, Typography } from '@mui/material';
+import { Box, Switch, Typography } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -17,9 +17,11 @@ export default function CortexTimePicker({
 }: {
   defaultStartTime: string;
   defaultEndTime: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleTimeChange: any;
   index?: number;
   defaultActive: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleCheckboxChange: any;
 }) {
   const [active, setActive] = React.useState<boolean>(defaultActive);
@@ -30,11 +32,14 @@ export default function CortexTimePicker({
   React.useEffect(() => {
     const validateWorkHours = () => {
       if (startTime === endTime) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return setIsTimeValid((prev) => (prev = false));
       }
       if (dayjs(dayjs().format('YYYY-MM-DDT') + startTime).isAfter(dayjs(dayjs().format('YYYY-MM-DDT') + endTime))) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return setIsTimeValid((prev) => (prev = false));
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return setIsTimeValid((prev) => (prev = true));
     };
     validateWorkHours();
@@ -62,6 +67,7 @@ export default function CortexTimePicker({
           ampm={false}
           label={'Start Time'}
           onChange={(value) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             setStartTime((prev) => (prev = dayjs(value).format('HH:mm')));
             handleTimeChange(dayjs(value).format('HH:mm'), index, 'startTime');
           }}
@@ -73,6 +79,7 @@ export default function CortexTimePicker({
           ampm={false}
           label={'End Time'}
           onChange={(value) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             setEndTime((prev) => (prev = dayjs(value).format('HH:mm')));
             handleTimeChange(dayjs(value).format('HH:mm'), index, 'endTime');
           }}

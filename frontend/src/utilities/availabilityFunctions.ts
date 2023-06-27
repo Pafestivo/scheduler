@@ -1,5 +1,3 @@
-import { Availability } from '@prisma/client';
-
 interface DayRange {
   start: number;
   end: number;

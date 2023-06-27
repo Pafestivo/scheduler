@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import AddIcon from '@mui/icons-material/Add';
 
 const AddPhoto = () => {
   //add image upload logic and recieve file state from parent who renders it to make the component generic...

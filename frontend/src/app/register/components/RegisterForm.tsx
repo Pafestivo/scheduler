@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { postData } from '@/utilities/serverRequests/serverRequests';
 
 const SignUpForm = () => {
-  const { alert, setAlert, setUser, user } = useGlobalContext();
+  const { alert, setAlert } = useGlobalContext();
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,7 +25,7 @@ const SignUpForm = () => {
     const lastName = data.get('lastName') as string;
     const email = data.get('email') as string;
     const acceptPromotions = data.get('marketing') as string;
-    const country = data.get('Country') as string;
+    // const country = data.get('Country') as string;
     const password = data.get('password') as string;
     const password2 = data.get('password2') as string;
     const phone = data.get('phone') as string;

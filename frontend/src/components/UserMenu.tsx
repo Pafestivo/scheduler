@@ -6,9 +6,9 @@ import Link from 'next/link';
 import React from 'react';
 
 const settings = [
-  { name: 'Profile', href: '/profile' },
+  // { name: 'Profile', href: '/profile' },
   { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Settings', href: '/settings' },
+  // { name: 'Settings', href: '/settings' },
   { name: 'Logout', href: '#' },
 ];
 const noUser = [

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getData, putData } from '@/utilities/serverRequests/serverRequests';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Appointment } from '@prisma/client';
 import dayjs from 'dayjs';
@@ -27,9 +27,9 @@ const Appointments = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page number
   const [sorting, setSorting] = useState<string>('upcoming'); // Sorting option
   const [selectedStatus, setSelectedStatus] = useState<string>('All'); // Selected status for filtering
-  const { setLoading, setAlert, setAlertOpen } = useGlobalContext()
+  const { setLoading, setAlert, setAlertOpen } = useGlobalContext();
   const params = useParams();
-  const calendarHash = params.hash
+  const calendarHash = params.hash;
 
   const getAppointments = useCallback(async () => {
     const response = await getData(`/appointments/${params.hash}`);
@@ -65,9 +65,10 @@ const Appointments = () => {
   // Apply pagination, sorting, and status filtering to the data
   const startIndex: number = (currentPage - 1) * perPage;
   const endIndex: number = startIndex + perPage;
-  const filteredAppointments: Appointment[] = !selectedStatus || selectedStatus === 'All'
-    ? appointments
-    : appointments.filter((appointment) => appointment.status === selectedStatus);
+  const filteredAppointments: Appointment[] =
+    !selectedStatus || selectedStatus === 'All'
+      ? appointments
+      : appointments.filter((appointment) => appointment.status === selectedStatus);
   let sortedAppointments: Appointment[] = [];
 
   if (sorting === 'upcoming') {
@@ -84,18 +85,18 @@ const Appointments = () => {
 
   // Function to handle canceling an appointment
   const handleCancelAppointment = async (appointmentHash: string) => {
-    setLoading(true)
+    setLoading(true);
     const cancelAppointment = await putData('/appointments', {
       hash: appointmentHash,
-      status: "canceled"
-    })
-    if(cancelAppointment.success) {
+      status: 'canceled',
+    });
+    if (cancelAppointment.success) {
       setAlert({
         message: 'Appointment canceled successfully',
         severity: 'success',
         code: 0,
       });
-      getAppointments()
+      getAppointments();
     } else {
       setAlert({
         message: 'Failed to cancel appointment, please try again later',
@@ -119,18 +120,18 @@ const Appointments = () => {
 
   // Function to handle approving an appointment
   const handleApproveAppointment = async (appointmentHash: string) => {
-    setLoading(true)
+    setLoading(true);
     const cancelAppointment = await putData('/appointments', {
       hash: appointmentHash,
-      status: "confirmed"
-    })
-    if(cancelAppointment.success) {
+      status: 'confirmed',
+    });
+    if (cancelAppointment.success) {
       setAlert({
         message: 'Appointment confirmed successfully',
         severity: 'success',
         code: 0,
       });
-      getAppointments()
+      getAppointments();
     } else {
       setAlert({
         message: 'Failed to confirm appointment, please try again later',
@@ -143,8 +144,8 @@ const Appointments = () => {
   };
 
   return (
-    <div style={{display: "flex", flexDirection: "column"}}>
-      <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr"}}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}>
         <FormControl>
           <InputLabel>Sort By</InputLabel>
           <Select value={sorting} onChange={(e) => handleSorting(e.target.value as string)}>
@@ -173,7 +174,6 @@ const Appointments = () => {
         </FormControl>
       </Box>
 
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -186,7 +186,10 @@ const Appointments = () => {
           </TableHead>
           <TableBody>
             {paginatedAppointments.map((appointment) => (
-              <TableRow key={appointment.hash} sx={appointment.status === 'canceled' ? { textDecoration: 'line-through' } : {}}>
+              <TableRow
+                key={appointment.hash}
+                sx={appointment.status === 'canceled' ? { textDecoration: 'line-through' } : {}}
+              >
                 <TableCell>{dayjs(appointment.date).format('YYYY-MM-DD')}</TableCell>
                 <TableCell>{appointment.startTime}</TableCell>
                 <TableCell>{appointment.status}</TableCell>
@@ -195,11 +198,13 @@ const Appointments = () => {
                     <p>No actions for canceled appointments</p>
                   </TableCell>
                 ) : (
-                <TableCell>
-                  <Button onClick={() => handleCancelAppointment(appointment.hash)}>Cancel</Button>
-                  <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>Reschedule</Button>
-                  {appointment.status !== 'confirmed' && <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>}
-                </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleCancelAppointment(appointment.hash)}>Cancel</Button>
+                    <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>Reschedule</Button>
+                    {appointment.status !== 'confirmed' && (
+                      <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>
+                    )}
+                  </TableCell>
                 )}
               </TableRow>
             ))}

@@ -28,6 +28,7 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
 
   React.useEffect(() => {
     setState?.(defaultOption, name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

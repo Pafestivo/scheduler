@@ -4,7 +4,7 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } fr
 import { useGlobalContext } from '@/app/context/store';
 import { BASE_BREAK_END_TIME, BASE_BREAK_START_TIME } from '@/utilities/constants';
 import { formatTime } from '@/utilities/availabilityFunctions';
-import { postData, putData } from '@/utilities/serverRequests/serverRequests';
+import { putData } from '@/utilities/serverRequests/serverRequests';
 import { BreakTime } from '@/utilities/types';
 
 interface DurationBody {
@@ -35,7 +35,7 @@ const Duration = () => {
     if (breakTime) setBreakTime(newBreakTime);
   };
 
-  const handleCheckboxChange = (index: number) => {
+  const handleCheckboxChange = () => {
     let newBreakTime = { ...breakTime, isActive: !breakTime.isActive };
     if (!breakTime.startTime) {
       newBreakTime = { ...newBreakTime, startTime: BASE_BREAK_START_TIME };
@@ -95,7 +95,7 @@ const Duration = () => {
     }
     setLoading(true);
     try {
-      const response = await putData(`/calendars`, { ...requestBody, hash: calendar?.hash });
+      await putData(`/calendars`, { ...requestBody, hash: calendar?.hash });
       if (calendar) {
         setCalendar({
           ...calendar,

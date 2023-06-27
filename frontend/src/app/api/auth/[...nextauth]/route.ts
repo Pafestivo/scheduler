@@ -1,4 +1,4 @@
-import { postData } from '@/utilities/serverRequests/serverRequests';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import GoogleProvider from 'next-auth/providers/google';
 import NextAuth, { Account, Profile, User as NextAuthUser } from 'next-auth';
 import { Isession } from '@/utilities/types';
@@ -54,13 +54,13 @@ interface IAccount extends Account {
   expires_at?: number;
   refresh_token?: string;
 }
-interface INextAuthSignInParams {
-  user: IUser;
-  account: IAccount | null;
-  profile?: Profile;
-  email?: { verificationRequest?: boolean };
-  credentials?: Record<string, unknown>;
-}
+// interface INextAuthSignInParams {
+//   user: IUser;
+//   account: IAccount | null;
+//   profile?: Profile;
+//   email?: { verificationRequest?: boolean };
+//   credentials?: Record<string, unknown>;
+// }
 interface INextAuthJwtParams {
   token: any;
   user: IUser | null;
@@ -101,7 +101,7 @@ const handler = NextAuth({
       return session;
     },
 
-    redirect({ url, baseUrl }) {
+    redirect({ baseUrl }) {
       return process.env.NEXT_PUBLIC_BASE_URL || baseUrl;
     },
   },

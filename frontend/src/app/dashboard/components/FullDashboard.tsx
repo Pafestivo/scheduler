@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import { styled, ThemeProvider } from '@mui/material/styles';
 import {
   CssBaseline,
   Box,
@@ -38,6 +38,7 @@ import { getData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import Appointments from './Appointments';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
