@@ -24,11 +24,11 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
   const [personalForm, setPersonalForm] = useState<
-    { question: string; inputType: string; options?: { [key: string]: string }; required: boolean }[]
+    { question: string; inputType: string; options?: { [key: string]: string }; required?: boolean }[]
   >([
     {question: 'What is your name?', inputType: 'text', required: true},
-    {question: 'What is your phone number?', inputType: 'text', required: true},
-    {question: 'What is your email?', inputType: 'email', required: true},
+    {question: 'What is your phone number?', inputType: 'text'},
+    {question: 'What is your email?', inputType: 'email'},
     {question: 'preferred channel of communication?', inputType: 'select', options: {'email': 'Email', 'phone': 'Phone'},  required: true},
     ]);
   const [showFormPopup, setShowFormPopup] = useState(false);
@@ -189,6 +189,40 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     } else setShowFormPopup(true);
   };
 
+  const postAppointment = async (appointmentTime : string) => {
+    try {
+      const appointment = await postData('/appointments', {
+        calendarHash,
+        userHash: loggedUser.hash,
+        date: startDate,
+        startTime: appointmentTime,
+        endTime: addTime(appointmentTime, appointmentsLength),
+        answersArray: answers || {},
+      });
+      return appointment.data;
+    } catch (error) {
+      console.error('err', error)
+    }
+  }
+
+  const getOrPostBooker = async (appointment: Appointment) => {
+    if (!answers) return
+
+    try {
+      // this post route handles all the booker logic
+      const booker = await postData('/bookers', {
+        name: answers['What is your name?'],
+        email: answers['What is your email?'],
+        phone: answers['What is your phone number?'],
+        preferredChannel: answers['preferred channel of communication?'],
+        appointmentHash: appointment.hash
+      })
+      return booker.data;
+    } catch (error) {
+      console.error('err', error)
+    }
+  }
+
   const promptBooking = async (
     appointmentStartTime?: string,
     e?: React.FormEvent<HTMLFormElement>,
@@ -206,7 +240,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if (e) {
       let formFilledProperly = true;
       personalForm?.forEach((question, index) => {
-        console.log(answers);
         if (question.required && answers && !answers[question.question]) {
           setAlert({
             message: question.question,
@@ -218,8 +251,13 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           return;
         }
       });
-      console.log(answers)
+      // general test for the whole form
       if (!formFilledProperly) return;
+      // special test for phone or email
+      if(answers && !answers['What is your email?'] && !answers['What is your phone number?']) {
+        alert('You have to fill either phone or email.')
+        return;
+      }
     }
 
     if (loggedUser.hash && calendarOwner == loggedUser.hash) {
@@ -228,45 +266,12 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       return;
     }
 
-    const postAppointment = async (appointmentTime : string) => {
-      try {
-        const appointment = await postData('/appointments', {
-          calendarHash,
-          userHash: loggedUser.hash,
-          date: startDate,
-          startTime: appointmentTime,
-          endTime: addTime(appointmentTime, appointmentsLength),
-          answersArray: answers || {},
-        });
-        return appointment.data;
-      } catch (error) {
-        console.error('err', error)
-      }
-    }
-
-    const getOrPostBooker = async (appointment: Appointment) => {
-      if (!answers) return;
-      try {
-        // this post route handles all the booker logic
-        const booker = await postData('/bookers', {
-          name: answers['What is your name?'],
-          email: answers['What is your email?'],
-          phone: answers['What is your phone number?'],
-          preferredChannel: answers['preferred channel of communication?'],
-          appointmentHash: appointment.hash
-        })
-        return booker.data;
-      } catch (error) {
-        console.error('err', error)
-      }
-    }
-
     const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentTime}?`);
     if (confirmed) {
       setShowFormPopup(false);
       setLoading(true);
       const appointment = await postAppointment(appointmentTime);
-      const booker = await getOrPostBooker(appointment.data);
+      const booker = await getOrPostBooker(appointment);
       const updatedAppointments = await getCalendarAppointments();
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
       const integrations = await getData(`/integration/${calendar.owner}`);
@@ -281,7 +286,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           date: startDate,
           startTime: appointmentTime,
           endTime: meetingEndTime,
-          hash: appointment.data.hash,
+          hash: appointment.hash,
         });
       }
       setAppointments(updatedAppointments);

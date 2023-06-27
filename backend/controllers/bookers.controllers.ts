@@ -33,6 +33,7 @@ export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: R
           phone
         }
       });
+      console.log('user found by phone')
     }
     
     // if no booker found but we have an email, look for booker by email
@@ -42,6 +43,7 @@ export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: R
           email
         }
       });
+      console.log('user found by email')
     }
 
     // if no booker found, create a new one
@@ -55,6 +57,7 @@ export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: R
           appointmentHash: [appointmentHash]
         }
       })
+      console.log('user created')
     // if a booker found, add the appointment to it's appointments array
     } else {
       let appointmentHashArray = [];
@@ -68,9 +71,11 @@ export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: R
           id: booker.id
         },
         data: {
-          appointmentHash: appointmentHashArray
+          appointmentHash: appointmentHashArray,
+          preferredChannel
         }
       })
+      console.log('user updated')
     }
    
 
