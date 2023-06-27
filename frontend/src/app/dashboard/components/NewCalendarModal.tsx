@@ -11,10 +11,10 @@ import FormInput from '@/components/FormInput';
 import { Box } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
-import { calendar } from 'googleapis/build/src/apis/calendar';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     children: React.ReactElement<any, any>;
   },
   ref: React.Ref<unknown>
@@ -29,6 +29,7 @@ export default function NewCalendarModal({
 }: {
   formOpen: boolean;
   setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCalendars: React.Dispatch<React.SetStateAction<never[] | any[]>>;
 }) {
   const { user, setUser, setAlert, setAlertOpen, setLoading } = useGlobalContext();

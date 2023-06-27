@@ -2,7 +2,7 @@ import { useGlobalContext } from '@/app/context/store';
 import AddPhoto from '@/components/AddPhoto';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import TextareaAutosize from '@mui/base/TextareaAutosize';
 import { Button } from '@mui/material';
 import { putData } from '@/utilities/serverRequests/serverRequests';

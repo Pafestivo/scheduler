@@ -9,7 +9,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
 });
 
 export default function AlertBar() {
-  const { alert, setAlert, alertOpen, setAlertOpen } = useGlobalContext();
+  const { alert, alertOpen, setAlertOpen } = useGlobalContext();
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       setAlertOpen(false);
