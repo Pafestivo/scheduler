@@ -1,5 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
+import qs from 'qs';
 
 export const sendEmail = async (email: string, subject: string, text: string) => {
   const data = new FormData();
@@ -25,4 +26,29 @@ export const sendEmail = async (email: string, subject: string, text: string) =>
     .catch((error) => {
       console.log(error);
     });
+};
+
+export const sendSMS = async (phone: string, message: string) => {
+  const data = qs.stringify({
+    post: '2',
+    token: process.env.SMS_API_KEY,
+    msg: `${message}`,
+    list: `${phone}`,
+    from: `WECOME`,
+  });
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: encodeURI('http://www.micropay.co.il/ExtApi/ScheduleSms.php'),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: data,
+  };
+  try {
+    const res = await axios(config);
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
+  }
 };

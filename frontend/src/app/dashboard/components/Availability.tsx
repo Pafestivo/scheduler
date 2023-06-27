@@ -111,6 +111,7 @@ const Availability = () => {
             return { ...obj, day: index };
           });
 
+        // eslint-disable-next-line no-unsafe-optional-chaining
         for (const obj of calendar?.availabilities) {
           const index = obj.day;
           newArray[index] = obj;

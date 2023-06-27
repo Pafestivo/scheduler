@@ -3,7 +3,7 @@ import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from '../middlewares/asyncHandler.js';
 import prisma from '../utils/prismaClient.js';
 import generateHash from '../utils/generateHash.js';
-import { sendEmail } from '../utils/notificationHandler.js';
+import { sendEmail, sendSMS } from '../utils/notificationHandler.js';
 
 interface BookerRequest extends Request {
   body: {
@@ -12,6 +12,8 @@ interface BookerRequest extends Request {
     phone?: string;
     preferredChannel: string;
     appointmentHash: string;
+    calendarHash: string;
+    ownerEmail: string;
   };
 }
 
@@ -20,7 +22,7 @@ interface BookerRequest extends Request {
 // @access  Public
 
 export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: Response, next: NextFunction) => {
-  const { name, email, phone, preferredChannel, appointmentHash } = req.body;
+  const { name, email, phone, preferredChannel, appointmentHash, calendarHash, ownerEmail } = req.body;
   const hash = generateHash(name);
 
   if (!email && !phone)
@@ -87,9 +89,17 @@ export const postOrUpdateBooker = asyncHandler(async (req: BookerRequest, res: R
         userHash: booker.hash,
       },
     });
-    if (email) {
-      sendEmail(email, 'Appointment confirmation', 'Your appointment has been confirmed');
+
+    const emailMessage = `${name}, your appointment has been booked to rescedule please visit the following link : <button style='background-color:'red''><a href='${process.env.NEXT_PUBLIC_BASE_URL}/book/${calendarHash}/${appointmentHash}' target='_blank'>Reschedule</a></button> <br> To cancel your appointment please visit <button style='background-color:'red''><a href='${process.env.NEXT_PUBLIC_BASE_URL}/cancel/${appointmentHash}' target='_blank'>Cancel</a></button>`;
+    const smsMessage = `${name}, your appointment has been booked to rescedule please visit the following link ${process.env.NEXT_PUBLIC_BASE_URL}/book/${calendarHash}/${appointmentHash}/ To cancel your appointment please visit ${process.env.NEXT_PUBLIC_BASE_URL}/cancel/${appointmentHash}/`;
+    const ownerMessage = `${name} has booked an appointment. Check your dashboard for more details.`;
+    if (preferredChannel === 'email' && email) {
+      sendEmail(email, 'Appointment confirmation', emailMessage);
+    } else if (preferredChannel === 'phone' && phone) {
+      sendSMS(phone, smsMessage);
     }
+    console.log('ownerEmail', ownerEmail);
+    sendEmail(ownerEmail, 'Appointment confirmation', ownerMessage);
     res.status(200).json({
       success: true,
       data: booker,
