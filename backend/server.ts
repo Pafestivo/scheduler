@@ -10,6 +10,7 @@ import errorHandler from './middlewares/errorHandler.js';
 import appointments from './routes/appointments.route.js';
 import integration from './routes/integration.route.js';
 import googleCalendar from './routes/googleCalendar.route.js';
+import bookers from './routes/bookers.route.js'
 import cookieParser from 'cookie-parser';
 import { renewExpiredWatchRequests } from './cron-job.js'
 
@@ -44,6 +45,7 @@ app.use('/api/v1', calendar);
 app.use('/api/v1', appointments);
 app.use('/api/v1', integration);
 app.use('/api/v1', googleCalendar);
+app.use('/api/v1/', bookers);
 app.use('/api/v1/webhooks', webhooks);
 app.use(errorHandler);
 

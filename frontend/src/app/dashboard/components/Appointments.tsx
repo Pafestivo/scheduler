@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getData, putData } from '@/utilities/serverRequests/serverRequests';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Appointment } from '@prisma/client';
 import dayjs from 'dayjs';
@@ -29,6 +29,7 @@ const Appointments = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('All'); // Selected status for filtering
   const { setLoading, setAlert, setAlertOpen } = useGlobalContext()
   const params = useParams();
+  const calendarHash = params.hash
 
   const getAppointments = useCallback(async () => {
     const response = await getData(`/appointments/${params.hash}`);
@@ -108,8 +109,12 @@ const Appointments = () => {
 
   // Function to handle rescheduling an appointment
   const handleRescheduleAppointment = (appointmentHash: string) => {
-    // Implement the reschedule appointment logic here
-    console.log(`Reschedule appointment: ${appointmentHash}`);
+    const url = `/book/${calendarHash}/${appointmentHash}`;
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.target = '_blank';
+    anchor.click();
   };
 
   // Function to handle approving an appointment

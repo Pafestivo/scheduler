@@ -11,6 +11,15 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+//booker
+model Booker {
+  id               Int      @id @default(autoincrement())
+  name            String    
+  phone           String?    @unique
+  email           String?   @unique
+  preferredChannel String
+  appointmentHash Json
+}
 
 //user 
 enum UserType {

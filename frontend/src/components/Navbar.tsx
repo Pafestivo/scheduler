@@ -42,8 +42,10 @@ function Navbar() {
     const registerUser = async () => {
       if (sessionData.data?.user && user === undefined) {
         const { email, name } = sessionData.data.user;
-        const response = await postData('/auth/register', { email, name });
+        const { provider } = sessionData.data;
+        const response = await postData('/auth/register', { email, name, provider });
         if (response.message === 'User already exists') {
+          await postData('/auth/login', { email, provider });
           await getData('/auth/me');
         }
       }

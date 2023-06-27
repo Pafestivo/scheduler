@@ -5,16 +5,15 @@ import { generateGoogleClient } from '../utils/generateGoogleClient.js';
 import { google } from 'googleapis';
 import prisma from '../utils/prismaClient.js';
 import { IntegrationRequest } from '../models/types.js';
-import { integrations } from 'googleapis/build/src/apis/integrations/index.js';
 
 // @desc    Get appointments from google
-// @route   GET /api/v1/googleAppointments/:userEmail
+// @route   GET /api/v1/googleAppointments/:userHash
 // @access  Public
 
 export const getAppointments = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
-  const { userEmail } = req.params;
+  const { userHash } = req.params;
   const { googleReadFrom } = req.body;
-  const auth = await generateGoogleClient(userEmail);
+  const auth = await generateGoogleClient(userHash);
 
   if (!auth) {
     res.status(200).json({
@@ -50,7 +49,7 @@ export const getAppointments = asyncHandler(async (req: IntegrationRequest, res:
 });
 
 // @desc    Get calendars from google
-// @route   GET /api/v1/googleCalendars/:userEmail
+// @route   GET /api/v1/googleCalendars/:userHash
 // @access  Public
 
 export const getCalendars = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
@@ -97,14 +96,14 @@ export const getCalendars = asyncHandler(async (req: IntegrationRequest, res: Re
 });
 
 // @desc    post appointment to google
-// @route   POST /api/v1/googleAppointments/:userEmail
+// @route   POST /api/v1/googleAppointments/:userHash
 // @access  Public
 
 export const postAppointment = asyncHandler(async (req: IntegrationRequest, res: Response, next: NextFunction) => {
-  const { userEmail } = req.params;
+  const { userHash } = req.params;
   const { googleWriteInto, summary, date, startTime, endTime, hash } = req.body;
 
-  const auth = await generateGoogleClient(userEmail);
+  const auth = await generateGoogleClient(userHash);
 
   if (!auth) {
     res.status(200).json({
