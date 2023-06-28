@@ -23,7 +23,7 @@ const sendTokenResponse = (user: User, statusCode: number, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
     domain: process.env.COOKIE_DOMAIN,
-    sameSite: 'none',
+    sameSite: process.env.NODE_ENV !== 'development' ? 'none' : 'lax',
   };
 
   // It's up to the client-side to decide how to handle the token
