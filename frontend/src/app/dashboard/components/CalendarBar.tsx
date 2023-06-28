@@ -3,8 +3,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Paper, Stack, Avatar, Typography, Badge } from '@mui/material';
 // import { Calendar } from '@/utilities/types';
-import cortexIcon from '../../../assets/Icon.webp';
-
+// import cortexIcon from '../../../assets/Icon.webp';
 import Link from 'next/link';
 import ActionBox from './ActionBox';
 import { Calendar } from '@prisma/client';
@@ -40,7 +39,7 @@ const CalendarBar = ({ calendar, calendars ,setCalendars }: { calendar: Calendar
             <Avatar
               sx={{ backgroundColor: 'black', p: '2' }}
               alt={calendar.name}
-              src={calendar.image ? calendar.image : cortexIcon.src}
+              src={calendar.image ? calendar.image : ''}
             />
           </Badge>
         </Stack>
