@@ -7,7 +7,8 @@ const HomePage = () => {
 
   useEffect(() => {
     if (user?.hash) {
-      window.location.href = '/dashboard'
+      console.log('user:',user)
+      // window.location.href = '/dashboard'
     }
   }, [user])
   return (
