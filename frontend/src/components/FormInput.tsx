@@ -13,6 +13,7 @@ const FormInput = ({
   defaultValue,
   setState,
   noFocus,
+  autoComplete,
 }: {
   name: string;
   label: string;
@@ -24,6 +25,7 @@ const FormInput = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setState?: (...args: any) => void;
   noFocus?: boolean;
+  autoComplete?: string
 }) => {
   const { alert, setAlert } = useGlobalContext();
 
@@ -33,6 +35,7 @@ const FormInput = ({
   return (
     <TextField
       autoFocus={!noFocus ? true : false}
+      autoComplete={autoComplete}
       type={type}
       name={name}
       fullWidth

@@ -76,13 +76,16 @@ export default function NewCalendarModal({
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle>{'New calendar settings'}</DialogTitle>
+        <DialogTitle>{'New calendar'}</DialogTitle>
         <Box onSubmit={handleSubmit} component={'form'}>
           <DialogContent sx={{ display: 'flex', gap: 4, justifyContent: 'center', alignItems: 'center' }}>
             <AddPhoto />
-            <FormInput fieldIdx={0} name="name" label="Calendar Name" title="Calendar Name" type="text" />
+            <FormInput fieldIdx={0} name="name" label="Calendar Name" title="Calendar Name" type="text" autoComplete='off' />
           </DialogContent>
           <DialogActions>
+            <Button fullWidth onClick={handleClose}>
+              Close
+            </Button>
             <Button fullWidth type="submit">
               Create
             </Button>

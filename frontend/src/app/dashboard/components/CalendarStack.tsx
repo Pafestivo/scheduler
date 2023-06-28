@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import CalendarBar from './CalendarBar';
-import { Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 import { getData } from '@/utilities/serverRequests/serverRequests';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -42,13 +42,10 @@ export default function CalendarStack() {
           Your Calendars
         </Typography>
         <Typography variant="body2" sx={{ mb: 2 }}>
-          {calendars.length ? `Add a new calendar` : `Add a new calendar to start booking appointments.`}
-          <IconButton onClick={() => setFormOpen(true)}>
-            <AddCircleIcon sx={{ ml: 1, fontSize: 16, cursor: 'pointer' }} />
-          </IconButton>
+          <Button variant="contained" onClick={() => setFormOpen(true)}>New Calendar</Button>
         </Typography>
         {calendars.map((calendar) => (
-          <CalendarBar key={calendar.id} calendar={calendar} />
+          <CalendarBar key={calendar.id} calendar={calendar} calendars={calendars} setCalendars={setCalendars} />
         ))}
       </Box>
       <NewCalendarModal formOpen={formOpen} setFormOpen={setFormOpen} setCalendars={setCalendars} />

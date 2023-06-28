@@ -24,9 +24,10 @@ const UserMenu = () => {
   const handleLogout = async () => {
     handleCloseUserMenu();
     try {
-      signOut();
-      await getData('/auth/logout');
+      console.log('logging out')
       setUser(null);
+      await getData('/auth/logout');
+      signOut();
     } catch (error) {
       console.log(error);
     }

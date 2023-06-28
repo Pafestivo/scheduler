@@ -8,7 +8,7 @@ import cortexIcon from '../../../assets/Icon.webp';
 import Link from 'next/link';
 import ActionBox from './ActionBox';
 import { Calendar } from '@prisma/client';
-const CalendarBar = ({ calendar }: { calendar: Calendar }) => {
+const CalendarBar = ({ calendar, calendars ,setCalendars }: { calendar: Calendar, calendars: Calendar[], setCalendars: (calendars: Calendar[]) => void }) => {
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,
@@ -52,7 +52,7 @@ const CalendarBar = ({ calendar }: { calendar: Calendar }) => {
           </Typography>
         </Stack>
       </Stack>
-      <ActionBox url={calendarBookingUrl} hash={calendar.hash} />
+      <ActionBox url={calendarBookingUrl} hash={calendar.hash} calendars={calendars} setCalendars={setCalendars} />
     </Item>
   );
 };

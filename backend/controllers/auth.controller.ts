@@ -145,9 +145,9 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
     // Set cookie to expire in 10 seconds
     expires: new Date(Date.now() + 1 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV !== 'development',
     domain: process.env.COOKIE_DOMAIN,
-    sameSite: 'none',
+    sameSite: process.env.NODE_ENV !== 'development' ? 'none' : 'lax',
   });
 
   res.status(200).json({ success: true, data: {} });

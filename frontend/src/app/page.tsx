@@ -6,7 +6,7 @@ const HomePage = () => {
   const { user } = useGlobalContext()
 
   useEffect(() => {
-    if (user) {
+    if (user?.hash) {
       window.location.href = '/dashboard'
     }
   }, [user])
