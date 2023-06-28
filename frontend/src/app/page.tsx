@@ -1,16 +1,8 @@
 'use client'
-// import { useEffect } from "react";
 import { useGlobalContext } from "./context/store";
 
 const HomePage = () => {
   const { user } = useGlobalContext()
-
-  // useEffect(() => {
-  //   if (user?.hash) {
-  //     console.log('user:',user)
-  //     // window.location.href = '/dashboard'
-  //   }
-  // }, [user])
   return (
     <div>
       <h1>Welcome to cortex {user?.name ? user.name : ''}!</h1>
