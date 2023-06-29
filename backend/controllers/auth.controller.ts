@@ -142,8 +142,8 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
 
 export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie('token', {
-    // Set cookie to expire in 0.5 second
-    expires: new Date(Date.now() + 0.5 * 1000),
+    // Set cookie to expire in 0.1 second
+    expires: new Date(Date.now() + 0.1 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
     domain: process.env.COOKIE_DOMAIN,
