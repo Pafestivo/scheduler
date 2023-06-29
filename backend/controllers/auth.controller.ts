@@ -142,8 +142,8 @@ export const loginUser = asyncHandler(async (req: AuthRequest, res: Response, ne
 
 export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie('token', {
-    // Set cookie to expire in 10 seconds
-    expires: new Date(Date.now() + 1 * 1000),
+    // Set cookie to expire in 0.5 second
+    expires: new Date(Date.now() + 0.5 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
     domain: process.env.COOKIE_DOMAIN,
@@ -162,7 +162,7 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
   if (req.user) {
     const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
     res.status(200).json({ success: true, data: response });
-  } else res.status(200).json({ success: false, data: 'No user found' });
+  } else res.status(404).json({ success: false, data: 'No user found' });
 });
 
 // @desc    Update user details
