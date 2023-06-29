@@ -28,7 +28,6 @@ function Navbar() {
   useEffect(() => {
     console.log('session:',sessionData)
     console.log('user:',user)
-    // fix unnecessary re-rendering
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
       const userResponse = await getData('/auth/me');
@@ -52,7 +51,8 @@ function Navbar() {
       getUser(); // Call getUser after registering the user
     };
 
-    if (sessionData.data?.accessToken && user?.hash) {
+    const postIntegration = async () => {
+      if (!sessionData.data?.accessToken || !user?.hash) return;
       const reqBody = {
         token: sessionData.data.accessToken.encrypted,
         aTiv: sessionData.data.accessToken.iv,
@@ -63,10 +63,11 @@ function Navbar() {
         provider: 'google',
         userEmail: sessionData.data.user?.email,
       };
-      postData('/integration', reqBody);
+      await postData('/integration', reqBody);
     }
 
     const initialize = async () => {
+      await postIntegration(); // Register integration with the database
       await registerUser(); // Register the user and call getUser after registration
     };
 

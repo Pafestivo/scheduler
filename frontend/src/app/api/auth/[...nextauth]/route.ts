@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import NextAuth, { Account, Profile, User as NextAuthUser } from 'next-auth';
 import { Isession } from '@/utilities/types';
 import { encrypt } from '@/utilities/encryptDecrypt';
+import { postData } from '@/utilities/serverRequests/serverRequests';
 
 interface IGoogleProvider {
   clientId: string;

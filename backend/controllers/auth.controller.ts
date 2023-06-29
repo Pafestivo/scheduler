@@ -49,12 +49,13 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
   const hash = generateHash(email);
   let hashedPassword;
   // Create user
-  const findIntegration = await prisma.integration.findFirst({
-    where: {
-      userEmail: email,
-    },
-  });
   try {
+    const findIntegration = await prisma.integration.findFirst({
+      where: {
+        userEmail: email,
+      }
+    });
+
     const findUser = await prisma.user.findUnique({
       where: {
         email,
