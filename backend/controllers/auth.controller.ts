@@ -86,6 +86,7 @@ export const registerUser = asyncHandler(async (req: AuthRequest, res: Response,
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.log('error with registration:', error)
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });
