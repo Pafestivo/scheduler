@@ -26,6 +26,8 @@ function Navbar() {
   const sessionData: { data: Isession | null } = useSession();
 
   useEffect(() => {
+    console.log('session:',sessionData)
+    console.log('user:',user)
     // fix unnecessary re-rendering
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
@@ -69,7 +71,7 @@ function Navbar() {
     };
 
     initialize();
-  }, [sessionData.data?.user, user, setUser, sessionData]);
+  }, [user, setUser, sessionData]);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

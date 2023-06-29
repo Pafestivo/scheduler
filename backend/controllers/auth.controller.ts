@@ -162,7 +162,7 @@ export const getCurrentUser = asyncHandler(async (req: AuthRequest, res: Respons
   if (req.user) {
     const response = excludeFields(req.user, ['hashedPassword', 'hashedResetToken', 'timestamp']);
     res.status(200).json({ success: true, data: response });
-  } else res.status(404).json({ success: false, data: 'No user found' });
+  } else res.status(200).json({ success: false, data: 'No user found' });
 });
 
 // @desc    Update user details
