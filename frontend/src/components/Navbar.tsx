@@ -38,19 +38,6 @@ function Navbar() {
       }
     };
 
-    const registerUser = async () => {
-      if (sessionData.data?.user && user === undefined) {
-        const { email, name } = sessionData.data.user;
-        const { provider } = sessionData.data;
-        const response = await postData('/auth/register', { email, name, provider });
-        if (response.message === 'User already exists') {
-          await postData('/auth/login', { email, provider });
-          await getData('/auth/me');
-        }
-      }
-      getUser(); // Call getUser after registering the user
-    };
-
     const postIntegration = async () => {
       if (!sessionData.data?.accessToken || !user?.hash) return;
       const reqBody = {
@@ -66,8 +53,22 @@ function Navbar() {
       await postData('/integration', reqBody);
     }
 
+    const registerUser = async () => {
+      if (sessionData.data?.user && user === undefined) {
+        const { email, name } = sessionData.data.user;
+        const { provider } = sessionData.data;
+        const response = await postData('/auth/register', { email, name, provider });
+        if (response.message === 'User already exists') {
+          await postData('/auth/login', { email, provider });
+          await getData('/auth/me');
+        } else {
+          await postIntegration()
+        }
+      }
+      getUser(); // Call getUser after registering the user
+    };
+
     const initialize = async () => {
-      await postIntegration(); // Register integration with the database
       await registerUser(); // Register the user and call getUser after registration
     };
 

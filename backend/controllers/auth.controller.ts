@@ -46,6 +46,7 @@ interface AuthRequest extends Request {
 
 export const registerUser = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { email, password, acceptPromotions, phone, name, provider } = req.body;
+  console.log(req.body)
   const hash = generateHash(email);
   let hashedPassword;
   // Create user
