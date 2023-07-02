@@ -106,8 +106,8 @@ const handler = NextAuth({
         // On signout, redirect to base URL
         return base;
       } else {
-        // On signin, redirect to dashboard
-        return `${base}/dashboard`;
+        // On signin, redirect to base
+        return base;
       }
     },
     
