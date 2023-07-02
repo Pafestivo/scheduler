@@ -268,6 +268,8 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       let formFilledProperly = true;
       personalForm?.forEach((question, index) => {
         if (question.required && answers && !answers[question.question]) {
+          console.log('answers', answers)
+          console.log('the problem is', answers[question.question])
           setAlert({
             message: question.question,
             severity: 'error',

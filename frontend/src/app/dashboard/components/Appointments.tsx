@@ -85,6 +85,9 @@ const Appointments = () => {
 
   // Function to handle canceling an appointment
   const handleCancelAppointment = async (appointmentHash: string) => {
+    const confirmed = window.confirm(`Are you sure you want to cancel this appointment?`);
+    if(!confirmed) return
+
     setLoading(true);
     const cancelAppointment = await putData('/appointments', {
       hash: appointmentHash,
@@ -121,11 +124,11 @@ const Appointments = () => {
   // Function to handle approving an appointment
   const handleApproveAppointment = async (appointmentHash: string) => {
     setLoading(true);
-    const cancelAppointment = await putData('/appointments', {
+    const approvedAppointment = await putData('/appointments', {
       hash: appointmentHash,
       status: 'confirmed',
     });
-    if (cancelAppointment.success) {
+    if (approvedAppointment.success) {
       setAlert({
         message: 'Appointment confirmed successfully',
         severity: 'success',

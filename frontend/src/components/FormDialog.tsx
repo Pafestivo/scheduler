@@ -60,6 +60,7 @@ const FormDialog = ({ open, setOpen, personalForm, answers, setAnswers, handleSu
                       />
                     ) : question.inputType === 'checkbox' ? (
                       <FormCheckInput
+                        name={question.question}
                         label={question.required ? `${question.question}*` : question.question}
                         setState={setAnswers}
                         fieldIdx={index}

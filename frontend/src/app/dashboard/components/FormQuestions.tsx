@@ -137,6 +137,7 @@ const FormQuestions = () => {
 
   return (
     <Box component="form" onSubmit={updatePersonalForm}>
+      <p style={{ fontSize: '0.8rem' }}>*Note that we ask for the name, phone, and email! Adding these questions yourself will result in duplication.</p>
       {questions.map((question, index) => {
         return (
           <Box key={question.id} sx={{ display: 'flex', alignItems: 'center' }}>

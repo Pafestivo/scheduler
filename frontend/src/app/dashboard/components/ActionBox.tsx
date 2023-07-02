@@ -15,6 +15,9 @@ const ActionBox = ({ url, hash, calendars, setCalendars }: { url: string; hash: 
   };
 
   const handleDelete = async () => {
+    const confirmed = window.confirm(`Are you sure you want to delete this calendar?`);
+    if(!confirmed) return
+    
     setLoading(true)
     const deletion = await deleteData(`/calendars/${hash}`);
     if(deletion.success) {

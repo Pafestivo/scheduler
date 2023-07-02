@@ -111,7 +111,7 @@ const QuestionFieldForm = ({
           <FormControlLabel
             control={
               <Checkbox
-                defaultChecked={defaultRequired}
+                checked={defaultRequired}
                 onChange={handleRequireChange}
                 name={`require${index}`}
                 color="primary"
