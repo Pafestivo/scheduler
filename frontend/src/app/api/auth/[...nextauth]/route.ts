@@ -3,8 +3,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import NextAuth, { Account, Profile, User as NextAuthUser } from 'next-auth';
 import { Isession } from '@/utilities/types';
 import { encrypt } from '@/utilities/encryptDecrypt';
-import { postData } from '@/utilities/serverRequests/serverRequests';
-
 interface IGoogleProvider {
   clientId: string;
   clientSecret: string;
@@ -102,9 +100,17 @@ const handler = NextAuth({
       return session;
     },
 
-    redirect({ baseUrl }) {
-      return process.env.BASE_URL || baseUrl;
+    redirect({ url, baseUrl }) {
+      const base = process.env.NEXT_PUBLIC_BASE_URL || baseUrl;
+      if (url === '/api/auth/signout') {
+        // On signout, redirect to base URL
+        return base;
+      } else {
+        // On signin, redirect to dashboard
+        return `${base}/dashboard`;
+      }
     },
+    
   },
 });
 

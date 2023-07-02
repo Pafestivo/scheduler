@@ -45,9 +45,6 @@ model User {
   hashedResetToken  String?
   calendars         Json?
   provider          String?
-  accessToken       String?
-  refreshToken      String?
-  expiresAt         Int?
 }
 
 //calendar

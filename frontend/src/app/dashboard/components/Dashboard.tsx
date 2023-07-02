@@ -10,7 +10,6 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
-import Deposits from './Deposits';
 import UserMenu from '@/components/UserMenu';
 import theme from '@/theme';
 import CalendarStack from './CalendarStack';
@@ -86,7 +85,7 @@ export default function Dashboard() {
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{
                     p: 2,
@@ -96,19 +95,6 @@ export default function Dashboard() {
                   }}
                 >
                   <CalendarStack />
-                </Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
                 </Paper>
               </Grid>
             </Grid>

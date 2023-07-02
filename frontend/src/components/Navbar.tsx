@@ -26,8 +26,6 @@ function Navbar() {
   const sessionData: { data: Isession | null } = useSession();
 
   useEffect(() => {
-    console.log('session:',sessionData)
-    console.log('user:',user)
     const getUser = async () => {
       if (user) return; // Break infinite loop by checking if a user is already logged in
       const userResponse = await getData('/auth/me');
@@ -38,21 +36,6 @@ function Navbar() {
       }
     };
 
-    const postIntegration = async () => {
-      if (!sessionData.data?.accessToken || !user?.hash) return;
-      const reqBody = {
-        token: sessionData.data.accessToken.encrypted,
-        aTiv: sessionData.data.accessToken.iv,
-        refreshToken: sessionData.data.refreshToken?.encrypted,
-        rTiv: sessionData.data.refreshToken?.iv,
-        userHash: user.hash,
-        expiresAt: sessionData.data.expires,
-        provider: 'google',
-        userEmail: sessionData.data.user?.email,
-      };
-      await postData('/integration', reqBody);
-    }
-
     const registerUser = async () => {
       if (sessionData.data?.user && user === undefined) {
         const { email, name } = sessionData.data.user;
@@ -61,8 +44,6 @@ function Navbar() {
         if (response.message === 'User already exists') {
           await postData('/auth/login', { email, provider });
           await getData('/auth/me');
-        } else {
-          await postIntegration()
         }
       }
       getUser(); // Call getUser after registering the user
@@ -74,6 +55,27 @@ function Navbar() {
 
     initialize();
   }, [user, setUser, sessionData]);
+
+  useEffect(() => {
+    const postIntegration = async () => {
+      if (sessionData.data?.accessToken && user?.hash) {
+        const reqBody = {
+          token: sessionData.data.accessToken.encrypted,
+          aTiv: sessionData.data.accessToken.iv,
+          refreshToken: sessionData.data.refreshToken?.encrypted,
+          rTiv: sessionData.data.refreshToken?.iv,
+          userHash: user.hash,
+          expiresAt: sessionData.data.expires,
+          provider: 'google',
+          userEmail: sessionData.data.user?.email,
+        }
+        await postData('/integration', reqBody);
+        // reset sessionData
+        sessionData.data = null;
+      }
+    }
+    postIntegration();
+  }, [user, sessionData])
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

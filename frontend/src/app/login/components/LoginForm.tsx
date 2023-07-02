@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { Avatar, Box, Button, Divider, Grid, Typography } from '@mui/material';
 import FormInput from '@/components/FormInput';
@@ -13,7 +13,14 @@ import { validateEmail } from '@/utilities/emailValidator';
 
 const LoginForm = () => {
   const { alert, setAlert, setUser } = useGlobalContext();
+  const { user } = useGlobalContext();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [router, user])
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
