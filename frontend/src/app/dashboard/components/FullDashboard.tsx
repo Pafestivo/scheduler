@@ -200,7 +200,7 @@ export default function FullDashboard() {
               >
                 <MenuIcon />
               </IconButton>
-              <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+              <Typography onClick={() => router.push('/dashboard')} component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, cursor: 'pointer' }}>
                 Dashboard
               </Typography>
               <UserMenu />
