@@ -14,6 +14,7 @@ import {
   Paper,
   Link,
 } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -37,6 +38,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import Appointments from './Appointments';
+import ShareCalendar from './ShareCalendar';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
@@ -168,6 +170,11 @@ export default function FullDashboard() {
       name: 'Appointments',
       icon: <TodayIcon />,
       component: <Appointments />,
+    },
+    {
+      name: 'Booking URL',
+      icon: <ShareIcon />,
+      component: <ShareCalendar />,
     },
   ];
 
