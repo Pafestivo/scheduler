@@ -13,6 +13,7 @@ import {
   Grid,
   Paper,
   Link,
+  Button,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import MuiDrawer from '@mui/material/Drawer';
@@ -109,6 +110,7 @@ export default function FullDashboard() {
   const router = useRouter();
   const [hasAccess, setHasAccess] = React.useState(false);
   const { calendar, setCalendar, user, setLoading } = useGlobalContext();
+
   React.useEffect(() => {
     const getCalendar = async () => {
       const response = await getData(`/calendars/fullCalendar/${params.hash}`);
@@ -179,10 +181,14 @@ export default function FullDashboard() {
   ];
 
   const [open, setOpen] = React.useState(true);
-  const [activeSetting, setActiveSetting] = React.useState<null | number>(null);
+  const [activeSetting, setActiveSetting] = React.useState<number>(0);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const moveToNextTab = () => {
+    setActiveSetting(activeSetting + 1);
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -228,7 +234,7 @@ export default function FullDashboard() {
             </Toolbar>
             <Divider />
             <List component="nav">
-              <DashBoardSettingsList setActiveSetting={setActiveSetting} list={SETTING_COMPONENTS} />
+              <DashBoardSettingsList setActiveSetting={setActiveSetting} activeSetting={activeSetting} list={SETTING_COMPONENTS} />
               <Divider sx={{ my: 1 }} />
               {secondaryListItems}
             </List>
@@ -259,6 +265,11 @@ export default function FullDashboard() {
                     ) : calendar?.hash === params.hash ? (
                       <GeneralSettings />
                     ) : null}
+                  {activeSetting === SETTING_COMPONENTS.length - 1 ? (
+                    null
+                  ) : (
+                    <Button onClick={moveToNextTab} sx={{width: '100px', marginLeft: 'auto', fontSize: '16px'}}>Next</Button>
+                  )}
                   </Paper>
                 </Grid>
               </Grid>

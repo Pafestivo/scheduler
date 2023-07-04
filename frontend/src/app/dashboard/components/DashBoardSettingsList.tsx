@@ -11,15 +11,32 @@ interface ComponentList {
 
 const DashBoardSettingsList = ({
   setActiveSetting,
+  activeSetting,
   list,
 }: {
-  setActiveSetting: React.Dispatch<React.SetStateAction<number | null>>;
+  setActiveSetting: React.Dispatch<React.SetStateAction<number>>;
+  activeSetting: number | null;
   list: ComponentList[];
 }) => {
+
+  const changeActiveSetting = (index: number) => {
+    setActiveSetting(index);
+  }
+
   return (
     <React.Fragment>
       {list.map((component, index) => (
-        <ListItemButton key={index} onClick={() => setActiveSetting(index)}>
+        <ListItemButton 
+        sx={{
+          backgroundColor: index === activeSetting ? '#556cd6' : 'inherit',
+          color: index === activeSetting ? 'white' : 'inherit',
+          "&:hover": {
+            backgroundColor: index === activeSetting ? '#556cd6' : 'lighterGrey',
+          },
+        }} 
+          key={index} 
+          onClick={() => changeActiveSetting(index)}
+        >
           <ListItemIcon>{component.icon}</ListItemIcon>
           <ListItemText primary={component.name} />
         </ListItemButton>
