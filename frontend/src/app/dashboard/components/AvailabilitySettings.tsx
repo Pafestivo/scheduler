@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import TabSettings from './TabSettings';
 import Availability from './Availability';
 import Duration from './Duration';

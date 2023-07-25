@@ -47,13 +47,13 @@ export default function TabSettings({
   setHasUnsavedChanges 
 }: { 
   components: ComponentProp[];
-  hasUnsavedChanges: boolean;
-  setHasUnsavedChanges: (hasSavedChanges: boolean) => void; 
+  hasUnsavedChanges?: boolean;
+  setHasUnsavedChanges?: (hasSavedChanges: boolean) => void; 
 }) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    if(hasUnsavedChanges) {
+    if(hasUnsavedChanges && setHasUnsavedChanges !== undefined) {
       if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
         setValue(newValue);
         setHasUnsavedChanges(false);

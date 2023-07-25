@@ -33,7 +33,7 @@ export default function NewCalendarModal({
   setCalendars: React.Dispatch<React.SetStateAction<never[] | any[]>>;
 }) {
   const { user, setUser, setAlert, setAlertOpen, setLoading } = useGlobalContext();
-  const [image, setImage] = React.useState<File | null>(null);
+  const [image,] = React.useState<File | null>(null);
 
   const handleClose = () => {
     setFormOpen(false);
