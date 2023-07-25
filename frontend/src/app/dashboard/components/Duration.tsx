@@ -14,7 +14,11 @@ interface DurationBody {
   minNotice?: number;
 }
 
-const Duration = () => {
+const Duration = ({ 
+  setHasUnsavedChanges
+ } : {
+  setHasUnsavedChanges: (hasChanges: boolean) => void
+ }) => {
   const { calendar, setCalendar, setAlert, setAlertOpen, setLoading } = useGlobalContext();
   const [breakTime, setBreakTime] = useState<BreakTime>(
     calendar?.breakTime || { endTime: BASE_BREAK_END_TIME, startTime: BASE_BREAK_START_TIME, isActive: false }
@@ -44,6 +48,7 @@ const Duration = () => {
       newBreakTime = { ...newBreakTime, endTime: BASE_BREAK_END_TIME };
     }
     setBreakTime(newBreakTime);
+    setHasUnsavedChanges(true);
   };
 
   useEffect(() => {
@@ -136,7 +141,10 @@ const Duration = () => {
           labelId="demo-customized-select-label"
           id="demo-customized-select"
           value={padding}
-          onChange={(e) => setPadding(Number(e.target.value))}
+          onChange={(e) => {
+            setHasUnsavedChanges(true)
+            setPadding(Number(e.target.value))
+          }}
         >
           {new Array(13).fill(0).map((_, i) => (
             <MenuItem key={Math.random()} value={i * 5}>
@@ -152,7 +160,10 @@ const Duration = () => {
           labelId="demo-customized-select-label"
           id="demo-customized-select"
           value={appointmentsLength}
-          onChange={(e) => setAppointmentLength(Number(e.target.value))}
+          onChange={(e) => {
+            setHasUnsavedChanges(true)
+            setAppointmentLength(Number(e.target.value))
+          }}
         >
           {new Array(61).fill(0).map((_, i) => (
             <MenuItem key={Math.random()} value={i * 5}>
@@ -168,7 +179,10 @@ const Duration = () => {
           labelId="demo-customized-select-label"
           id="demo-customized-select"
           value={minNotice}
-          onChange={(e) => setMinNotice(Number(e.target.value))}
+          onChange={(e) => {
+            setHasUnsavedChanges(true);
+            setMinNotice(Number(e.target.value));
+          }}
         >
           {new Array(61).fill(0).map((_, i) => (
             <MenuItem key={Math.random()} value={i * 5}>

@@ -3,7 +3,11 @@ import { putData } from '@/utilities/serverRequests/serverRequests';
 import { Box, Button, TextareaAutosize } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
-const AfterBooking = () => {
+const AfterBooking = ({ 
+    setHasUnsavedChanges 
+  } : {
+    setHasUnsavedChanges: (value: boolean) => void
+  }) => {
   const [thanksMessage, setThanksMessage] = useState<string>('');
   const {calendar, setAlert, setAlertOpen, setLoading} = useGlobalContext();
 
@@ -33,7 +37,10 @@ const AfterBooking = () => {
           minRows={4}
           aria-label="minimum height"
           defaultValue={thanksMessage}
-          onChange={(e) => {setThanksMessage(e.target.value)}}
+          onChange={(e) => {
+            setHasUnsavedChanges(true)
+            setThanksMessage(e.target.value)
+          }}
       />
       <Button type={'submit'}>Update</Button>
     </Box>

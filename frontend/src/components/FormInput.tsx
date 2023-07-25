@@ -14,6 +14,7 @@ const FormInput = ({
   setState,
   noFocus,
   autoComplete,
+  onInput,
 }: {
   name: string;
   label: string;
@@ -25,7 +26,10 @@ const FormInput = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setState?: (...args: any) => void;
   noFocus?: boolean;
-  autoComplete?: string
+  autoComplete?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onInput?: (...args: any) => void;
+
 }) => {
   const { alert, setAlert } = useGlobalContext();
 
@@ -52,6 +56,7 @@ const FormInput = ({
         const secondArg = name ? name : listid;
         setState(e.target.value, secondArg);
       }}
+      onInput={onInput}
     ></TextField>
   );
 };

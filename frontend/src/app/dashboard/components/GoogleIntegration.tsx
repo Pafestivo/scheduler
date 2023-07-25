@@ -15,7 +15,6 @@ function GoogleIntegration() {
   const getGoogleCalendars = useCallback(async () => {
     if (!user) return;
     const response = await getData(`/googleCalendars/${user?.email}`);
-    console.log(response)
     const calendars = response.data;
     const readOnlyCalendars = calendars.filter((calendar: { accessRole: string }) => calendar.accessRole === 'reader');
     const fullAccessCalendars = calendars.filter(
@@ -25,7 +24,8 @@ function GoogleIntegration() {
     bothCalendarsArrays.push(readOnlyCalendars);
     bothCalendarsArrays.push(fullAccessCalendars);
     setGoogleCalendars(bothCalendarsArrays);
-  }, [user]);
+    setLoading(false)
+  }, [setLoading, user]);
 
   const getUserIntegrations = useCallback(async () => {
     if (!user) return;
@@ -36,11 +36,13 @@ function GoogleIntegration() {
     );
     setGoogleIntegration(userGoogleIntegration);
     if (userGoogleIntegration) getGoogleCalendars();
-  }, [user, getGoogleCalendars]);
+    else setLoading(false)
+  }, [user, getGoogleCalendars, setLoading]);
 
   useEffect(() => {
+    setLoading(true)
     getUserIntegrations();
-  }, [getUserIntegrations]);
+  }, [getUserIntegrations, setLoading]);
 
   const updateReadFrom = async (itemSummary: string) => {
     setLoading(true);

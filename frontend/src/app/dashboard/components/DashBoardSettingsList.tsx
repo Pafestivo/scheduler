@@ -13,14 +13,27 @@ const DashBoardSettingsList = ({
   setActiveSetting,
   activeSetting,
   list,
+  hasUnsavedChanges,
+  setHasUnsavedChanges
 }: {
   setActiveSetting: React.Dispatch<React.SetStateAction<number>>;
   activeSetting: number | null;
   list: ComponentList[];
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
 
   const changeActiveSetting = (index: number) => {
-    setActiveSetting(index);
+    if (hasUnsavedChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+        // If the user confirms, proceed with the navigation.
+        setActiveSetting(index);
+        setHasUnsavedChanges(false);
+      }
+    } else {
+      // If there are no unsaved changes, proceed with the navigation.
+      setActiveSetting(index);
+    }
   }
 
   return (

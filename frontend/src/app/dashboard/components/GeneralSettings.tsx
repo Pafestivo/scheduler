@@ -8,7 +8,13 @@ import { Button } from '@mui/material';
 import { putData } from '@/utilities/serverRequests/serverRequests';
 import FormInput from '@/components/FormInput';
 
-const GeneralSettings = () => {
+const GeneralSettings = (
+  { 
+    setHasUnsavedChanges 
+  } : { 
+    setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void }) => 
+    {
+
   const { calendar, setCalendar, setAlert, setAlertOpen } = useGlobalContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +53,7 @@ const GeneralSettings = () => {
         code: 8,
       });
       setAlertOpen(true);
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -68,6 +75,7 @@ const GeneralSettings = () => {
           type="text"
           fieldIdx={0}
           defaultValue={calendar?.name}
+          onInput={() => setHasUnsavedChanges(true)}
         />
 
         <Box>
@@ -83,6 +91,7 @@ const GeneralSettings = () => {
               width: '100%',
               resize: 'none',
             }}
+            onInput={() => setHasUnsavedChanges(true)}
           />
         </Box>
 
@@ -93,6 +102,7 @@ const GeneralSettings = () => {
           label="Calendar Password(Optional)"
           sx={{ width: '100%' }}
           defaultValue={calendar?.password}
+          onInput={() => setHasUnsavedChanges(true)}
         />
 
         <Button type="submit" fullWidth={true}>

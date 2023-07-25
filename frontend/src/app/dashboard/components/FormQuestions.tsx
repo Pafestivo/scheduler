@@ -88,16 +88,22 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const FormQuestions = () => {
+const FormQuestions = ({ 
+    setHasUnsavedChanges 
+  } : { 
+    setHasUnsavedChanges: (hasChanges: boolean) => void  
+  }) => {
   const { calendar, setAlertOpen, setAlert, setLoading } = useGlobalContext();
   const [questions, dispatch] = useReducer(reducer, initialState(calendar));
 
   const handleDelete = (index: number) => {
     dispatch({ type: 'DELETE_QUESTION', index });
+    setHasUnsavedChanges(true)
   };
 
   const addQuestionRow = () => {
     dispatch({ type: 'ADD_QUESTION' });
+    setHasUnsavedChanges(true)
   };
 
   const updatePersonalForm = async (e: React.FormEvent<HTMLFormElement>) => {

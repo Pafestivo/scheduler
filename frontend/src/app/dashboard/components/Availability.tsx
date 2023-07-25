@@ -7,14 +7,18 @@ import CortexTimePicker from '@/components/TimePicker';
 import { BASE_END_TIME, BASE_START_TIME } from '@/utilities/constants';
 import { putData } from '@/utilities/serverRequests/serverRequests';
 
-interface ManagedAvalability extends AvailabilityInterface {
+interface ManagedAvailability extends AvailabilityInterface {
   skip?: boolean;
 }
 
-const Availability = () => {
+const Availability = ({ 
+  setHasUnsavedChanges 
+} : { 
+  setHasUnsavedChanges: (hasChanges: boolean) => void 
+}) => {
   const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading } = useGlobalContext();
   const [notAvailableDays, setNotAvailableDays] = React.useState<string>('');
-  const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvalability[]>(
+  const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvailability[]>(
     calendar?.availabilities ||
       Array(7)
         .fill({ startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
@@ -33,6 +37,7 @@ const Availability = () => {
       newArray[index] = { ...newArray[index], endTime: BASE_END_TIME };
     }
     setRepeatingList(newArray);
+    setHasUnsavedChanges(true);
   };
 
   const handleCheckboxChange = (index: number) => {
@@ -47,17 +52,18 @@ const Availability = () => {
     setRepeatingList(newArray);
     const offDays = filterDays(newArray);
     setNotAvailableDays(offDays);
+    setHasUnsavedChanges(true);
   };
 
   const handleSubmit = async () => {
     setLoading(true);
 
-    const availablitiesRequest = repeatingList
-      .filter((avalability) => !avalability.skip)
-      .map((avalability) => {
-        return { day: avalability.day, startTime: avalability.startTime, endTime: avalability.endTime };
+    const availabilitiesRequest = repeatingList
+      .filter((availability) => !availability.skip)
+      .map((availability) => {
+        return { day: availability.day, startTime: availability.startTime, endTime: availability.endTime };
       });
-    const noChanges = JSON.stringify(availablitiesRequest) === JSON.stringify(calendar?.availabilities);
+    const noChanges = JSON.stringify(availabilitiesRequest) === JSON.stringify(calendar?.availabilities);
     if (noChanges) {
       setLoading(false);
       setAlert({ message: 'No Changes To Availability', code: 200, severity: 'info' });
@@ -65,21 +71,23 @@ const Availability = () => {
       return;
     }
     try {
-      await putData('/calendars', { availabilities: availablitiesRequest, hash: calendar?.hash });
+      await putData('/calendars', { availabilities: availabilitiesRequest, hash: calendar?.hash });
 
-      if (availablitiesRequest && calendar) {
-        setCalendar({ ...calendar, availabilities: availablitiesRequest });
+      if (availabilitiesRequest && calendar) {
+        setCalendar({ ...calendar, availabilities: availabilitiesRequest });
       }
 
       setLoading(false);
       setAlert({ message: 'Availability Updated', code: 200, severity: 'success' });
       setAlertOpen(true);
+      setHasUnsavedChanges(false);
     } catch (error) {
       setLoading(false);
       setAlert({ message: 'Error Updating Availability', code: 500, severity: 'error' });
       setAlertOpen(true);
     }
   };
+
   React.useEffect(() => {
     setLoading(true);
   }, [setLoading]);

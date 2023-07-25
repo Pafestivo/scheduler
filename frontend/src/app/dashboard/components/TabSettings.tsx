@@ -41,11 +41,26 @@ function a11yProps(index: number) {
   };
 }
 
-export default function TabSettings({ components }: { components: ComponentProp[] }) {
+export default function TabSettings({ 
+  components,
+  hasUnsavedChanges,
+  setHasUnsavedChanges 
+}: { 
+  components: ComponentProp[];
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (hasSavedChanges: boolean) => void; 
+}) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    if(hasUnsavedChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+        setValue(newValue);
+        setHasUnsavedChanges(false);
+      }
+    } else {
+      setValue(newValue);
+    }
   };
 
   return (

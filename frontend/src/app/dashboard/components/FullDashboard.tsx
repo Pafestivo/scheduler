@@ -109,6 +109,7 @@ export default function FullDashboard() {
   const params = useParams();
   const router = useRouter();
   const [hasAccess, setHasAccess] = React.useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
   const { calendar, setCalendar, user, setLoading } = useGlobalContext();
 
   React.useEffect(() => {
@@ -146,17 +147,17 @@ export default function FullDashboard() {
     {
       name: 'General',
       icon: <DashboardIcon />,
-      component: <GeneralSettings />,
+      component: <GeneralSettings setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
       name: 'Times & Availability',
       icon: <ScheduleIcon />,
-      component: <AvailabilitySettings />,
+      component: <AvailabilitySettings hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
       name: 'Booking form',
       icon: <FeedIcon />,
-      component: <BookingSettings />,
+      component: <BookingSettings hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
       name: 'Notifications and event details',
@@ -187,7 +188,16 @@ export default function FullDashboard() {
   };
 
   const moveToNextTab = () => {
-    setActiveSetting(activeSetting + 1);
+    if (hasUnsavedChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+        // If the user confirms, proceed with the navigation.
+        setActiveSetting(activeSetting + 1);
+        setHasUnsavedChanges(false);
+      }
+    } else {
+      // If there are no unsaved changes, proceed with the navigation.
+      setActiveSetting(activeSetting + 1);
+    }
   }
 
   return (
@@ -234,7 +244,7 @@ export default function FullDashboard() {
             </Toolbar>
             <Divider />
             <List component="nav">
-              <DashBoardSettingsList setActiveSetting={setActiveSetting} activeSetting={activeSetting} list={SETTING_COMPONENTS} />
+              <DashBoardSettingsList hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} setActiveSetting={setActiveSetting} activeSetting={activeSetting} list={SETTING_COMPONENTS} />
               <Divider sx={{ my: 1 }} />
               {secondaryListItems}
             </List>
@@ -263,7 +273,7 @@ export default function FullDashboard() {
                     {activeSetting !== null && calendar ? (
                       SETTING_COMPONENTS[activeSetting].component
                     ) : calendar?.hash === params.hash ? (
-                      <GeneralSettings />
+                      <GeneralSettings setHasUnsavedChanges={setHasUnsavedChanges} />
                     ) : null}
                   {activeSetting === SETTING_COMPONENTS.length - 1 ? (
                     null
