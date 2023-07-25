@@ -3,7 +3,7 @@ import * as React from 'react';
 import { AppBar, Box, Button, Container, IconButton, Menu, Toolbar, Typography } from '@mui/material';
 
 import MenuItem from '@mui/material/MenuItem';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useSession } from 'next-auth/react';
@@ -25,36 +25,33 @@ function Navbar() {
   const pathname = usePathname();
   const sessionData: { data: Isession | null } = useSession();
 
+  const getUser = useCallback(async () => {
+    if (user) return; // Break infinite loop by checking if a user is already logged in
+    const userResponse = await getData('/auth/me');
+    if (userResponse.data.hash) {
+      setUser(userResponse.data);
+    } else {
+      setUser(undefined);
+    }
+  }, [setUser, user]) 
+
+  const registerUser = useCallback(async () => {
+    if (sessionData.data?.user && !user) {
+      const { email, name } = sessionData.data.user;
+      const { provider } = sessionData.data;
+      const response = await postData('/auth/register', { email, name, provider });
+      if (response.message === 'User already exists') {
+        await postData('/auth/login', { email, provider });
+        await getData('/auth/me');
+      }
+    }
+    await getUser(); // Call getUser after registering the user
+  }, [getUser, sessionData.data, user]);
+
+  // register or log the user in
   useEffect(() => {
-    const getUser = async () => {
-      if (user) return; // Break infinite loop by checking if a user is already logged in
-      const userResponse = await getData('/auth/me');
-      if (userResponse.data.hash) {
-        setUser(userResponse.data);
-      } else {
-        setUser(undefined);
-      }
-    };
-
-    const registerUser = async () => {
-      if (sessionData.data?.user && user === undefined) {
-        const { email, name } = sessionData.data.user;
-        const { provider } = sessionData.data;
-        const response = await postData('/auth/register', { email, name, provider });
-        if (response.message === 'User already exists') {
-          await postData('/auth/login', { email, provider });
-          await getData('/auth/me');
-        }
-      }
-      getUser(); // Call getUser after registering the user
-    };
-
-    const initialize = async () => {
-      await registerUser(); // Register the user and call getUser after registration
-    };
-
-    initialize();
-  }, [user, setUser, sessionData]);
+    registerUser()
+  }, [registerUser]);
 
   useEffect(() => {
     const postIntegration = async () => {
