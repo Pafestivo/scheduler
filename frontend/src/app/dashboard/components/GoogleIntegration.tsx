@@ -14,7 +14,8 @@ function GoogleIntegration() {
 
   const getGoogleCalendars = useCallback(async () => {
     if (!user) return;
-    const response = await getData(`/googleCalendars/${user?.hash}`);
+    const response = await getData(`/googleCalendars/${user?.email}`);
+    console.log(response)
     const calendars = response.data;
     const readOnlyCalendars = calendars.filter((calendar: { accessRole: string }) => calendar.accessRole === 'reader');
     const fullAccessCalendars = calendars.filter(

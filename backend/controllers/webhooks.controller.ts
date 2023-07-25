@@ -15,6 +15,7 @@ export const HandleGoogleWebhook = asyncHandler(async (req: Request, res: Respon
   const channelId = req.header('X-Goog-Channel-ID');
   const resourceState = req.header('X-Goog-Resource-State');
   let isFirstRun = true
+  console.log('webhook called!')
 
   if (!channelId || !resourceState) {
     console.log('operation failed because of missing info');
@@ -22,6 +23,7 @@ export const HandleGoogleWebhook = asyncHandler(async (req: Request, res: Respon
     return;
   }
   try {
+    console.log('watch channel:', channelId)
     const calendars: Calendar[] | null = await prisma.calendar.findMany({
       where: {
         watchChannelId: channelId,

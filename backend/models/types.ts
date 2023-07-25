@@ -15,6 +15,7 @@ export interface IntegrationRequest extends Request {
     refreshToken: string;
     expiresAt: number;
     userEmail: string;
+    googleEventId: string;
     provider: IntegrationType;
     googleReadFrom: string;
     googleWriteInto: string;

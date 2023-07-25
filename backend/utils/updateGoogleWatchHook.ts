@@ -13,14 +13,14 @@ const updateGoogleWatchHook = async (userEmail:string, givenUserCalendar: string
   if(process.env.NODE_ENV === 'production') {
     channelAddress = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/webhooks/googleCalendar`; // webhook URL for remote
   } else {
-    channelAddress = 'https://40af-147-235-209-217.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
+    channelAddress = 'https://0be6-147-235-215-249.ngrok-free.app/api/v1/webhooks/googleCalendar'; // webhook URL for localhost
   }
   
   
-
   const auth = await generateGoogleClient(userEmail);
 
   if (!auth) {
+    console.error('Failed to generate auth');
     return false;
   }
 

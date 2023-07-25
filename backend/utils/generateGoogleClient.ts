@@ -4,9 +4,10 @@ import { google } from 'googleapis';
 import dayjs from 'dayjs';
 import prisma from './prismaClient.js';
 
-export const generateGoogleClient = async (userHash: string) => {
-  const integrations = await getIntegrationDetails(userHash);
+export const generateGoogleClient = async (userEmail: string) => {
+  const integrations = await getIntegrationDetails(userEmail);
   if (!integrations) {
+    console.error('No integrations found')
     return null;
   }
 

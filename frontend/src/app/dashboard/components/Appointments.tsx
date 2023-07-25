@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getData, putData } from '@/utilities/serverRequests/serverRequests';
+import { deleteData, getData, putData } from '@/utilities/serverRequests/serverRequests';
 import { useParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Appointment } from '@prisma/client';
+import { Appointment, Calendar } from '@prisma/client';
 import dayjs from 'dayjs';
 import {
   FormControl,
@@ -27,7 +27,8 @@ const Appointments = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page number
   const [sorting, setSorting] = useState<string>('upcoming'); // Sorting option
   const [selectedStatus, setSelectedStatus] = useState<string>('All'); // Selected status for filtering
-  const { setLoading, setAlert, setAlertOpen } = useGlobalContext();
+  const [calendar, setCalendar] = useState<Calendar | null>(null)
+  const { setLoading, setAlert, setAlertOpen, user } = useGlobalContext();
   const params = useParams();
   const calendarHash = params.hash;
 
@@ -36,9 +37,15 @@ const Appointments = () => {
     setAppointments(response.data);
   }, [params.hash]);
 
+  const getCalendar = useCallback(async () => {
+    const response = await getData(`/calendars/single/${params.hash}`);
+    setCalendar(response.data);
+  }, [params.hash]);
+
   useEffect(() => {
     getAppointments();
-  }, [params.hash, getAppointments]);
+    getCalendar()
+  }, [params.hash, getAppointments, getCalendar]);
 
   // Handle pagination
   const handlePagination = (page: number) => {
@@ -84,22 +91,43 @@ const Appointments = () => {
   const paginatedAppointments: Appointment[] = sortedAppointments.slice(startIndex, endIndex);
 
   // Function to handle canceling an appointment
-  const handleCancelAppointment = async (appointmentHash: string) => {
+  const handleCancelAppointment = async (appointment: Appointment) => {
+    if(!user) {
+      console.error('no user logged in.')
+      return;
+    }
     const confirmed = window.confirm(`Are you sure you want to cancel this appointment?`);
     if(!confirmed) return
 
     setLoading(true);
     const cancelAppointment = await putData('/appointments', {
-      hash: appointmentHash,
+      hash: appointment.hash,
       status: 'canceled',
     });
-    if (cancelAppointment.success) {
-      setAlert({
-        message: 'Appointment canceled successfully',
-        severity: 'success',
-        code: 0,
-      });
-      getAppointments();
+    if(cancelAppointment.success) {
+      if (!calendar) {
+        setAlert({
+          message: 'Appointment canceled successfully',
+          severity: 'success',
+          code: 0,
+        });
+        return
+      }
+      const deletedFromGoogle = await deleteData(`/googleAppointments/${user.email}?googleEventId=${appointment.googleEventId}&googleWriteInto=${calendar.googleWriteInto}`)
+      if(deletedFromGoogle.success) {
+        setAlert({
+          message: 'Appointment canceled successfully',
+          severity: 'success',
+          code: 0,
+        });
+        getAppointments();
+      } else {
+        setAlert({
+          message: 'There was a problem canceling the appointment on your google calendar, please do it manually.',
+          severity: 'warning',
+          code: 0,
+        });
+      }
     } else {
       setAlert({
         message: 'Failed to cancel appointment, please try again later',
@@ -202,7 +230,7 @@ const Appointments = () => {
                   </TableCell>
                 ) : (
                   <TableCell>
-                    <Button onClick={() => handleCancelAppointment(appointment.hash)}>Cancel</Button>
+                    <Button onClick={() => handleCancelAppointment(appointment)}>Cancel</Button>
                     <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>Reschedule</Button>
                     {appointment.status !== 'confirmed' && (
                       <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>

@@ -425,34 +425,44 @@ export const updateWriteIntoCalendar = asyncHandler(async (req: CalendarRequest,
       return;
     }
 
-    // update google watch hook
-    const googleWatchInfo = await updateGoogleWatchHook(ownerEmail, updatedCalendar.googleWriteInto);
+    try {
+      const googleWatchInfo = await updateGoogleWatchHook(ownerEmail, updatedCalendar.googleWriteInto);
+    
+      if (!googleWatchInfo) {
+        res.status(500).json({
+          success: false,
+          data: 'There was a problem updating the google watch hook.'
+        });
+        return;
+      }
 
-    if (!googleWatchInfo) {
+      // update calendar with google watch info
+      await prisma.calendar.update({
+        where: {
+          hash,
+        },
+        data: {
+          watchChannelId: googleWatchInfo.channelId,
+          watchChannelToken: googleWatchInfo.channelToken,
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: 'Calendar preferences updated successfully.',
+      });
+
+    } catch (err) {
+      console.error(err)
       res.status(500).json({
         success: false,
-        data: 'There was a problem updating the google watch hook.',
+        data: 'There was a problem updating the google watch hook.'
       });
-      return;
     }
 
-    // update calendar with google watch info
-    await prisma.calendar.update({
-      where: {
-        hash,
-      },
-      data: {
-        watchChannelId: googleWatchInfo.channelId,
-        watchChannelToken: googleWatchInfo.channelToken,
-      },
-    });
-
-    res.status(200).json({
-      success: true,
-      data: 'Calendar preferences updated successfully.',
-    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.error(error)
     return next(new ErrorResponse({ message: error.message, statusCode: 400, errorCode: error.code }));
   }
 });

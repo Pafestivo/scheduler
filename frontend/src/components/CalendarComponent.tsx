@@ -11,6 +11,7 @@ import { Appointment } from '@prisma/client';
 import '../styles/calendarComponent.css';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
+import { Integration } from '@prisma/client';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -311,7 +312,10 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         ? integrations.some((integration: { provider: string }) => integration.provider === 'google')
         : false;
       if (hasGoogleIntegration) {
-        postData(`/googleAppointments/${calendar.owner}`, {
+        const googleIntegration: Integration | undefined = integrations.find((integration: Integration) => integration.provider === 'google')
+        if(!googleIntegration) return;
+        const userEmail = (googleIntegration as Integration).userEmail;
+        postData(`/googleAppointments/${userEmail}`, {
           googleWriteInto: calendar.googleWriteInto,
           summary: `Appointment with ${booker.name}`,
           date: startDate,
