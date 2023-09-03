@@ -27,19 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NextAuthProvider>
           <GlobalContextProvider>
             <Navbar />
-            {/* <nav> */}
-            {/* <Link href={'/'}>
-            <p>Home</p>
-            </Link>
-            
-            <Link href={'/login'}>
-            <p>Login</p>
-            </Link>
-            
-            <Link href={'/register'}>
-            <p>Register for free</p>
-            </Link>
-          </nav> */}
             {children}
             <AlertBar />
             <GlobalSpinner />
