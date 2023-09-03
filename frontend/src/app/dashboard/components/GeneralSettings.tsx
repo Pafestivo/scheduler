@@ -3,7 +3,7 @@ import AddPhoto from '@/components/AddPhoto';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import React from 'react';
-import TextareaAutosize from '@mui/base/TextareaAutosize';
+import { TextareaAutosize } from '@mui/material';
 import { Button } from '@mui/material';
 import { putData } from '@/utilities/serverRequests/serverRequests';
 import FormInput from '@/components/FormInput';
