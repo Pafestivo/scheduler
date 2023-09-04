@@ -24,6 +24,10 @@ export interface UiAlert {
   code: number | null;
   severity: 'success' | 'error' | 'info' | 'warning';
 }
+
+interface Translations {
+  [key: string]: string;
+}
 interface ContextProps {
   user: User | null | undefined;
   setUser: Dispatch<SetStateAction<User | null | undefined>>;
@@ -35,6 +39,10 @@ interface ContextProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
   calendar: fullCalendarResponse | null;
   setCalendar: Dispatch<SetStateAction<fullCalendarResponse | null>>;
+  translations: Translations | null;
+  setTranslations: Dispatch<SetStateAction<Translations | null>>;
+  isRTL: boolean;
+  setIsRTL: Dispatch<SetStateAction<boolean>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -48,6 +56,10 @@ const GlobalContext = createContext<ContextProps>({
   setLoading: (): false => false,
   calendar: null,
   setCalendar: (): null => null,
+  translations: null,
+  setTranslations: (): null => null,
+  isRTL: false,
+  setIsRTL: (): false => false,
 });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -57,10 +69,13 @@ export const GlobalContextProvider = ({ children }) => {
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [calendar, setCalendar] = useState<null | fullCalendarResponse>(null);
+  const [translations, setTranslations] = useState<Translations | null>(null);
+  const [isRTL, setIsRTL] = useState<boolean>(false);
+
 
   return (
     <GlobalContext.Provider
-      value={{ user, setUser, alert, setAlert, alertOpen, setAlertOpen, loading, setLoading, calendar, setCalendar }}
+      value={{ user, setUser, alert, setAlert, alertOpen, setAlertOpen, loading, setLoading, calendar, setCalendar, translations, setTranslations, isRTL, setIsRTL }}
     >
       {children}
     </GlobalContext.Provider>

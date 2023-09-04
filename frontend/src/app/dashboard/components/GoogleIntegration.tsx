@@ -78,7 +78,7 @@ function GoogleIntegration() {
         <Box>
           {readEventsFromSelection ? (
             <ScrollableList
-              listHeaders={['readOnly', 'full Access']}
+              listHeaders={['readOnly', 'fullAccess']}
               listItems={googleCalendars}
               writeableRequired={false}
               update={updateReadFrom}

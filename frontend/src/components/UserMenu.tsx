@@ -5,32 +5,42 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React from 'react';
 
-const settings = [
-  // { name: 'Profile', href: '/profile' },
-  { name: 'Dashboard', href: '/dashboard' },
-  // { name: 'Settings', href: '/settings' },
-  { name: 'Logout', href: '#' },
-];
-const noUser = [
-  { name: 'Login', href: '/login' },
-  { name: 'Register', href: '/register' },
-];
+interface EnglishFallbackType {
+  [key: string]: string;
+}
 
 const UserMenu = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const { user, setUser } = useGlobalContext();
+  const { user, setUser, translations } = useGlobalContext();
   const sessionData = useSession();
+
+  const englishFallback: EnglishFallbackType = {
+    'openSettings': 'Open settings',
+    'dashboard': 'Dashboard',
+    'logout': 'Logout',
+    'login': 'Login',
+    'register': 'Register',
+  };
+  
+  // Helper function to get the translation
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+
+  const settings = [
+    { name: t('dashboard'), href: '/dashboard' },
+    { name: t('logout'), href: '#' },
+  ];
+  
+  const noUser = [
+    { name: t('login'), href: '/login' },
+    { name: t('register'), href: '/register' },
+  ];
 
   const handleLogout = async () => {
     handleCloseUserMenu();
-    try {
-      console.log('logging out')
-      setUser(null);
-      await getData('/auth/logout');
-      signOut();
-    } catch (error) {
-      console.log(error);
-    }
+    console.log('logging out');
+    setUser(null);
+    await getData('/auth/logout');
+    signOut();
   };
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -40,10 +50,11 @@ const UserMenu = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
   return (
     <>
       <Box sx={{ flexGrow: 0 }}>
-        <Tooltip title="Open settings">
+        <Tooltip title={t('openSettings')}>
           <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
             <Avatar alt={user ? user.name : undefined} src={sessionData.data?.user?.image || user?.pfp || undefined} />
           </IconButton>
@@ -75,7 +86,8 @@ const UserMenu = () => {
           {user &&
             settings.map((setting) => (
               <Link key={setting.name} href={setting.href} title={setting.name}>
-                <MenuItem key={setting.name} onClick={setting.name !== 'Logout' ? handleCloseUserMenu : handleLogout}>
+                <MenuItem 
+                onClick={setting.name == 'Logout' || setting.name == 'התנתק' ? handleLogout: handleCloseUserMenu}>
                   <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               </Link>

@@ -65,8 +65,9 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     userHash: [],
     googleWriteInto: 'Primary',
   });
-  const { user, setAlert, setAlertOpen, setLoading } = useGlobalContext();
+  const { user, setAlert, setAlertOpen, setLoading, translations } = useGlobalContext();
   const router = useRouter();
+  const t = (key: string): string => translations?.[key] || key;
 
   const getCurrentCalendar = useCallback(async () => {
     try {
@@ -382,7 +383,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       <FormDialog
         open={showFormPopup}
         setOpen={setShowFormPopup}
-        personalForm={personalForm}
+        personalForm={personalForm.map(question => ({ ...question, question: t(question.question) }))}
         answers={answers}
         setAnswers={setAnswers}
         handleSubmit={promptBooking}

@@ -10,11 +10,19 @@ interface ThankYouPageProps {
   bookerHash: string;
 }
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'thankYouMessage': 'Thank you for placing your appointment, {name}!',
+};
+
 const ThankYou = ( { calendarHash, bookerHash } : ThankYouPageProps ) => {
   const [booker, setBooker] = useState<{ name: string } | null>(null);
   const [calendar, setCalendar] = useState< {thankYouMessage: string} | null >(null);
-  const {setLoading} = useGlobalContext();
-
+  const {setLoading, translations} = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   useEffect(() => {
     setLoading(true)
   }, [setLoading])
@@ -41,7 +49,7 @@ const ThankYou = ( { calendarHash, bookerHash } : ThankYouPageProps ) => {
   return (
     <Box sx={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <CheckCircleIcon sx={{ fontSize: '10rem', color: '#00b894' }} />
-      <h1>Thank you for placing your appointment, {booker?.name}!</h1>
+      <h1>{t('thankYouMessage').replace('{name}', booker?.name || '')}</h1>
       <p style={{ textAlign: 'center', fontWeight: 'bold', maxWidth: '60rem' }}>{calendar?.thankYouMessage}</p>
     </Box>
   );

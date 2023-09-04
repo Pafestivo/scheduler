@@ -6,20 +6,20 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 //booker
 model Booker {
-  id               Int      @id @default(autoincrement())
-  name            String    
-  phone           String?    @unique
-  email           String?   @unique
+  id               Int     @id @default(autoincrement())
+  name             String
+  phone            String? @unique
+  email            String? @unique
   preferredChannel String
-  appointmentHash Json
-  hash            String    @unique
+  appointmentHash  Json
+  hash             String  @unique
 }
 
 //user 
@@ -31,20 +31,20 @@ enum UserType {
 }
 
 model User {
-  id                Int        @id @default(autoincrement())
-  name              String?     
-  type              UserType   @default(booker)
-  email             String?    @unique
-  phone             String?
-  asWhatsapp        Boolean?   @default(false)
-  acceptPromotions  Boolean    @default(false)
-  timestamp         DateTime   @default(now())
-  pfp               String?
-  hash              String     @unique   
-  hashedPassword    String?
-  hashedResetToken  String?
-  calendars         Json?
-  provider          String?
+  id               Int      @id @default(autoincrement())
+  name             String?
+  type             UserType @default(booker)
+  email            String?  @unique
+  phone            String?
+  asWhatsapp       Boolean? @default(false)
+  acceptPromotions Boolean  @default(false)
+  timestamp        DateTime @default(now())
+  pfp              String?
+  hash             String   @unique
+  hashedPassword   String?
+  hashedResetToken String?
+  calendars        Json?
+  provider         String?
 }
 
 //calendar
@@ -55,32 +55,32 @@ enum CalendarType {
 }
 
 model Calendar {
-  id               Int            @id @default(autoincrement())
-  userHash         Json         // assuming this corresponds to userHash
-  licenseHash      String?        // assuming this corresponds to licenseHash
-  appointmentsHash Json?          // assuming this corresponds to appointmentHash array
-  integrationId    Json?          // assuming this corresponds to integrationId
-  isActive         Boolean        @default(true)
-  type             CalendarType   @default(free)
-  name             String
-  timestamp        DateTime       @default(now())
-  padding          Int?
-  availabilities   Json?          // assuming this corresponds to availabilityHash array
-  hash             String         @unique  
-  deleted          Boolean        @default(false)
-  personalForm     Json?          @default("[]")// holds the questions for the personal form
+  id                 Int          @id @default(autoincrement())
+  userHash           Json // assuming this corresponds to userHash
+  licenseHash        String? // assuming this corresponds to licenseHash
+  appointmentsHash   Json? // assuming this corresponds to appointmentHash array
+  integrationId      Json? // assuming this corresponds to integrationId
+  isActive           Boolean      @default(true)
+  type               CalendarType @default(free)
+  name               String
+  timestamp          DateTime     @default(now())
+  padding            Int?
+  availabilities     Json? // assuming this corresponds to availabilityHash array
+  hash               String       @unique
+  deleted            Boolean      @default(false)
+  personalForm       Json?        @default("[]") // holds the questions for the personal form
   appointmentsLength Int          @default(60) // in minutes
-  image            String?
-  description      String?
-  password         String?
-  breakTime        Json?
-  minNotice        Int?           @default(0) // in minutes
-  googleWriteInto  String?
-  googleReadFrom   String?
-  watchChannelId   String? 
-  watchChannelToken String?
-  owner             String        @default("abra kadabra")
-  thankYouMessage   String?
+  image              String?
+  description        String?
+  password           String?
+  breakTime          Json?
+  minNotice          Int?         @default(0) // in minutes
+  googleWriteInto    String?
+  googleReadFrom     String?
+  watchChannelId     String?
+  watchChannelToken  String?
+  owner              String       @default("abra kadabra")
+  thankYouMessage    String?
 }
 
 //
@@ -93,23 +93,23 @@ enum IntegrationType {
 }
 
 model Integration {
-  id     Int              @id @unique @default(autoincrement())
-  token  String           @db.VarChar(800) // adjust size based on your needs
-  refreshToken String     @db.VarChar(800) // adjust size based on your needs
-  expiresAt   Int
-  tokenIv String
-  refreshTokenIv String   
-  userEmail   String      
-  provider   IntegrationType
-  userHash  String?      @unique
+  id             Int             @id @unique @default(autoincrement())
+  token          String          @db.VarChar(800) // adjust size based on your needs
+  refreshToken   String          @db.VarChar(800) // adjust size based on your needs
+  expiresAt      Int
+  tokenIv        String
+  refreshTokenIv String
+  userEmail      String
+  provider       IntegrationType
+  userHash       String?         @unique
 }
 
 model CalendarIntegration {
-  id          Int              @id @unique @default(autoincrement())
-  userEmail   String
-  calendarName String?    
-  calendarHash String  
-  provider   IntegrationType
+  id           Int             @id @unique @default(autoincrement())
+  userEmail    String
+  calendarName String?
+  calendarHash String
+  provider     IntegrationType
 }
 
 //transaction
@@ -117,11 +117,11 @@ model CalendarIntegration {
 model Transaction {
   id          Int      @id @default(autoincrement())
   timestamp   DateTime @default(now())
-  user        Int      // assuming this corresponds to userID
-  calendar    Int      // assuming this corresponds to calendarID
-  license     Int      // assuming this corresponds to licenseID
-  appointment Int      // assuming this corresponds to appointmentID
-  hash        String   @unique  
+  user        Int // assuming this corresponds to userID
+  calendar    Int // assuming this corresponds to calendarID
+  license     Int // assuming this corresponds to licenseID
+  appointment Int // assuming this corresponds to appointmentID
+  hash        String   @unique
 }
 
 //license
@@ -135,41 +135,41 @@ enum LicenseType {
 }
 
 model License {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   type       LicenseType
   name       String
   price      Float
-  timestamp  DateTime @default(now())
-  editedBy   Int      // assuming this corresponds to userID
-  coupon     Json    // assuming this corresponds to an array of couponID
+  timestamp  DateTime    @default(now())
+  editedBy   Int // assuming this corresponds to userID
+  coupon     Json // assuming this corresponds to an array of couponID
   fixedPrice Boolean
-  hash              String     @unique  
+  hash       String      @unique
 }
 
 //availability
 
 model Availability {
-  id               Int      @id @default(autoincrement())
-  calendarHash     String   // assuming this corresponds to calendarHash
-  day              Int
-  startTime        String   // assuming you're using a 24-hour format
-  endTime          String   // assuming you're using a 24-hour format
-  timestamp        DateTime @default(now())
-  hash             String   @unique  
+  id           Int      @id @default(autoincrement())
+  calendarHash String // assuming this corresponds to calendarHash
+  day          Int
+  startTime    String // assuming you're using a 24-hour format
+  endTime      String // assuming you're using a 24-hour format
+  timestamp    DateTime @default(now())
+  hash         String   @unique
 }
 
 //coupon
 
 model Coupon {
-  id            Int      @id @default(autoincrement())
-  type          String   // enum, create an enum as per your values
+  id            Int     @id @default(autoincrement())
+  type          String // enum, create an enum as per your values
   name          String
   CCode         String
   is_onetime    Boolean
-  editedby      Int      // assuming this corresponds to userID
-  coupon        Json     // assuming this corresponds to licenseID Array
-  discountPrice Decimal  // assuming this is a floating point number
-  hash          String   @unique  
+  editedby      Int // assuming this corresponds to userID
+  coupon        Json // assuming this corresponds to licenseID Array
+  discountPrice Decimal // assuming this is a floating point number
+  hash          String  @unique
   // Relations
   // editedByUser User   @relation(fields: [editedby], references: [id])
 }
@@ -186,37 +186,42 @@ enum AppointmentStatus {
 }
 
 model Appointment {
-  id           Int               @id @default(autoincrement())
-  calendarHash String            // assuming this corresponds to calendarHash
-  userHash     String?           // assuming this corresponds to userHash
-  timestamp    DateTime?         @default(now())
-  status       AppointmentStatus
-  date         String          // the date of the meeting in format mm/dd/yy
-  startTime    String           // the time of meeting in format '17:53'
-  endTime      String
-  transaction  Int?               // assuming this corresponds to transactionID
-  cancelTime   String?         // assuming timestamp and it is optional
-  isConfirmed  Boolean           @default(false)
-  answersArray Json?             // the answers to the personalForm questions
-  googleEventId String?         // assuming this corresponds to integrationId
-  hash         String           @unique  
+  id            Int               @id @default(autoincrement())
+  calendarHash  String // assuming this corresponds to calendarHash
+  userHash      String? // assuming this corresponds to userHash
+  timestamp     DateTime?         @default(now())
+  status        AppointmentStatus
+  date          String // the date of the meeting in format mm/dd/yy
+  startTime     String // the time of meeting in format '17:53'
+  endTime       String
+  transaction   Int? // assuming this corresponds to transactionID
+  cancelTime    String? // assuming timestamp and it is optional
+  isConfirmed   Boolean           @default(false)
+  answersArray  Json? // the answers to the personalForm questions
+  googleEventId String? // assuming this corresponds to integrationId
+  hash          String            @unique
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // userInfo     User     @relation(fields: [user], references: [id])
   // transactionInfo Transaction @relation(fields: [transaction], references: [id])
-
 }
 
 //review
 
 model Review {
-  id        Int       @id @default(autoincrement())
-  calendar  Int       // assuming this corresponds to calendarId
-  reviewer  Int       // assuming this corresponds to userId
-  text      String
-  rating    Decimal   // assuming this is a floating point number
-  hash              String     @unique  
+  id       Int     @id @default(autoincrement())
+  calendar Int // assuming this corresponds to calendarId
+  reviewer Int // assuming this corresponds to userId
+  text     String
+  rating   Decimal // assuming this is a floating point number
+  hash     String  @unique
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // reviewerInfo User     @relation(fields: [reviewer], references: [id])
+}
+
+model Translations {
+  id           Int    @id @default(autoincrement())
+  language     String @unique
+  translations Json
 }

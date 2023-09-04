@@ -2,6 +2,7 @@ import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import { useGlobalContext } from '@/app/context/store';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,10 +52,14 @@ export default function TabSettings({
   setHasUnsavedChanges?: (hasSavedChanges: boolean) => void; 
 }) {
   const [value, setValue] = React.useState(0);
+  const { translations } = useGlobalContext();
+
+  const t = (key: string): string => translations?.[key] || key;
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     if(hasUnsavedChanges && setHasUnsavedChanges !== undefined) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+      const confirmationMessage = t('You have unsaved changes. Are you sure you want to discard them?')
+      if (window.confirm(confirmationMessage)) {
         setValue(newValue);
         setHasUnsavedChanges(false);
       }
@@ -66,9 +71,9 @@ export default function TabSettings({
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+        <Tabs value={value} onChange={handleChange} aria-label={t('basic tabs example')}>
           {components.map((component, index) => (
-            <Tab key={component.name} label={component.name} {...a11yProps(index)} />
+            <Tab key={component.name} label={t(component.name)} {...a11yProps(index)} />
           ))}
         </Tabs>
       </Box>

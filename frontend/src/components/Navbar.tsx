@@ -1,7 +1,6 @@
-'use client';
+"use client"
 import * as React from 'react';
 import { AppBar, Box, Button, Container, IconButton, Menu, Toolbar, Typography } from '@mui/material';
-
 import MenuItem from '@mui/material/MenuItem';
 import { useEffect, useCallback } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -15,25 +14,25 @@ import UserMenu from './UserMenu';
 import { usePathname } from 'next/navigation';
 import { Isession } from '@/utilities/types';
 
-const pages = ['HOME', 'Pricing'];
-
-const WEBSITE_NAME = 'Cortex';
-
-function Navbar() {
+const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const { user, setUser } = useGlobalContext();
+  const { user, setUser, translations } = useGlobalContext();
   const pathname = usePathname();
   const sessionData: { data: Isession | null } = useSession();
 
+  const t = (key: string): string => translations?.[key] || key;
+
+  const pages = [t('home'), t('pricing')];
+
   const getUser = useCallback(async () => {
-    if (user) return; // Break infinite loop by checking if a user is already logged in
+    if (user) return;
     const userResponse = await getData('/auth/me');
     if (userResponse.data.hash) {
       setUser(userResponse.data);
     } else {
       setUser(undefined);
     }
-  }, [setUser, user]) 
+  }, [setUser, user]);
 
   const registerUser = useCallback(async () => {
     if (sessionData.data?.user && !user) {
@@ -45,34 +44,12 @@ function Navbar() {
         await getData('/auth/me');
       }
     }
-    await getUser(); // Call getUser after registering the user
+    await getUser();
   }, [getUser, sessionData.data, user]);
 
-  // register or log the user in
   useEffect(() => {
-    registerUser()
+    registerUser();
   }, [registerUser]);
-
-  useEffect(() => {
-    const postIntegration = async () => {
-      if (sessionData.data?.accessToken && user?.hash) {
-        const reqBody = {
-          token: sessionData.data.accessToken.encrypted,
-          aTiv: sessionData.data.accessToken.iv,
-          refreshToken: sessionData.data.refreshToken?.encrypted,
-          rTiv: sessionData.data.refreshToken?.iv,
-          userHash: user.hash,
-          expiresAt: sessionData.data.expires,
-          provider: 'google',
-          userEmail: sessionData.data.user?.email,
-        }
-        await postData('/integration', reqBody);
-        // reset sessionData
-        sessionData.data = null;
-      }
-    }
-    postIntegration();
-  }, [user, sessionData])
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -105,9 +82,8 @@ function Navbar() {
                     textDecoration: 'none',
                   }}
                 >
-                  {WEBSITE_NAME}
+                  {t('websiteName')}
                 </Typography>
-
                 <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                   <IconButton
                     size="large"
@@ -133,9 +109,7 @@ function Navbar() {
                     }}
                     open={Boolean(anchorElNav)}
                     onClose={handleCloseNavMenu}
-                    sx={{
-                      display: { xs: 'block', md: 'none' },
-                    }}
+                    sx={{ display: { xs: 'block', md: 'none' } }}
                   >
                     {pages.map((page) => (
                       <MenuItem key={page} onClick={handleCloseNavMenu}>
@@ -161,7 +135,7 @@ function Navbar() {
                     textDecoration: 'none',
                   }}
                 >
-                  {WEBSITE_NAME}
+                  {t('websiteName')}
                 </Typography>
                 <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                   {pages.map((page) => (
@@ -178,5 +152,6 @@ function Navbar() {
       )}
     </>
   );
-}
+};
+
 export default Navbar;

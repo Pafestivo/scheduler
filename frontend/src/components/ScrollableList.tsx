@@ -3,20 +3,32 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
+import { useGlobalContext } from '@/app/context/store'; // Import your global context
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
 
-export default function ScrollableList({ 
-  listHeaders, 
+const englishFallback: EnglishFallbackType = {
+  'readOnly': 'Read Only',
+  'fullAccess': 'Full Access'
+};
+
+export default function ScrollableList({
+  listHeaders,
   listItems,
   writeableRequired,
   update
-} : { 
-  listHeaders: string[], 
-  listItems: { summary: string }[][]
-  writeableRequired: boolean
+}: {
+  listHeaders: string[],
+  listItems: { summary: string }[][],
+  writeableRequired: boolean,
   update: (itemSummary: string) => void
-}
-) {
+}) {
+
+  const { translations } = useGlobalContext(); // Get translations from your global context
+
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key; // Translation function
 
   return (
     <List
@@ -34,16 +46,14 @@ export default function ScrollableList({
       {listItems.map((section, index) => (
         <li key={`section-${listHeaders[index]}`}>
           <ul>
-            {/* use the headers array to get the section header based on index */}
-            <ListSubheader sx={{fontWeight: "bold", fontSize: "1.1rem"}}>{listHeaders[index]}</ListSubheader>
+            <ListSubheader sx={{ fontWeight: "bold", fontSize: "1.1rem" }}>{t(listHeaders[index])}</ListSubheader>
             {section.map((item) => (
               <ListItem key={`${listHeaders[index]}-${item.summary}`}>
-                {/* the summary is the name of the calendar */}
-                {listHeaders[index] === 'readOnly' && writeableRequired ? 
-                (
-                  <ListItemText primary={item.summary} sx={{color: "rgba(0, 0, 0, 0.56)", cursor: "not-allowed", userSelect: "none"}} />
-                ) : (
-                  <ListItemText primary={item.summary} onClick={() => update(item.summary)} sx={{cursor: 'pointer'}}/>
+                {listHeaders[index] === 'readOnly' && writeableRequired ?
+                  (
+                    <ListItemText primary={item.summary} sx={{ color: "rgba(0, 0, 0, 0.56)", cursor: "not-allowed", userSelect: "none" }} />
+                  ) : (
+                    <ListItemText primary={item.summary} onClick={() => update(item.summary)} sx={{ cursor: 'pointer' }} />
                   )}
               </ListItem>
             ))}
