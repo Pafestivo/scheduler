@@ -11,13 +11,26 @@ interface ManagedAvailability extends AvailabilityInterface {
   skip?: boolean;
 }
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Off days": "Off days",
+  "Save changes": "Save changes",
+  "No Changes To Availability": "No Changes To Availability",
+  "Availability Updated": "Availability Updated",
+  "Error Updating Availability": "Error Updating Availability",
+};
+
 const Availability = ({ 
   setHasUnsavedChanges 
 } : { 
   setHasUnsavedChanges: (hasChanges: boolean) => void 
 }) => {
-  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading } = useGlobalContext();
+  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading, translations } = useGlobalContext();
   const [notAvailableDays, setNotAvailableDays] = React.useState<string>('');
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvailability[]>(
     calendar?.availabilities ||
       Array(7)
@@ -66,7 +79,7 @@ const Availability = ({
     const noChanges = JSON.stringify(availabilitiesRequest) === JSON.stringify(calendar?.availabilities);
     if (noChanges) {
       setLoading(false);
-      setAlert({ message: 'No Changes To Availability', code: 200, severity: 'info' });
+      setAlert({ message: t('No Changes To Availability'), code: 200, severity: 'info' });
       setAlertOpen(true);
       return;
     }
@@ -78,12 +91,12 @@ const Availability = ({
       }
 
       setLoading(false);
-      setAlert({ message: 'Availability Updated', code: 200, severity: 'success' });
+      setAlert({ message: t('Availability Updated'), code: 200, severity: 'success' });
       setAlertOpen(true);
       setHasUnsavedChanges(false);
     } catch (error) {
       setLoading(false);
-      setAlert({ message: 'Error Updating Availability', code: 500, severity: 'error' });
+      setAlert({ message: t('Error Updating Availability'), code: 500, severity: 'error' });
       setAlertOpen(true);
     }
   };
@@ -161,11 +174,11 @@ const Availability = ({
             })}
           </Box>
           <Typography variant="body1" sx={{ flexGrow: 1 }}>
-            Off days:{' '}
+            {t('Off days')}:{' '}
           </Typography>
           <Typography variant="body2">{notAvailableDays}</Typography>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            Save changes
+            {t('Save changes')}
           </Button>
         </>
       )}

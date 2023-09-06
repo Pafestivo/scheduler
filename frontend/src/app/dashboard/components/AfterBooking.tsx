@@ -3,13 +3,24 @@ import { putData } from '@/utilities/serverRequests/serverRequests';
 import { Box, Button, TextareaAutosize } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'Message updated successfully': 'Message updated successfully',
+  'Failed to update message': 'Failed to update message',
+  'Update': 'Update'
+};
+
 const AfterBooking = ({ 
     setHasUnsavedChanges 
   } : {
     setHasUnsavedChanges: (value: boolean) => void
   }) => {
   const [thanksMessage, setThanksMessage] = useState<string>('');
-  const {calendar, setAlert, setAlertOpen, setLoading} = useGlobalContext();
+  const {calendar, setAlert, setAlertOpen, setLoading, translations} = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
 
   const updateThankYouMessage = async (e: React.FormEvent) => {
     setLoading(true)
@@ -19,9 +30,9 @@ const AfterBooking = ({
       thankYouMessage: thanksMessage
     })
     if(updated.success) {
-      setAlert({ message: 'Message updated successfully', severity: 'success', code: 0 });
+      setAlert({ message: t('Message updated successfully'), severity: 'success', code: 0 });
     } else {
-      setAlert({ message: 'Failed to update message', severity: 'error', code: 0 });
+      setAlert({ message: t('Failed to update message'), severity: 'error', code: 0 });
     }
     setLoading(false)
     setAlertOpen(true)
@@ -42,7 +53,7 @@ const AfterBooking = ({
             setThanksMessage(e.target.value)
           }}
       />
-      <Button type={'submit'}>Update</Button>
+      <Button type={'submit'}>{t('Update')}</Button>
     </Box>
   );
 };

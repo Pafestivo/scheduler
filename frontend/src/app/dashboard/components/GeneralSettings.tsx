@@ -8,6 +8,19 @@ import { Button } from '@mui/material';
 import { putData } from '@/utilities/serverRequests/serverRequests';
 import FormInput from '@/components/FormInput';
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Please enter a name": "Please enter a name",
+  "Calendar updated": "Calendar updated",
+  "Calendar Name": "Calendar Name",
+  "Calendar Description(Optional)": "Calendar Description(Optional)",
+  "Calendar Password(Optional)": "Calendar Password(Optional)",
+  'Update!': 'Update!'
+};
+
 const GeneralSettings = (
   { 
     setHasUnsavedChanges 
@@ -15,8 +28,8 @@ const GeneralSettings = (
     setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void }) => 
     {
 
-  const { calendar, setCalendar, setAlert, setAlertOpen } = useGlobalContext();
-
+  const { calendar, setCalendar, setAlert, setAlertOpen, translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -27,7 +40,7 @@ const GeneralSettings = (
 
     if (name === '') {
       setAlert({
-        message: 'Please enter a name',
+        message: t('Please enter a name'),
         severity: 'error',
         code: 0,
       });
@@ -48,7 +61,7 @@ const GeneralSettings = (
       const updatedPassword = password ? password : calendar.password;
       setCalendar({ ...calendar, name: updatedName, description: updatedDescription, password: updatedPassword });
       setAlert({
-        message: 'Calendar updated',
+        message: t('Calendar updated'),
         severity: 'success',
         code: 8,
       });
@@ -70,8 +83,8 @@ const GeneralSettings = (
 
         <FormInput
           name="calendar-name"
-          label="Calendar Name"
-          title="Calendar Name"
+          label={t("Calendar Name")}
+          title={t("Calendar Name")}
           type="text"
           fieldIdx={0}
           defaultValue={calendar?.name}
@@ -80,7 +93,7 @@ const GeneralSettings = (
 
         <Box>
           <label style={{ fontSize: '0.9rem' }} htmlFor="calendar-description">
-            Calendar Description(Optional)
+            {t('Calendar Description(Optional)')}
           </label>
           <TextareaAutosize
             minRows={3}
@@ -99,14 +112,14 @@ const GeneralSettings = (
           type="password"
           id="calendar-password"
           name="calendar-password"
-          label="Calendar Password(Optional)"
+          label={t("Calendar Password(Optional)")}
           sx={{ width: '100%' }}
           defaultValue={calendar?.password}
           onInput={() => setHasUnsavedChanges(true)}
         />
 
         <Button type="submit" fullWidth={true}>
-          Update!
+          {t('Update!')}
         </Button>
       </Box>
     </div>

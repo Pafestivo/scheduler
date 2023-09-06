@@ -12,6 +12,20 @@ import { Box } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 import { getData, postData } from '@/utilities/serverRequests/serverRequests';
 
+
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'newCalendar': 'New Calendar',
+  'close': 'Close',
+  'create': 'Create',
+  'calendarName': 'Calendar Name',
+  'Something went wrong on our end, Please try again later.': 'Something went wrong on our end, Please try again later.'
+};
+
+
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +48,8 @@ export default function NewCalendarModal({
 }) {
   const { user, setUser, setAlert, setAlertOpen, setLoading } = useGlobalContext();
   const [image,] = React.useState<File | null>(null);
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
 
   const handleClose = () => {
     setFormOpen(false);
@@ -61,7 +77,7 @@ export default function NewCalendarModal({
       setLoading(false);
     } catch (error) {
       setFormOpen(false);
-      setAlert({ message: 'Something went wrong on our end, Please try again later.', severity: 'error', code: 0 });
+      setAlert({ message: t('Something went wrong on our end, Please try again later.'), severity: 'error', code: 0 });
       setAlertOpen(true);
       setLoading(false);
     }
@@ -76,18 +92,18 @@ export default function NewCalendarModal({
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle>{'New calendar'}</DialogTitle>
+        <DialogTitle>{t('newCalendar')}</DialogTitle>
         <Box onSubmit={handleSubmit} component={'form'}>
           <DialogContent sx={{ display: 'flex', gap: 4, justifyContent: 'center', alignItems: 'center' }}>
             <AddPhoto />
-            <FormInput fieldIdx={0} name="name" label="Calendar Name" title="Calendar Name" type="text" autoComplete='off' />
+            <FormInput fieldIdx={0} name="name" label={t('calendarName')} title={t('calendarName')} type="text" autoComplete='off' />
           </DialogContent>
           <DialogActions>
             <Button fullWidth onClick={handleClose}>
-              Close
+              {t('close')}
             </Button>
             <Button fullWidth type="submit">
-              Create
+              {t('create')}
             </Button>
           </DialogActions>
         </Box>

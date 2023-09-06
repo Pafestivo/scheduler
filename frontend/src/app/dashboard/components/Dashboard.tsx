@@ -13,6 +13,16 @@ import Link from '@mui/material/Link';
 import UserMenu from '@/components/UserMenu';
 import theme from '@/theme';
 import CalendarStack from './CalendarStack';
+import { useGlobalContext } from '@/app/context/store';
+
+
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'dashboard': 'Dashboard',
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
@@ -55,6 +65,8 @@ const AppBar = styled(MuiAppBar, {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 export default function Dashboard() {
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex' }}>
@@ -66,7 +78,7 @@ export default function Dashboard() {
             }}
           >
             <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              Dashboard
+              {t('dashboard')}
             </Typography>
             <UserMenu />
           </Toolbar>

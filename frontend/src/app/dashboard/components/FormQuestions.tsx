@@ -11,12 +11,26 @@ type OptionObject = {
   id: string;
   value: string;
 };
-type Action =
+
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Insert Question Here": "Insert Question Here",
+  "Personal form updated!": "Personal form updated!",
+  "Something went wrong!": "Something went wrong!",
+  "*Note that we ask for the name, phone, and email! Adding these questions yourself will result in duplication.": "*Note that we ask for the name, phone, and email! Adding these questions yourself will result in duplication.",
+  "Add Question+": "Add Question+",
+  "Save!": "Save!",
+};
+
+type FormQuestionAction =
   | { type: 'UPDATE_QUESTION'; value: string; index: number }
   | { type: 'UPDATE_TYPE'; value: string; index: number }
   | { type: 'UPDATE_REQUIRED'; value: boolean; index: number }
   | { type: 'UPDATE_OPTIONS'; value: OptionObject[]; index: number }
-  | { type: 'ADD_QUESTION' }
+  | { type: 'ADD_QUESTION'; value: string }
   | { type: 'ADD_OPTION'; index: number }
   | { type: 'DELETE_OPTION'; id: string; index: number }
   | { type: 'DELETE_QUESTION'; index: number };
@@ -34,8 +48,9 @@ const initialState = (calendar: fullCalendarResponse | null) =>
     }
     return question;
   }) || [];
+  
 
-const reducer = (state: State, action: Action): State => {
+const reducer = (state: State, action: FormQuestionAction): State => {
   const updatedQuestions = [...state];
   switch (action.type) {
     case 'UPDATE_QUESTION':
@@ -63,15 +78,15 @@ const reducer = (state: State, action: Action): State => {
     }
 
     case 'ADD_QUESTION':
-      return [
-        ...state,
-        {
-          question: 'Insert Question Here',
-          inputType: 'text',
-          required: false,
-          id: generateHash(Math.random().toString()),
-        },
-      ];
+    return [
+      ...state,
+      {
+        question: action.value, 
+        inputType: 'text',
+        required: false,
+        id: generateHash(Math.random().toString()),
+      },
+    ];
     case 'ADD_OPTION':
       updatedQuestions[action.index].options.push({ id: generateHash(Math.random().toString()), value: 'New Option' });
       return updatedQuestions;
@@ -93,8 +108,9 @@ const FormQuestions = ({
   } : { 
     setHasUnsavedChanges: (hasChanges: boolean) => void  
   }) => {
-  const { calendar, setAlertOpen, setAlert, setLoading } = useGlobalContext();
+  const { calendar, setAlertOpen, setAlert, setLoading, translations } = useGlobalContext();
   const [questions, dispatch] = useReducer(reducer, initialState(calendar));
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
 
   const handleDelete = (index: number) => {
     dispatch({ type: 'DELETE_QUESTION', index });
@@ -102,9 +118,10 @@ const FormQuestions = ({
   };
 
   const addQuestionRow = () => {
-    dispatch({ type: 'ADD_QUESTION' });
-    setHasUnsavedChanges(true)
+    dispatch({ type: 'ADD_QUESTION', value: t('Insert Question Here') });
+    setHasUnsavedChanges(true);
   };
+  
 
   const updatePersonalForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -131,19 +148,19 @@ const FormQuestions = ({
       if (calendar) {
         setLoading(false);
         calendar.personalForm = modifiedQuestionStructure;
-        setAlert({ code: 200, message: 'Personal form updated!', severity: 'success' });
+        setAlert({ code: 200, message: t('Personal form updated!'), severity: 'success' });
         setAlertOpen(true);
       }
     } catch (error) {
       setLoading(false);
-      setAlert({ code: 500, message: 'Something went wrong!', severity: 'error' });
+      setAlert({ code: 500, message: t('Something went wrong!'), severity: 'error' });
       setAlertOpen(true);
     }
   };
 
   return (
     <Box component="form" onSubmit={updatePersonalForm}>
-      <p style={{ fontSize: '0.8rem' }}>*Note that we ask for the name, phone, and email! Adding these questions yourself will result in duplication.</p>
+      <p style={{ fontSize: '0.8rem' }}>{t('*Note that we ask for the name, phone, and email! Adding these questions yourself will result in duplication.')}</p>
       {questions.map((question, index) => {
         return (
           <Box key={question.id} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -159,8 +176,8 @@ const FormQuestions = ({
           </Box>
         );
       })}
-      <Button onClick={addQuestionRow}>Add Question+</Button>
-      <Button type="submit">Save!</Button>
+      <Button onClick={addQuestionRow}>{t('Add Question+')}</Button>
+      <Button type="submit">{t('Save!')}</Button>
     </Box>
   );
 };

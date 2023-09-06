@@ -21,6 +21,39 @@ import {
 } from '@mui/material';
 import { useGlobalContext } from '@/app/context/store';
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Are you sure you want to cancel this appointment?": "Are you sure you want to cancel this appointment?",
+  "Appointment canceled successfully": "Appointment canceled successfully",
+  "There was a problem canceling the appointment on your google calendar, please do it manually.": "There was a problem canceling the appointment on your google calendar, please do it manually.",
+  "Failed to cancel appointment, please try again later": "Failed to cancel appointment, please try again later",
+  "Appointment confirmed successfully": "Appointment confirmed successfully",
+  "Failed to confirm appointment, please try again later": "Failed to confirm appointment, please try again later",
+  "Sort By": "Sort By",
+  "Upcoming": "Upcoming",
+  "Past": "Past",
+  "Status": "Status",
+  "All": "All",
+  "New": "New",
+  "Canceled": "Canceled",
+  "Rescheduled": "Rescheduled",
+  "Confirmed": "Confirmed",
+  "Completed": "Completed",
+  "Per Page": "Per Page",
+  "Date": "Date",
+  "Time": "Time",
+  "Actions": "Actions",
+  "No actions for canceled appointments": "No actions for canceled appointments",
+  "Cancel": "Cancel",
+  "Reschedule": "Reschedule",
+  "Approve": "Approve",
+  "Previous": "Previous",
+  "Next": "Next"
+};
+
 const Appointments = () => {
   const [appointments, setAppointments] = useState<never[] | Appointment[]>([]);
   const [perPage, setPerPage] = useState<number>(10); // Number of items per page
@@ -28,7 +61,9 @@ const Appointments = () => {
   const [sorting, setSorting] = useState<string>('upcoming'); // Sorting option
   const [selectedStatus, setSelectedStatus] = useState<string>('All'); // Selected status for filtering
   const [calendar, setCalendar] = useState<Calendar | null>(null)
-  const { setLoading, setAlert, setAlertOpen, user } = useGlobalContext();
+  const { setLoading, setAlert, setAlertOpen, user, translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+
   const params = useParams();
   const calendarHash = params.hash;
 
@@ -96,7 +131,7 @@ const Appointments = () => {
       console.error('no user logged in.')
       return;
     }
-    const confirmed = window.confirm(`Are you sure you want to cancel this appointment?`);
+    const confirmed = window.confirm(t('Are you sure you want to cancel this appointment?'));
     if(!confirmed) return
 
     setLoading(true);
@@ -107,7 +142,7 @@ const Appointments = () => {
     if(cancelAppointment.success) {
       if (!calendar) {
         setAlert({
-          message: 'Appointment canceled successfully',
+          message: t('Appointment canceled successfully'),
           severity: 'success',
           code: 0,
         });
@@ -116,21 +151,21 @@ const Appointments = () => {
       const deletedFromGoogle = await deleteData(`/googleAppointments/${user.email}?googleEventId=${appointment.googleEventId}&googleWriteInto=${calendar.googleWriteInto}`)
       if(deletedFromGoogle.success) {
         setAlert({
-          message: 'Appointment canceled successfully',
+          message: t('Appointment canceled successfully'),
           severity: 'success',
           code: 0,
         });
         getAppointments();
       } else {
         setAlert({
-          message: 'There was a problem canceling the appointment on your google calendar, please do it manually.',
+          message: t('There was a problem canceling the appointment on your google calendar, please do it manually.'),
           severity: 'warning',
           code: 0,
         });
       }
     } else {
       setAlert({
-        message: 'Failed to cancel appointment, please try again later',
+        message: t('Failed to cancel appointment, please try again later'),
         severity: 'error',
         code: 0,
       });
@@ -158,14 +193,14 @@ const Appointments = () => {
     });
     if (approvedAppointment.success) {
       setAlert({
-        message: 'Appointment confirmed successfully',
+        message: t('Appointment confirmed successfully'),
         severity: 'success',
         code: 0,
       });
       getAppointments();
     } else {
       setAlert({
-        message: 'Failed to confirm appointment, please try again later',
+        message: t('Failed to confirm appointment, please try again later'),
         severity: 'error',
         code: 0,
       });
@@ -178,25 +213,25 @@ const Appointments = () => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}>
         <FormControl>
-          <InputLabel>Sort By</InputLabel>
+          <InputLabel>{t('Sort By')}</InputLabel>
           <Select value={sorting} onChange={(e) => handleSorting(e.target.value as string)}>
-            <MenuItem value="upcoming">Upcoming</MenuItem>
-            <MenuItem value="past">Past</MenuItem>
+            <MenuItem value="upcoming">{t('Upcoming')}</MenuItem>
+            <MenuItem value="past">{t('Past')}</MenuItem>
           </Select>
         </FormControl>
         <FormControl>
-          <InputLabel>Status</InputLabel>
+          <InputLabel>{t('Status')}</InputLabel>
           <Select value={selectedStatus} onChange={(e) => handleStatusFilter(e.target.value as string)}>
-            <MenuItem value="All">All</MenuItem>
-            <MenuItem value="new">New</MenuItem>
-            <MenuItem value="canceled">Canceled</MenuItem>
-            <MenuItem value="rescheduled">Rescheduled</MenuItem>
-            <MenuItem value="confirmed">Confirmed</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
+            <MenuItem value="All">{t('All')}</MenuItem>
+            <MenuItem value="new">{t('New')}</MenuItem>
+            <MenuItem value="canceled">{t('Canceled')}</MenuItem>
+            <MenuItem value="rescheduled">{t('Rescheduled')}</MenuItem>
+            <MenuItem value="confirmed">{t('Confirmed')}</MenuItem>
+            <MenuItem value="completed">{t('Completed')}</MenuItem>
           </Select>
         </FormControl>
         <FormControl>
-          <InputLabel>Per Page</InputLabel>
+          <InputLabel>{t('Per Page')}</InputLabel>
           <Select value={perPage} onChange={handlePerPageChange}>
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={20}>20</MenuItem>
@@ -209,10 +244,10 @@ const Appointments = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>{t('Date')}</TableCell>
+              <TableCell>{t('Time')}</TableCell>
+              <TableCell>{t('Status')}</TableCell>
+              <TableCell>{t('Actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -226,14 +261,14 @@ const Appointments = () => {
                 <TableCell>{appointment.status}</TableCell>
                 {appointment.status === 'canceled' ? (
                   <TableCell>
-                    <p>No actions for canceled appointments</p>
+                    <p>{t('No actions for canceled appointments')}</p>
                   </TableCell>
                 ) : (
                   <TableCell>
-                    <Button onClick={() => handleCancelAppointment(appointment)}>Cancel</Button>
-                    <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>Reschedule</Button>
+                    <Button onClick={() => handleCancelAppointment(appointment)}>{t('Cancel')}</Button>
+                    <Button onClick={() => handleRescheduleAppointment(appointment.hash)}>{t('Reschedule')}</Button>
                     {appointment.status !== 'confirmed' && (
-                      <Button onClick={() => handleApproveAppointment(appointment.hash)}>Approve</Button>
+                      <Button onClick={() => handleApproveAppointment(appointment.hash)}>{t('Approve')}</Button>
                     )}
                   </TableCell>
                 )}
@@ -246,13 +281,13 @@ const Appointments = () => {
         {appointments.length > perPage && (
           <div>
             <Button onClick={() => handlePagination(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
+              {t('Previous')}
             </Button>
             <Button
               onClick={() => handlePagination(currentPage + 1)}
               disabled={currentPage * perPage >= appointments.length}
             >
-              Next
+              {t('Next')}
             </Button>
           </div>
         )}

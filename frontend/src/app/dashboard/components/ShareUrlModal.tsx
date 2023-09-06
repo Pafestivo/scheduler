@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { useGlobalContext } from '@/app/context/store';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -48,6 +49,18 @@ function a11yProps(index: number) {
   };
 }
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Your booking page URL": "Your booking page URL",
+  "You can copy and paste this link to share your booking page with your customers.": "You can copy and paste this link to share your booking page with your customers.",
+  "close": "close",
+  "Copy URL To clipboard": "Copy URL To clipboard",
+  "Copy Code": "Copy Code"
+};
+
 export default function ShareUrlModal({
   open,
   setOpen,
@@ -63,6 +76,9 @@ export default function ShareUrlModal({
   const [iframe, setIframe] = React.useState('');
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+
 
   React.useEffect(() => {
     const generateIframeScript = () => {
@@ -95,10 +111,10 @@ export default function ShareUrlModal({
             <TabPanel value={value} index={0}>
               <Box textAlign={'center'}>
                 <Typography variant="h6" fontWeight={700}>
-                  Your booking page URL
+                  {t('Your booking page URL')}
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  You can copy and paste this link to share your booking page with your customers.
+                {t('You can copy and paste this link to share your booking page with your customers.')}
                 </Typography>
                 <TextField inputProps={{ readOnly: true }} value={url} fullWidth onFocus={(e) => e.target.select()} />
                 <Button
@@ -107,7 +123,7 @@ export default function ShareUrlModal({
                   color="primary"
                   onClick={() => navigator.clipboard.writeText(url)}
                 >
-                  Copy URL To clipboard
+                  {t('Copy URL To clipboard')}
                 </Button>
               </Box>
             </TabPanel>
@@ -117,10 +133,10 @@ export default function ShareUrlModal({
             <TabPanel value={value} index={1}>
               <Box textAlign={'center'}>
                 <Typography variant="h6" fontWeight={700}>
-                  Your booking page URL
+                  {t('Your booking page URL')}
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  You can copy and paste this link to share your booking page with your customers.
+                  {t('You can copy and paste this link to share your booking page with your customers.')}
                 </Typography>
                 <TextareaAutosize maxRows={10} readOnly value={iframe} onFocus={(e) => e.target.select()} />
                 <Button
@@ -129,7 +145,7 @@ export default function ShareUrlModal({
                   color="primary"
                   onClick={() => navigator.clipboard.writeText(url)}
                 >
-                  Copy Code
+                  {t('Copy Code')}
                 </Button>
               </Box>
             </TabPanel>
@@ -137,7 +153,7 @@ export default function ShareUrlModal({
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            Close
+            {t('close')}
           </Button>
         </DialogActions>
       </Dialog>

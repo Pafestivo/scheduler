@@ -7,15 +7,25 @@ import { deleteData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
 import { Calendar } from '@prisma/client';
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'Are you sure you want to delete this calendar?': 'Are you sure you want to delete this calendar?',
+  'Calendar deleted successfully': 'Calendar deleted successfully'
+};
+
 const ActionBox = ({ url, hash, calendars, setCalendars }: { url: string; hash: string, calendars: Calendar[], setCalendars: (calendars: Calendar[]) => void; }) => {
   const [open, setOpen] = React.useState(false);
-  const {setLoading, setAlert, setAlertOpen} = useGlobalContext();
+  const {setLoading, setAlert, setAlertOpen, translations} = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   const handleShareClick = () => {
     setOpen(true);
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(`Are you sure you want to delete this calendar?`);
+    const confirmed = window.confirm(t('Are you sure you want to delete this calendar?'));
     if(!confirmed) return
     
     setLoading(true)
@@ -24,7 +34,7 @@ const ActionBox = ({ url, hash, calendars, setCalendars }: { url: string; hash: 
       const newCalendarsArray = calendars.filter(calendar => calendar.hash !== hash)
       setCalendars(newCalendarsArray)
       setAlert({
-        message: 'Calendar deleted successfully',
+        message: t('Calendar deleted successfully'),
         severity: 'success',
         code: 9999
       })

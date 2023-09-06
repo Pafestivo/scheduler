@@ -2,6 +2,16 @@ import React from 'react';
 import FormQuestions from './FormQuestions';
 import AfterBooking from './AfterBooking';
 import TabSettings from './TabSettings';
+import { useGlobalContext } from '@/app/context/store';
+
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  'Questions': 'Questions',
+  'After Booking Message': 'After Booking Message',
+};
 
 const BookingSettings = ({
     hasUnsavedChanges,
@@ -10,13 +20,17 @@ const BookingSettings = ({
     hasUnsavedChanges: boolean;
     setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
   }) => {
+
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+  
   const COMPONENTS = [
     {
-      name: 'Questions',
+      name: t('Questions'),
       component: <FormQuestions setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'After Booking Message',
+      name: t('After Booking Message'),
       component: <AfterBooking setHasUnsavedChanges={setHasUnsavedChanges} />,
     }
   ];

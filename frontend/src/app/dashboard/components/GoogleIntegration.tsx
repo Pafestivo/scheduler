@@ -5,12 +5,26 @@ import { Box, Button } from '@mui/material';
 import { signIn } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Currently": "Currently",
+  "Choose calendar to write events to": "Choose calendar to write events to",
+  "No calendars found for this google account": "No calendars found for this google account",
+  "Not selected": "Not selected",
+  "Integrate with google": "Integrate with google",
+  "Choose calendar to read events from": "Choose calendar to read events from",
+};
+
 function GoogleIntegration() {
-  const { user, calendar, setLoading, setCalendar } = useGlobalContext();
+  const { user, calendar, setLoading, setCalendar, translations } = useGlobalContext();
   const [googleIntegration, setGoogleIntegration] = useState([]);
   const [googleCalendars, setGoogleCalendars] = useState<[][]>([]);
   const [readEventsFromSelection, setReadEventsFromSelection] = useState(false);
   const [writeEventsTo, setWriteEventsTo] = useState(false);
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
 
   const getGoogleCalendars = useCallback(async () => {
     if (!user) return;
@@ -90,11 +104,11 @@ function GoogleIntegration() {
                 setWriteEventsTo(false);
               }}
             >
-              Choose calendar to read events from
+              {t('Choose calendar to read events from')}
             </Button>
           )}
-          <span style={{ fontWeight: 'bold' }}>Currently:</span>
-          {calendar?.googleReadFrom || 'Not selected'}
+          <span style={{ fontWeight: 'bold' }}>{t('Currently')}:</span>
+          {calendar?.googleReadFrom || t('Not selected')}
         </Box>
 
         <Box>
@@ -113,15 +127,15 @@ function GoogleIntegration() {
                 setWriteEventsTo(true);
               }}
             >
-              Choose calendar to write events to
+              {t('Choose calendar to write events to')}
             </Button>
           )}
-          <span style={{ fontWeight: 'bold' }}>Currently:</span>
-          {calendar?.googleWriteInto || 'Not selected'}
+          <span style={{ fontWeight: 'bold' }}>{t('Currently')}:</span>
+          {calendar?.googleWriteInto || t('Not selected')}
         </Box>
       </Box>
     ) : (
-      <p>No calendars found for this google account</p>
+      <p>{t('No calendars found for this google account')}</p>
     )
   ) : (
     <Button
@@ -129,7 +143,7 @@ function GoogleIntegration() {
         signIn('google');
       }}
     >
-      Integrate with google
+      {t('Integrate with google')}
     </Button>
   );
 }

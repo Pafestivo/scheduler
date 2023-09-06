@@ -104,13 +104,31 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 }));
 
 // TODO remove, this demo shouldn't need to reset the theme.
+interface EnglishFallbackType {
+  [key: string]: string;
+}
 
+const englishFallback: EnglishFallbackType = {
+  "General": "General",
+  "Times & Availability": "Times & Availability",
+  "Booking form": "Booking form",
+  "Notifications and event details": "Notifications and event details",
+  "Integrations": "Integrations",
+  "Appointments": "Appointments",
+  "Booking URL": "Booking URL",
+  "Dashboard": "Dashboard",
+  "You have unsaved changes. Are you sure you want to discard them?": "You have unsaved changes. Are you sure you want to discard them?",
+  "Next": "Next"
+};
 export default function FullDashboard() {
   const params = useParams();
   const router = useRouter();
   const [hasAccess, setHasAccess] = React.useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
   const { calendar, setCalendar, user, setLoading } = useGlobalContext();
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+
 
   React.useEffect(() => {
     const getCalendar = async () => {
@@ -145,37 +163,37 @@ export default function FullDashboard() {
 
   const SETTING_COMPONENTS = [
     {
-      name: 'General',
+      name: t('General'),
       icon: <DashboardIcon />,
       component: <GeneralSettings setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'Times & Availability',
+      name: t('Times & Availability'),
       icon: <ScheduleIcon />,
       component: <AvailabilitySettings hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'Booking form',
+      name: t('Booking form'),
       icon: <FeedIcon />,
       component: <BookingSettings hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'Notifications and event details',
+      name: t('Notifications and event details'),
       icon: <NotificationsActiveIcon />,
       component: <NotificationSettings />,
     },
     {
-      name: 'Integrations',
+      name: t('Integrations'),
       icon: <IntegrationInstructionsIcon />,
       component: <IntegrationSettings />,
     },
     {
-      name: 'Appointments',
+      name: t('Appointments'),
       icon: <TodayIcon />,
       component: <Appointments />,
     },
     {
-      name: 'Booking URL',
+      name: t('Booking URL'),
       icon: <ShareIcon />,
       component: <ShareCalendar />,
     },
@@ -189,7 +207,7 @@ export default function FullDashboard() {
 
   const moveToNextTab = () => {
     if (hasUnsavedChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+      if (window.confirm(t('You have unsaved changes. Are you sure you want to discard them?'))) {
         // If the user confirms, proceed with the navigation.
         setActiveSetting(activeSetting + 1);
         setHasUnsavedChanges(false);
@@ -224,7 +242,7 @@ export default function FullDashboard() {
                 <MenuIcon />
               </IconButton>
               <Typography onClick={() => router.push('/dashboard')} component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, cursor: 'pointer' }}>
-                Dashboard
+                {t('Dashboard')}
               </Typography>
               <UserMenu />
             </Toolbar>
@@ -278,7 +296,7 @@ export default function FullDashboard() {
                   {activeSetting === SETTING_COMPONENTS.length - 1 ? (
                     null
                   ) : (
-                    <Button onClick={moveToNextTab} sx={{width: '100px', marginLeft: 'auto', fontSize: '16px'}}>Next</Button>
+                    <Button onClick={moveToNextTab} sx={{width: '100px', marginLeft: 'auto', fontSize: '16px'}}>{t('Next')}</Button>
                   )}
                   </Paper>
                 </Grid>

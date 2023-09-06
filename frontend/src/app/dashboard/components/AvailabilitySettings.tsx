@@ -3,6 +3,17 @@ import TabSettings from './TabSettings';
 import Availability from './Availability';
 import Duration from './Duration';
 import Timezone from './Timezone';
+import { useGlobalContext } from '@/app/context/store';
+
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "Availability": "Availability",
+  "Duration & Breaks": "Duration & Breaks",
+  "Timezone": "Timezone",
+};
 
 const AvailabilitySettings = ({ 
   hasUnsavedChanges,
@@ -12,17 +23,19 @@ const AvailabilitySettings = ({
   setHasUnsavedChanges: (hasChanges: boolean) => void 
 }) => {
 
+  const { translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   const COMPONENTS = [
     {
-      name: 'Availability',
+      name: t('Availability'),
       component: <Availability setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'Duration & Breaks',
+      name: t('Duration & Breaks'),
       component: <Duration setHasUnsavedChanges={setHasUnsavedChanges} />,
     },
     {
-      name: 'Timezone',
+      name: t('Timezone'),
       component: <Timezone />,
     },
   ];

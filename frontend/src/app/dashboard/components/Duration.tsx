@@ -14,12 +14,29 @@ interface DurationBody {
   minNotice?: number;
 }
 
+interface EnglishFallbackType {
+  [key: string]: string;
+}
+
+const englishFallback: EnglishFallbackType = {
+  "No changes were made": "No changes were made",
+  "Availability updated": "Availability updated",
+  "Something went wrong on our end. Please try again in a few.": "Something went wrong on our end. Please try again in a few.",
+  "Break Time:": "Break Time:",
+  "Appointment Padding:": "Appointment Padding:",
+  "padding": "padding",
+  "Appointment length": "Appointment length",
+  "Min booking notice": "Min booking notice",
+  "Submit": "Submit"
+};
+
 const Duration = ({ 
   setHasUnsavedChanges
  } : {
   setHasUnsavedChanges: (hasChanges: boolean) => void
  }) => {
-  const { calendar, setCalendar, setAlert, setAlertOpen, setLoading } = useGlobalContext();
+  const { calendar, setCalendar, setAlert, setAlertOpen, setLoading, translations } = useGlobalContext();
+  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
   const [breakTime, setBreakTime] = useState<BreakTime>(
     calendar?.breakTime || { endTime: BASE_BREAK_END_TIME, startTime: BASE_BREAK_START_TIME, isActive: false }
   );
@@ -94,7 +111,7 @@ const Duration = ({
       requestBody = { ...requestBody, appointmentsLength: appointmentsLength };
     if (minNotice !== calendar?.minNotice) requestBody = { ...requestBody, minNotice: minNotice };
     if (Object.keys(requestBody).length === 0) {
-      setAlert({ severity: 'warning', message: 'No changes were made', code: 200 });
+      setAlert({ severity: 'warning', message: t('No changes were made'), code: 200 });
       setAlertOpen(true);
       return;
     }
@@ -111,13 +128,13 @@ const Duration = ({
         });
       }
       setLoading(false);
-      setAlert({ severity: 'success', message: 'Availability updated', code: 200 });
+      setAlert({ severity: 'success', message: t('Availability updated'), code: 200 });
       setAlertOpen(true);
     } catch (error) {
       setLoading(false);
       setAlert({
         severity: 'error',
-        message: 'Something went wrong on our end. Please try again in a few.',
+        message: t('Something went wrong on our end. Please try again in a few.'),
         code: 500,
       });
       setAlertOpen(true);
@@ -126,7 +143,7 @@ const Duration = ({
 
   return (
     <Box component={'form'} onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h6">Break Time:</Typography>
+      <Typography variant="h6">{t('Break Time:')}</Typography>
       <CortexTimePicker
         defaultActive={breakTime.isActive === true ? true : false}
         defaultStartTime={breakTime.startTime ? breakTime.startTime : BASE_BREAK_START_TIME}
@@ -134,9 +151,9 @@ const Duration = ({
         handleCheckboxChange={handleCheckboxChange}
         handleTimeChange={handleTimeChange}
       />
-      <Typography variant="h6">Appointment Padding:</Typography>
+      <Typography variant="h6">{t('Appointment Padding:')}</Typography>
       <FormControl sx={{ m: 1 }} variant="standard">
-        <InputLabel id="demo-customized-select-label">{`Padding`}</InputLabel>
+        <InputLabel id="demo-customized-select-label">{t('padding')}</InputLabel>
         <Select
           labelId="demo-customized-select-label"
           id="demo-customized-select"
@@ -153,9 +170,9 @@ const Duration = ({
           ))}
         </Select>
       </FormControl>
-      <Typography variant="h6">Appointment length:</Typography>
+      <Typography variant="h6">{t('Appointment length')}:</Typography>
       <FormControl sx={{ m: 1 }} variant="standard">
-        <InputLabel id="demo-customized-select-label">{`Appointment Length`}</InputLabel>
+        <InputLabel id="demo-customized-select-label">{t('Appointment length')}</InputLabel>
         <Select
           labelId="demo-customized-select-label"
           id="demo-customized-select"
@@ -172,9 +189,9 @@ const Duration = ({
           ))}
         </Select>
       </FormControl>
-      <Typography variant="h6">Min booking notice:</Typography>
+      <Typography variant="h6">{t('Min booking notice')}:</Typography>
       <FormControl sx={{ m: 1 }} variant="standard">
-        <InputLabel id="demo-customized-select-label">{`Min booking notice`}</InputLabel>
+        <InputLabel id="demo-customized-select-label">{t('Min booking notice')}</InputLabel>
         <Select
           labelId="demo-customized-select-label"
           id="demo-customized-select"
@@ -192,7 +209,7 @@ const Duration = ({
         </Select>
       </FormControl>
       <Button type="submit" disabled={cantSubmit}>
-        Submit
+        {t('Submit')}
       </Button>
     </Box>
   );
