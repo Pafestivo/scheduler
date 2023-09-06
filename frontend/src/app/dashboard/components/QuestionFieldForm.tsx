@@ -14,7 +14,7 @@ type Action =
   | { type: 'UPDATE_TYPE'; value: string; index: number }
   | { type: 'UPDATE_REQUIRED'; value: boolean; index: number }
   | { type: 'UPDATE_OPTIONS'; value: OptionObject[]; index: number }
-  | { type: 'ADD_QUESTION' }
+  | { type: 'ADD_QUESTION'; value: string }
   | { type: 'ADD_OPTION'; index: number }
   | { type: 'DELETE_OPTION'; id: string; index: number }
   | { type: 'DELETE_QUESTION'; index: number };
