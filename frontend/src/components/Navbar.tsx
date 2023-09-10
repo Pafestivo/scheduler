@@ -36,16 +36,33 @@ const Navbar = () => {
 
   const registerUser = useCallback(async () => {
     if (sessionData.data?.user && !user) {
+      console.log('sessionData', sessionData);
       const { email, name } = sessionData.data.user;
       const { provider } = sessionData.data;
+      if(provider) {
+        const { accessToken, refreshToken, expires, user,  } = sessionData.data
+        try{
+          await postData('/integration', {
+            token: accessToken?.encrypted,
+            refreshToken: refreshToken?.encrypted,
+            expiresAt: expires,
+            userEmail: user.email,
+            provider,
+            aTiv: accessToken?.iv,
+            rTiv: refreshToken?.iv,
+          });
+        } catch(err) {
+          console.error(err)
+        }
+      }
       const response = await postData('/auth/register', { email, name, provider });
       if (response.message === 'User already exists') {
         await postData('/auth/login', { email, provider });
-        await getData('/auth/me');
+        // await getData('/auth/me');
       }
     }
     await getUser();
-  }, [getUser, sessionData.data, user]);
+  }, [getUser, sessionData, user]);
 
   useEffect(() => {
     registerUser();
