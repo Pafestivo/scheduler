@@ -58,10 +58,10 @@ const reducer = (state: State, action: FormQuestionAction): State => {
       return updatedQuestions;
     case 'UPDATE_TYPE':
       updatedQuestions[action.index].inputType = action.value;
-      if (action.value === 'select') {
-        updatedQuestions[action.index].options = [{ id: generateHash(Math.random().toString()), value: 'New Option' }];
+      if (action.value === 'select' && !updatedQuestions[action.index].options?.length) {
+        updatedQuestions[action.index].options = [{ id: generateHash(Math.random().toString()), value: '' }];
       }
-      return updatedQuestions;
+      return updatedQuestions;           
     case 'UPDATE_REQUIRED':
       updatedQuestions[action.index].required = action.value;
       return updatedQuestions;
@@ -88,7 +88,7 @@ const reducer = (state: State, action: FormQuestionAction): State => {
       },
     ];
     case 'ADD_OPTION':
-      updatedQuestions[action.index].options.push({ id: generateHash(Math.random().toString()), value: 'New Option' });
+      updatedQuestions[action.index].options.push({ id: generateHash(Math.random().toString()), value: '' });
       return updatedQuestions;
     case 'DELETE_QUESTION':
       updatedQuestions.splice(action.index, 1);
