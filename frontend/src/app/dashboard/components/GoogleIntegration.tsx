@@ -42,12 +42,15 @@ function GoogleIntegration() {
   }, [setLoading, user]);
 
   const getUserIntegrations = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('no user found');
+      return
+    }
     const response = await getData(`/integration/${user.hash}`);
     const integrations = response.data;
     const userGoogleIntegration = integrations.filter(
       (integration: { provider: string }) => integration.provider === 'google'
-    );
+      );
     setGoogleIntegration(userGoogleIntegration);
     if (userGoogleIntegration) getGoogleCalendars();
     else setLoading(false)

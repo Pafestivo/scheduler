@@ -7,11 +7,12 @@ import { useGlobalContext } from '@/app/context/store';
 import FormDialog from './FormDialog';
 import findAvailableSlots from '@/utilities/findAvailableSlots';
 import { useRouter } from 'next/navigation';
-import { Appointment } from '@prisma/client';
 import '../styles/calendarComponent.css';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Integration } from '@prisma/client';
+import { allCalendarAvailabilities, appointments, calendar, personalForm } from '@/utilities/types';
+import { addTime, getDailyAvailability, getOrPostBooker, postAppointment } from '@/utilities/bookAppointmentsUtils';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -21,15 +22,12 @@ interface CalendarComponentProps {
 const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentProps) => {
   const [startDate, setStartDate] = useState(new Date());
   const [showAvailableTime, setShowAvailableTime] = useState(false);
-  const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<
-    { day: number; startTime: string; endTime: string }[]
+  const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<allCalendarAvailabilities[]
   >([]);
   const [appointmentsLength, setAppointmentsLength] = useState(60);
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
-  const [personalForm, setPersonalForm] = useState<
-    { question: string; inputType: string; options?: { [key: string]: string }; required?: boolean }[]
-  >([
+  const [personalForm, setPersonalForm] = useState<personalForm[]>([
     { question: 'What is your name?', inputType: 'text', required: true },
     { question: 'What is your phone number?', inputType: 'text' },
     { question: 'What is your email?', inputType: 'email' },
@@ -42,7 +40,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   ]);
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [loggedUser, setLoggedUser] = useState<{ hash?: string }>({});
-  const [calendarOwner, setCalendarOwner] = useState<string>('');
   const [integrations, setIntegrations] = useState([]);
   const [ownerEmail, setOwnerEmail] = useState<string>('');
   const [chosenAppointmentTime, setChosenAppointmentTime] = useState('');
@@ -52,15 +49,9 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     'What is your email?': Cookies.get('email') || '',
     'preferred channel of communication?': Cookies.get('preferredWay') || '',
   });
-  const [appointments, setAppointments] = useState<{ date: string; startTime: string; endTime: string }[]>([]);
+  const [appointments, setAppointments] = useState<appointments[]>([]);
   const [currentAppointment, setCurrentAppointment] = useState(null);
-  const [calendar, setCalendar] = useState<{
-    owner: string;
-    userHash: string[];
-    googleWriteInto: string;
-    minNotice?: number;
-    breakTime?: { startTime: string; endTime: string; isActive: boolean };
-  }>({
+  const [calendar, setCalendar] = useState<calendar>({
     owner: '',
     userHash: [],
     googleWriteInto: 'Primary',
@@ -101,6 +92,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     }
   }, [appointmentHash]);
 
+  // fetching data and setting states
   const preparePage = useCallback(async () => {
     const currentAppointment = await getCurrentAppointment();
     const calendar = await getCurrentCalendar();
@@ -122,12 +114,11 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     setPadding(calendar.padding);
     setPersonalForm([...personalForm, ...calendar.personalForm]);
     Cookies.get();
-    setCalendarOwner(calendar.userHash);
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getCurrentCalendar, getCalendarAppointments, user, setLoading, getCurrentAppointment]);
 
-  // on page load
+  // prepare the page
   useEffect(() => {
     preparePage();
   }, [preparePage]);
@@ -135,7 +126,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const onDateClick = async (date: Date) => {
     setStartDate(date);
     setShowAvailableTime(true);
-    const currentDayAvailabilities = await getDailyAvailability(date);
+    const currentDayAvailabilities = await getDailyAvailability(date, allCalendarAvailabilities, setLoading);
     const meetingsForTheDay = findAvailableSlots(
       currentDayAvailabilities,
       appointments,
@@ -147,112 +138,52 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     );
     setDailyAmountOfAppointments(meetingsForTheDay);
   };
-
-  const getDailyAvailability = async (date: Date) => {
-    const currentDay = date.getDay();
-    let currentDayAvailabilities = allCalendarAvailabilities.filter(
-      (availability: { day: number }) => availability.day === currentDay
+  
+  const rescheduleAppointment = async (appointmentStartTime: string) => {
+    if (!currentAppointment) {
+      alert('The appointment you are trying to reschedule does not exist');
+      return;
+    }
+    const confirmed = window.confirm(
+      `Are you sure you want to reschedule your appointment to ${startDate.getDate()}/${
+        startDate.getMonth() + 1
+      } at ${appointmentStartTime}?`
     );
-    if (currentDayAvailabilities.length === 0)
-      currentDayAvailabilities = [{ day: 0, startTime: '12:00', endTime: '12:00' }];
-    setLoading(false);
-    return currentDayAvailabilities;
-  };
-
-  const addTime = (time: string, minutes: number): string => {
-    // Parse hours and minutes from the input time string
-    const [hourStr, minuteStr] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hourStr, 10));
-    date.setMinutes(parseInt(minuteStr, 10));
-
-    // Add the specified number of minutes
-    date.setMinutes(date.getMinutes() + minutes);
-
-    // Format the new time string
-    const hours = date.getHours().toString().padStart(2, '0');
-    const mins = date.getMinutes().toString().padStart(2, '0');
-
-    return `${hours}:${mins}`;
-  };
-
-  const prepareBeforeBooking = async (appointmentStartTime: string) => {
-    setChosenAppointmentTime(appointmentStartTime);
-    if (appointmentHash) {
-      if (!currentAppointment) {
-        alert('The appointment you are trying to reschedule does not exist');
-        return;
-      }
-      const confirmed = window.confirm(
-        `Are you sure you want to reschedule your appointment to ${startDate.getDate()}/${
-          startDate.getMonth() + 1
-        } at ${appointmentStartTime}?`
-      );
-      if (confirmed) {
-        setLoading(true);
-        const updatedAppointment = await putData('/appointments', {
-          hash: appointmentHash,
-          date: startDate,
-          startTime: appointmentStartTime,
-          endTime: addTime(appointmentStartTime, appointmentsLength),
-        });
-        if (updatedAppointment.success) {
-          setAlert({
-            message: 'Appointment details updated',
-            severity: 'success',
-            code: 0,
-          });
-        } else {
-          setAlert({
-            message: 'There was a problem updating appointment',
-            severity: 'error',
-            code: 0,
-          });
-        }
-        setAlertOpen(true);
-        setLoading(false);
-        router.push(`/reschedule`);
-      }
-    } else setShowFormPopup(true);
-  };
-
-  const postAppointment = async (appointmentTime: string) => {
-    try {
-      const appointment = await postData('/appointments', {
-        calendarHash,
-        userHash: loggedUser.hash,
+    if (confirmed) {
+      setLoading(true);
+      const updatedAppointment = await putData('/appointments', {
+        hash: appointmentHash,
         date: startDate,
-        startTime: appointmentTime,
-        endTime: addTime(appointmentTime, appointmentsLength),
-        answersArray: answers || {},
+        startTime: appointmentStartTime,
+        endTime: addTime(appointmentStartTime, appointmentsLength),
       });
-      return appointment.data;
-    } catch (error) {
-      console.error('err', error);
+      if (updatedAppointment.success) {
+        setAlert({
+          message: 'Appointment details updated',
+          severity: 'success',
+          code: 0,
+        });
+      } else {
+        setAlert({
+          message: 'There was a problem updating appointment',
+          severity: 'error',
+          code: 0,
+        });
+      }
+      setAlertOpen(true);
+      setLoading(false);
+      router.push(`/reschedule`);
     }
+  }
+
+  const checkBookingType = async (appointmentStartTime: string) => {
+    setChosenAppointmentTime(appointmentStartTime);
+    const reschedule = appointmentHash ? true : false
+    if (reschedule) rescheduleAppointment(appointmentStartTime)
+    else setShowFormPopup(true);
   };
 
-  const getOrPostBooker = async (appointment: Appointment) => {
-    if (!answers) return;
-
-    try {
-      // this post route handles all the booker logic
-      const booker = await postData('/bookers', {
-        name: answers['What is your name?'],
-        email: answers['What is your email?'],
-        phone: answers['What is your phone number?'],
-        preferredChannel: answers['preferred channel of communication?'],
-        appointmentHash: appointment.hash,
-        calendarHash: calendarHash,
-        ownerEmail: ownerEmail,
-      });
-      return booker.data;
-    } catch (error) {
-      console.error('err', error);
-    }
-  };
-
-  const promptBooking = async (
+  const testFormValidity = (
     appointmentStartTime?: string,
     e?: React.FormEvent<HTMLFormElement>,
     answers?: { [key: string]: string }
@@ -270,8 +201,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       let formFilledProperly = true;
       personalForm?.forEach((question, index) => {
         if (question.required && answers && !answers[question.question]) {
-          console.log('answers', answers)
-          console.log('the problem is', answers[question.question])
           setAlert({
             message: question.question,
             severity: 'error',
@@ -296,26 +225,47 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
       Cookies.set('preferredWay', answers['preferred channel of communication?'], { expires: 365 });
     }
 
-    if (loggedUser.hash && calendarOwner == loggedUser.hash) {
-      setAlert({ message: "Can't book appointment in your own calendar!", severity: 'error', code: 1000 });
-      setAlertOpen(true);
-      return;
-    }
+    // after form declared valid, book the appointment
+    return bookAppointment(
+      appointmentTime,
+      answers
+    )
+  }
 
+  const bookAppointment = async (
+    appointmentTime: string,
+    answers?: { [key: string]: string }
+  ) => {
     const confirmed = window.confirm(`Are you sure you want to book an appointment at ${appointmentTime}?`);
     if (confirmed) {
       setShowFormPopup(false);
       setLoading(true);
-      const appointment = await postAppointment(appointmentTime);
-      const booker = await getOrPostBooker(appointment);
+      const appointment = await postAppointment(
+        appointmentTime, 
+        calendarHash, 
+        loggedUser.hash, 
+        startDate, 
+        appointmentsLength, 
+        answers
+      );
+      const booker = await getOrPostBooker(
+        appointment,
+        answers,
+        calendarHash,
+        ownerEmail
+      );
       const meetingEndTime = addTime(appointmentTime, appointmentsLength);
-      const hasGoogleIntegration = integrations.length
-        ? integrations.some((integration: { provider: string }) => integration.provider === 'google')
-        : false;
+      
+      const hasGoogleIntegration = integrations.length ? 
+      integrations.some((integration: { provider: string }) => integration.provider === 'google') : false;
+
       if (hasGoogleIntegration) {
         const googleIntegration: Integration | undefined = integrations.find((integration: Integration) => integration.provider === 'google')
         if(!googleIntegration) return;
+
         const userEmail = (googleIntegration as Integration).userEmail;
+
+        // write appointment to google
         postData(`/googleAppointments/${userEmail}`, {
           googleWriteInto: calendar.googleWriteInto,
           summary: `Appointment with ${booker.name}`,
@@ -325,7 +275,11 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
           hash: appointment.hash,
         });
       }
-      setAlert({ message: 'Appointment booked!', severity: 'success', code: 0 });
+      setAlert({ 
+        message: 'Appointment booked!', 
+        severity: 'success', 
+        code: 0 
+      });
       setAlertOpen(true);
       setShowAvailableTime(false);
       setAnswers({});
@@ -386,7 +340,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
         personalForm={personalForm.map(question => ({ ...question, question: t(question.question) }))}
         answers={answers}
         setAnswers={setAnswers}
-        handleSubmit={promptBooking}
+        handleSubmit={testFormValidity}
       />
 
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
@@ -422,7 +376,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
                     fontSize: '1.5rem',
                     cursor: 'pointer',
                   }}
-                  onClick={() => prepareBeforeBooking(appointmentStartTime)}
+                  onClick={() => checkBookingType(appointmentStartTime)}
                   key={appointmentStartTime}
                 >
                   {appointmentStartTime}

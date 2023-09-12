@@ -14,7 +14,7 @@ interface FormDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleSubmit: (...args: any[]) => Promise<void>;
+  handleSubmit: (...args: any[]) => void;
   personalForm?: {
     question: string;
     inputType: string;

@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Appointment, CalendarIntegration, License, User } from '@prisma/client';
-import { Session } from 'next-auth';
+import {
+  Appointment,
+  CalendarIntegration,
+  License,
+  User,
+} from "@prisma/client";
+import { Session } from "next-auth";
 
-export type PersonalForm = {
+export type personalForm = {
   question: string;
   inputType: string;
-  required: boolean;
-  options?: any;
-  id: string;
+  options?: { [key: string]: string };
+  required?: boolean;
+  id?: string;
 };
-
 export interface Availability {
   day: number;
   startTime: string;
@@ -36,7 +40,7 @@ export interface fullCalendarResponse {
   name: string;
   padding: number | undefined;
   password: string | undefined;
-  personalForm: PersonalForm[];
+  personalForm: personalForm[];
   timeStamp: Date;
   type: string;
   userHash: string[];
@@ -55,4 +59,31 @@ export interface Isession extends Session {
   refreshToken?: { encrypted: string; iv: string };
   provider?: string;
   expiresAt?: string;
+}
+
+export interface allCalendarAvailabilities {
+  day: number;
+  startTime: string;
+  endTime: string;
+}
+export interface appointments {
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+export interface calendar {
+  owner: string;
+  userHash: string[];
+  googleWriteInto: string;
+  minNotice?: number | undefined;
+  breakTime?:
+    | {
+        startTime: string;
+        endTime: string;
+        isActive: boolean;
+      }
+    | undefined;
+}
+export interface answers {
+  [key: string]: string;
 }
