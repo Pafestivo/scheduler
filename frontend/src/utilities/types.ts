@@ -80,6 +80,11 @@ export interface appointments {
   endTime: string;
 }
 export interface calendar {
+  name: string;
+  image: string;
+  description: string;
+  isActive: number;
+  hash: string;
   owner: string;
   userHash: string[];
   googleWriteInto: string;
@@ -91,6 +96,10 @@ export interface calendar {
         isActive: boolean;
       }
     | undefined;
+  availabilities: allCalendarAvailabilities[];
+  appointmentsLength: number;
+  padding: number;
+  personalForm: personalForm[];
 }
 export interface answers {
   [key: string]: string;

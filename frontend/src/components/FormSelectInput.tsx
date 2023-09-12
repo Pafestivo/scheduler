@@ -1,11 +1,11 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import { useState } from 'react';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { useGlobalContext } from '@/app/context/store';
+import * as React from "react";
+import Box from "@mui/material/Box";
+import { useState } from "react";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { useGlobalContext } from "@/app/context/store";
 
 interface FormSelectInputProps {
   label: string;
@@ -17,7 +17,14 @@ interface FormSelectInputProps {
   name?: string;
 }
 
-const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, name }: FormSelectInputProps) => {
+const FormSelectInput = ({
+  label,
+  options,
+  setState,
+  fieldIdx,
+  defaultOption,
+  name,
+}: FormSelectInputProps) => {
   const [value, setValue] = useState(defaultOption || Object.keys(options)[0]);
   const { alert } = useGlobalContext();
 
@@ -48,7 +55,10 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
           value={value}
           label={label}
           onChange={handleChange}
-          sx={{ backgroundColor: alert?.code === fieldIdx ? 'rgba(245, 132, 132, 0.44)' : null }}
+          sx={{
+            backgroundColor:
+              alert?.code === fieldIdx ? "rgba(245, 132, 132, 0.44)" : null,
+          }}
         >
           {/* <MenuItem value="">Select an option</MenuItem> */}
           {Object.entries(options).map(([key, value]) => (

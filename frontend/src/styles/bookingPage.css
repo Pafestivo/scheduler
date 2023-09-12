@@ -1,0 +1,37 @@
+body {
+  background-color: #C0A975;
+}
+
+.bookingPageTitle {
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px;
+  margin-bottom: 40px;
+}
+
+.circle-image {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -20px 0 0 0;
+  border: 4px solid #C0A975;
+}
+
+.title { 
+  color: #333; /* choose a color that contrasts or complements the background */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  font-size: 1.8em;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  text-transform: uppercase; /* or capitalize, or none */
+  font-weight: bold;
+  margin: 5px 0 8px 0;
+}
+
+.subtext {
+  color: #565656;
+  font-size: 1em;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
