@@ -22,12 +22,18 @@ const FormSelectInput = ({ label, options, setState, fieldIdx, defaultOption, na
   const { alert } = useGlobalContext();
 
   const handleChange = (event: SelectChangeEvent) => {
-    setState?.(event.target.value, name);
+    if (setState) {
+      console.log(name, event.target.value);
+      setState(event.target.value, name);
+    }
     setValue(event.target.value);
   };
 
   React.useEffect(() => {
-    setState?.(defaultOption, name);
+    if (setState) {
+      console.log(name, defaultOption);
+      setState(defaultOption, name);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

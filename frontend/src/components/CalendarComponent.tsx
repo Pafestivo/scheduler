@@ -4,7 +4,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getData, postData, putData } from '@/utilities/serverRequests/serverRequests';
 import { useGlobalContext } from '@/app/context/store';
-import FormDialog from './FormDialog';
 import findAvailableSlots from '@/utilities/findAvailableSlots';
 import { useRouter } from 'next/navigation';
 import '../styles/calendarComponent.css';
@@ -13,6 +12,7 @@ import Cookies from 'js-cookie';
 import { Integration } from '@prisma/client';
 import { allCalendarAvailabilities, appointments, calendar, personalForm } from '@/utilities/types';
 import { addTime, getDailyAvailability, getOrPostBooker, postAppointment } from '@/utilities/bookAppointmentsUtils';
+import BookAppointmentForm from './BookAppointmentForm';
 
 interface CalendarComponentProps {
   calendarHash: string;
@@ -27,12 +27,12 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [appointmentsLength, setAppointmentsLength] = useState(60);
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
-  const [personalForm, setpersonalForm] = useState<personalForm[]>([
+  const [personalForm, setPersonalForm] = useState<personalForm[]>([
     { question: 'What is your name?', inputType: 'text', required: true },
     { question: 'What is your phone number?', inputType: 'text' },
     { question: 'What is your email?', inputType: 'email' },
     {
-      question: 'preferred channel of communication?',
+      question: 'Preferred channel of communication?',
       inputType: 'select',
       options: { email: 'email', phone: 'phone' },
       required: true,
@@ -47,7 +47,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     'What is your name?': Cookies.get('name') || '',
     'What is your phone number?': Cookies.get('phone') || '',
     'What is your email?': Cookies.get('email') || '',
-    'preferred channel of communication?': Cookies.get('preferredWay') || '',
+    'Preferred channel of communication?': Cookies.get('preferredWay') || '',
   });
   const [appointments, setAppointments] = useState<appointments[]>([]);
   const [currentAppointment, setCurrentAppointment] = useState(null);
@@ -56,9 +56,9 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     userHash: [],
     googleWriteInto: 'Primary',
   });
-  const { user, setAlert, setAlertOpen, setLoading, translations } = useGlobalContext();
+  const { user, setAlert, setAlertOpen, setLoading, /* translations */ } = useGlobalContext();
   const router = useRouter();
-  const t = (key: string): string => translations?.[key] || key;
+  // const t = (key: string): string => translations?.[key] || key;
 
   const getCurrentCalendar = useCallback(async () => {
     try {
@@ -112,7 +112,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if (user?.hash) setLoggedUser(user);
     setAppointmentsLength(calendar.appointmentsLength);
     setPadding(calendar.padding);
-    setpersonalForm([...personalForm, ...calendar.personalForm]);
+    setPersonalForm([...personalForm, ...calendar.personalForm]);
     Cookies.get();
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,55 +182,6 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if (reschedule) rescheduleAppointment(appointmentStartTime)
     else setShowFormPopup(true);
   };
-
-  const testFormValidity = (
-    appointmentStartTime?: string,
-    e?: React.FormEvent<HTMLFormElement>,
-    answers?: { [key: string]: string }
-  ) => {
-    e && e.preventDefault();
-
-    let appointmentTime: string;
-    if (appointmentStartTime && appointmentStartTime !== chosenAppointmentTime) {
-      appointmentTime = appointmentStartTime;
-    } else {
-      appointmentTime = chosenAppointmentTime;
-    }
-
-    if (e) {
-      let formFilledProperly = true;
-      personalForm?.forEach((question, index) => {
-        if (question.required && answers && !answers[question.question]) {
-          setAlert({
-            message: question.question,
-            severity: 'error',
-            code: index,
-          });
-          setAlertOpen(true);
-          formFilledProperly = false;
-          return;
-        }
-      });
-      // general test for the whole form
-      if (!formFilledProperly) return;
-      // special test for phone or email
-      if (answers && !answers['What is your email?'] && !answers['What is your phone number?']) {
-        alert('You have to fill either phone or email.');
-        return;
-      }
-      if (!answers) return;
-      Cookies.set('name', answers['What is your name?'], { expires: 365 });
-      Cookies.set('email', answers['What is your email?'], { expires: 365 });
-      Cookies.set('phone', answers['What is your phone number?'], { expires: 365 });
-      Cookies.set('preferredWay', answers['preferred channel of communication?'], { expires: 365 });
-    }
-
-    // after form declared valid, book the appointment
-    return bookAppointment(
-      appointmentTime,
-      answers
-    )
-  }
 
   const bookAppointment = async (
     appointmentTime: string,
@@ -334,13 +285,15 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <FormDialog
-        open={showFormPopup}
-        setOpen={setShowFormPopup}
-        personalForm={personalForm.map(question => ({ ...question, question: t(question.question) }))}
+
+      <BookAppointmentForm 
+        showFormPopup={showFormPopup}
+        setShowFormPopup={setShowFormPopup}
+        personalForm={personalForm}
         answers={answers}
         setAnswers={setAnswers}
-        handleSubmit={testFormValidity}
+        chosenAppointmentTime={chosenAppointmentTime}
+        bookAppointment={bookAppointment}
       />
 
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
