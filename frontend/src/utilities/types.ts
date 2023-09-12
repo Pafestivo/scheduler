@@ -14,6 +14,14 @@ export type personalForm = {
   required?: boolean;
   id?: string;
 };
+
+export type PersonalForm = {
+  question: string;
+  inputType: string;
+  required: boolean | undefined;
+  options?: any;
+  id: string;
+};
 export interface Availability {
   day: number;
   startTime: string;

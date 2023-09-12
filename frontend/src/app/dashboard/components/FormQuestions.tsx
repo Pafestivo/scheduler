@@ -35,14 +35,14 @@ type FormQuestionAction =
   | { type: 'DELETE_OPTION'; id: string; index: number }
   | { type: 'DELETE_QUESTION'; index: number };
 
-const initialState = (calendar: fullCalendarResponse | null) =>
-  calendar?.personalForm?.map((question) => {
+  const initialState = (calendar: fullCalendarResponse | null) =>
+  (calendar?.personalForm as PersonalForm[])?.map((question: PersonalForm) => {
     if (question.options) {
       return {
         ...question,
         options: Object.keys(question.options).map((key) => ({
           id: generateHash(Math.random().toString()),
-          value: question.options[key],
+          value: question.options ? question.options[key] : null,
         })),
       };
     }
@@ -129,6 +129,7 @@ const FormQuestions = ({
     // update in database
     try {
       setLoading(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const modifiedQuestionStructure = questions.map((question) => {
         if (question.options) {
           return {

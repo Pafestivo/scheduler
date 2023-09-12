@@ -27,7 +27,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
   const [appointmentsLength, setAppointmentsLength] = useState(60);
   const [dailyAmountOfAppointments, setDailyAmountOfAppointments] = useState<string[]>([]);
   const [padding, setPadding] = useState(0);
-  const [personalForm, setPersonalForm] = useState<personalForm[]>([
+  const [personalForm, setpersonalForm] = useState<personalForm[]>([
     { question: 'What is your name?', inputType: 'text', required: true },
     { question: 'What is your phone number?', inputType: 'text' },
     { question: 'What is your email?', inputType: 'email' },
@@ -112,7 +112,7 @@ const CalendarComponent = ({ calendarHash, appointmentHash }: CalendarComponentP
     if (user?.hash) setLoggedUser(user);
     setAppointmentsLength(calendar.appointmentsLength);
     setPadding(calendar.padding);
-    setPersonalForm([...personalForm, ...calendar.personalForm]);
+    setpersonalForm([...personalForm, ...calendar.personalForm]);
     Cookies.get();
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
