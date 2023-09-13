@@ -81,6 +81,7 @@ model Calendar {
   watchChannelToken  String?
   owner              String       @default("abra kadabra")
   thankYouMessage    String?
+  isRtl              Boolean      @default(false)
 }
 
 //

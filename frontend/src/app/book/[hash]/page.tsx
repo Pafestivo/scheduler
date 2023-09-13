@@ -33,10 +33,13 @@ const BookingPage = async ({ params }: { params: { hash: string } }) => {
       >
         <p>Meet4Meet</p>
       </div>
-      <div dir="rtl" className="bookingPageTitle">
+      <div
+        dir={calendar.data.isRtl ? "rtl" : "ltr"}
+        className="bookingPageTitle"
+      >
         <Image src={offices} alt="Mock Image" className="circle-image" />
-        <p className="title">{calendar?.data.name}</p>
-        <p className="subtext">{calendar?.data.description}</p>
+        <p className="title">{calendar.data.name}</p>
+        <p className="subtext">{calendar.data.description}</p>
       </div>
       <CalendarComponent calendar={calendar.data} />
     </div>

@@ -60,6 +60,7 @@ export interface fullCalendarResponse {
   googleReadFrom: string;
   googleWriteInto: string;
   thankYouMessage: string;
+  isRtl: boolean;
 }
 
 export interface Isession extends Session {
@@ -82,6 +83,7 @@ export interface appointments {
 export interface calendar {
   name: string;
   image: string;
+  isRtl: boolean;
   description: string;
   isActive: number;
   hash: string;
