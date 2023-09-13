@@ -1,24 +1,24 @@
 .wrapper .react-datepicker {
   zoom: 1.5;
-  border: 0.4px solid black;
+  border: 0.4px solid var(--calendar-border-color);
   background-color: #EEEDFF;
 }
 
 .wrapper .react-datepicker__header {
-  background-color: #333;
+  background-color: var(--calendar-header-background-color);
 }
 
 .wrapper .react-datepicker__current-month {
-  color: #ccc
+  color: var(--calendar-text-color)
 }
 
 .wrapper .react-datepicker__day-name {
-  color: #ccc
+  color: var(--calendar-text-color)
 }
 
 .wrapper .react-datepicker__day--disabled {
   position: relative;
-  color: #979fc0;
+  color: var(--disabled-days-text-color);
 }
 
 .wrapper .react-datepicker__day:hover {
@@ -27,6 +27,18 @@
 
 .wrapper .react-datepicker__day--selected,
 .wrapper .react-datepicker__day--selected:hover {
-  background-color: #333;
+  background-color: var(--calendar-selected-day-color);
   border-radius: 50%;
+}
+
+.appointmentBtn {
+  background-color: var(--button-color);
+  color: var(--calendar-text-color);
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+  margin: 10px 20px;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
 }

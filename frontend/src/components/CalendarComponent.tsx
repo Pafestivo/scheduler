@@ -19,6 +19,7 @@ import {
   appointments,
   calendar,
   personalForm,
+  theme,
 } from "@/utilities/types";
 import {
   addTime,
@@ -27,14 +28,17 @@ import {
   postAppointment,
 } from "@/utilities/bookAppointmentsUtils";
 import BookAppointmentForm from "./BookAppointmentForm";
+import setThemeProperties from "@/utilities/setThemeProperties";
 
 interface CalendarComponentProps {
   calendar: calendar;
+  theme: theme;
   appointmentHash?: string;
 }
 
 const CalendarComponent = ({
   calendar,
+  theme,
   appointmentHash,
 }: CalendarComponentProps) => {
   const [startDate, setStartDate] = useState(new Date());
@@ -107,6 +111,7 @@ const CalendarComponent = ({
 
   // fetching data and setting states
   const preparePage = useCallback(async () => {
+    setThemeProperties(theme);
     const currentAppointment = await getCurrentAppointment();
     const integrations = await getData(`/integration/${calendar.owner}`);
     const appointments = await getCalendarAppointments();
@@ -354,17 +359,7 @@ const CalendarComponent = ({
             {dailyAmountOfAppointments.map((appointmentStartTime: string) => {
               return (
                 <h1
-                  style={{
-                    backgroundColor: "#333",
-                    color: "#ccc",
-                    width: "100%",
-                    textAlign: "center",
-                    padding: "5px",
-                    margin: "10px 20px",
-                    fontSize: "1.5rem",
-                    borderRadius: "10px",
-                    cursor: "pointer",
-                  }}
+                  className="appointmentBtn"
                   onClick={() => checkBookingType(appointmentStartTime)}
                   key={appointmentStartTime}
                 >

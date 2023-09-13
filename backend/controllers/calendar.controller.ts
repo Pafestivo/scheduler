@@ -42,6 +42,7 @@ interface CalendarRequest extends Request {
     isActive: boolean;
     thankYouMessage: string;
     direction: string;
+    themeId: number;
   };
 }
 
@@ -345,6 +346,7 @@ export const updateCalendar = asyncHandler(
       minNotice,
       thankYouMessage,
       direction,
+      themeId,
     } = req.body;
 
     try {
@@ -386,6 +388,7 @@ export const updateCalendar = asyncHandler(
       if (appointmentsLength)
         updateData.appointmentsLength = appointmentsLength;
       if (direction) updateData.isRtl = direction === "rtl" ? true : false;
+      if (themeId) updateData.activeTheme = Number(themeId);
       // make sure to add to the integration array and not replacing it
       if (integrationId) {
         if (Array.isArray(calendar.integrationId)) {

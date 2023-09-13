@@ -7,6 +7,7 @@ import Head from "next/head";
 import GlobalSpinner from "@/components/GlobalSpinner";
 import I18nMiddleware from "@/components/I18nMiddleware";
 import { inter } from "./fonts";
+import "@/styles/globals.css";
 
 export const metadata = {
   title: "Meet4Meet",

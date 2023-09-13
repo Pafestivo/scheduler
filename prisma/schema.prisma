@@ -82,6 +82,7 @@ model Calendar {
   owner              String       @default("abra kadabra")
   thankYouMessage    String?
   isRtl              Boolean      @default(false)
+  activeTheme        Int          @default(0)
 }
 
 //
@@ -236,4 +237,20 @@ model Customers {
   customerId String @unique
   phone      String
   tmpToken   Int
+}
+
+model Themes {
+  id                       Int    @id @default(autoincrement())
+  name                     String @unique
+  header                   String
+  headerText               String @default("#000")
+  button                   String
+  mainText                 String
+  secondaryText            String
+  calendarText             String
+  disabledDay              String
+  selectedDay              String
+  calendarBorder           String
+  calendarHeaderBackground String
+  pageBackground           String
 }

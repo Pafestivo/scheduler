@@ -2,12 +2,13 @@ import { useGlobalContext } from "@/app/context/store";
 import AddPhoto from "@/components/AddPhoto";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { TextareaAutosize } from "@mui/material";
 import { Button } from "@mui/material";
-import { putData } from "@/utilities/serverRequests/serverRequests";
+import { getData, putData } from "@/utilities/serverRequests/serverRequests";
 import FormInput from "@/components/FormInput";
 import FormSelectInput from "@/components/FormSelectInput";
+import { theme } from "@/utilities/types";
 
 interface EnglishFallbackType {
   [key: string]: string;
@@ -32,9 +33,32 @@ const GeneralSettings = ({
   const t = (key: string): string =>
     translations?.[key] || englishFallback[key] || key;
 
+  const [themes, setThemes] = useState<theme[] | null>(null);
+
+  const getThemes = async () => {
+    try {
+      const themes = await getData("/themes");
+      setThemes(themes.data);
+      console.log(themes.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    console.log(calendar?.isRtl);
-  }, [calendar?.isRtl]);
+    getThemes();
+  }, []);
+
+  const themeOptions =
+    themes?.reduce<{ [key: number]: string }>((acc, theme) => {
+      acc[theme.id] = theme.name;
+      return acc;
+    }, {}) || {};
+  const defaultThemeId = calendar?.activeTheme
+    ? calendar.activeTheme.toString()
+    : themes && themes.length > 0
+    ? themes[0].id.toString()
+    : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +68,9 @@ const GeneralSettings = ({
     const description = formData.get("calendar-description") as string;
     const password = formData.get("calendar-password") as string;
     const direction = formData.get("calendar-direction") as string;
+    const theme = formData.get("calendar-theme") as string;
 
+    console.log("theme", theme);
     if (name === "") {
       setAlert({
         message: t("Please enter a name"),
@@ -61,6 +87,7 @@ const GeneralSettings = ({
       description,
       password,
       direction,
+      themeId: theme,
     });
 
     if (updatedCalendar.success && calendar) {
@@ -151,6 +178,14 @@ const GeneralSettings = ({
           }}
           fieldIdx={3}
           defaultOption={calendar?.isRtl ? "rtl" : "ltr"}
+        />
+
+        <FormSelectInput
+          label={t("Select Theme")}
+          name="calendar-theme"
+          options={themeOptions}
+          fieldIdx={4}
+          defaultOption={defaultThemeId}
         />
 
         <Button type="submit" fullWidth={true}>

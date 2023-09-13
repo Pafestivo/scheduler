@@ -12,6 +12,7 @@ import integration from "./routes/integration.route.js";
 import googleCalendar from "./routes/googleCalendar.route.js";
 import bookers from "./routes/bookers.route.js";
 import translation from "./routes/translations.route.js";
+import themes from "./routes/themes.route.js";
 import cookieParser from "cookie-parser";
 import { renewExpiredWatchRequests } from "./cron-job.js";
 
@@ -48,6 +49,7 @@ app.use("/api/v1", integration);
 app.use("/api/v1", googleCalendar);
 app.use("/api/v1/", bookers);
 app.use("/api/v1/", translation);
+app.use("/api/v1/", themes);
 app.use("/api/v1/webhooks", webhooks);
 app.use(errorHandler);
 

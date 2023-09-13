@@ -1,0 +1,12 @@
+:root {
+  --header-color: #376E6F;
+  --button-color: #1E434C;
+  --main-text-color: #1C3334;
+  --secondary-text-color: #4F646F;
+  --calendar-text-color: #fff;
+  --disabled-days-text-color: #78897A;
+  --calendar-selected-day-color: #376E6F;
+  --calendar-border-color: #1E434C;
+  --calendar-header-background-color: #D3D5D4;
+  --background-color: #000;
+}

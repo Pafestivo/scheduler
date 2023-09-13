@@ -38,6 +38,7 @@ export interface fullCalendarResponse {
   breakTime: BreakTime | undefined;
   deleted: boolean;
   description: string | undefined;
+  activeTheme: number;
   hash: string;
   id: number;
   image: string | undefined;
@@ -80,10 +81,26 @@ export interface appointments {
   startTime: string;
   endTime: string;
 }
+export interface theme {
+  id: number;
+  name: string;
+  header: string;
+  button: string;
+  mainText: string;
+  secondaryText: string;
+  calendarText: string;
+  disabledDay: string;
+  selectedDay: string;
+  calendarBorder: string;
+  calendarHeaderBackground: string;
+  pageBackground: string;
+  headerText: string;
+}
 export interface calendar {
   name: string;
   image: string;
   isRtl: boolean;
+  activeTheme: number;
   description: string;
   isActive: number;
   hash: string;
