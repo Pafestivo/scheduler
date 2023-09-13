@@ -1,0 +1,15 @@
+.bookAppointmentBtn {
+  background-color: #4f7462;
+}
+
+.bookAppointmentBtn:hover {
+  background-color: #357154;
+}
+
+.cancelBookAppointmentBtn {
+  background-color: #744f4f;
+}
+
+.cancelBookAppointmentBtn:hover {
+  background-color: #743939;
+}

@@ -200,6 +200,9 @@ model Appointment {
   answersArray  Json? // the answers to the personalForm questions
   googleEventId String? // assuming this corresponds to integrationId
   hash          String            @unique
+  customerId    String?
+  location      String?
+  type          String?
   // Relations
   // calendarInfo Calendar @relation(fields: [calendar], references: [id])
   // userInfo     User     @relation(fields: [user], references: [id])
@@ -224,4 +227,12 @@ model Translations {
   id           Int    @id @default(autoincrement())
   language     String @unique
   translations Json
+}
+
+model Customers {
+  id         Int    @id @default(autoincrement())
+  name       String @unique
+  customerId String @unique
+  phone      String
+  tmpToken   Int
 }

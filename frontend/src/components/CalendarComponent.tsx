@@ -327,16 +327,18 @@ const CalendarComponent = ({
         bookAppointment={bookAppointment}
       />
 
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-      {/* @ts-ignore */}
-      <DatePicker
-        selected={startDate}
-        onChange={onDateClick}
-        minDate={new Date()}
-        filterDate={vacationDays}
-        // excludeDates={[new Date(), subDays(new Date(), 1)]}
-        inline
-      />
+      <div className="wrapper">
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore */}
+        <DatePicker
+          selected={startDate}
+          onChange={onDateClick}
+          minDate={new Date()}
+          filterDate={vacationDays}
+          // excludeDates={[new Date(), subDays(new Date(), 1)]}
+          inline
+        />
+      </div>
 
       <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
         {showAvailableTime && (

@@ -9,6 +9,7 @@ import FormInput from "./FormInput";
 import FormSelectInput from "./FormSelectInput";
 // import { Checkbox, FormControlLabel } from '@mui/material';
 import FormCheckInput from "./FormCheckboxInput";
+import "@/styles/bookAppointmentForm.css";
 
 interface FormDialogProps {
   open: boolean;
@@ -101,16 +102,16 @@ const FormDialog = ({
                 );
               })}
             <Button
+              className="bookAppointmentBtn"
               variant="contained"
-              color="success"
               type="submit"
               sx={{ width: "100%", marginBottom: "10px" }}
             >
               Book Appointment
             </Button>
             <Button
+              className="cancelBookAppointmentBtn"
               variant="contained"
-              color="error"
               onClick={handleClose}
               sx={{ width: "100%", marginBottom: "10px" }}
             >
