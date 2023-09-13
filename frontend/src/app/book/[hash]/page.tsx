@@ -11,6 +11,7 @@ const BookingPage = async ({ params }: { params: { hash: string } }) => {
   let calendar: { success: boolean; data: calendar } | null = null;
   try {
     calendar = await getData(`/calendars/single/${params.hash}`);
+    console.log(calendar?.data);
   } catch (error) {
     console.log("error getting calendar", error);
   }
