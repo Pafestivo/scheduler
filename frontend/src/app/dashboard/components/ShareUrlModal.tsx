@@ -1,5 +1,5 @@
-'use client';
-import * as React from 'react';
+"use client";
+import * as React from "react";
 import {
   Tabs,
   Tab,
@@ -11,10 +11,10 @@ import {
   Dialog,
   Button,
   TextareaAutosize,
-} from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import { useGlobalContext } from '@/app/context/store';
+} from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -45,21 +45,9 @@ function TabPanel(props: TabPanelProps) {
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  "Your booking page URL": "Your booking page URL",
-  "You can copy and paste this link to share your booking page with your customers.": "You can copy and paste this link to share your booking page with your customers.",
-  "close": "close",
-  "Copy URL To clipboard": "Copy URL To clipboard",
-  "Copy Code": "Copy Code"
-};
 
 export default function ShareUrlModal({
   open,
@@ -73,12 +61,10 @@ export default function ShareUrlModal({
   hash: string;
 }) {
   const [value, setValue] = React.useState(0);
-  const [iframe, setIframe] = React.useState('');
+  const [iframe, setIframe] = React.useState("");
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const { translations } = useGlobalContext();
-  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
-
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const generateIframeScript = () => {
@@ -98,32 +84,48 @@ export default function ShareUrlModal({
 
   return (
     <div>
-      <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} aria-labelledby="responsive-dialog-title">
+      <Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+      >
         <DialogContent>
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Box sx={{ width: "100%" }}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+              >
                 <Tab label="URL" {...a11yProps(0)} />
                 {/* <Tab label="Button" {...a11yProps(1)} /> */}
                 <Tab label="Embed" {...a11yProps(2)} />
               </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-              <Box textAlign={'center'}>
+              <Box textAlign={"center"}>
                 <Typography variant="h6" fontWeight={700}>
-                  {t('Your booking page URL')}
+                  {t("Your booking page URL")}
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                {t('You can copy and paste this link to share your booking page with your customers.')}
+                  {t(
+                    "You can copy and paste this link to share your booking page with your customers."
+                  )}
                 </Typography>
-                <TextField inputProps={{ readOnly: true }} value={url} fullWidth onFocus={(e) => e.target.select()} />
+                <TextField
+                  inputProps={{ readOnly: true }}
+                  value={url}
+                  fullWidth
+                  onFocus={(e) => e.target.select()}
+                />
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   onClick={() => navigator.clipboard.writeText(url)}
                 >
-                  {t('Copy URL To clipboard')}
+                  {t("Copy URL To clipboard")}
                 </Button>
               </Box>
             </TabPanel>
@@ -131,21 +133,28 @@ export default function ShareUrlModal({
               Item Two
             </TabPanel> */}
             <TabPanel value={value} index={1}>
-              <Box textAlign={'center'}>
+              <Box textAlign={"center"}>
                 <Typography variant="h6" fontWeight={700}>
-                  {t('Your booking page URL')}
+                  {t("Your booking page URL")}
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  {t('You can copy and paste this link to share your booking page with your customers.')}
+                  {t(
+                    "You can copy and paste this link to share your booking page with your customers."
+                  )}
                 </Typography>
-                <TextareaAutosize maxRows={10} readOnly value={iframe} onFocus={(e) => e.target.select()} />
+                <TextareaAutosize
+                  maxRows={10}
+                  readOnly
+                  value={iframe}
+                  onFocus={(e) => e.target.select()}
+                />
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   onClick={() => navigator.clipboard.writeText(url)}
                 >
-                  {t('Copy Code')}
+                  {t("Copy Code")}
                 </Button>
               </Box>
             </TabPanel>
@@ -153,7 +162,7 @@ export default function ShareUrlModal({
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            {t('close')}
+            {t("close")}
           </Button>
         </DialogActions>
       </Dialog>

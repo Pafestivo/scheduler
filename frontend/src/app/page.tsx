@@ -2,9 +2,11 @@
 import { useEffect } from "react";
 import { useGlobalContext } from "./context/store";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 const HomePage = () => {
-  const { user, translations } = useGlobalContext();
+  const { user } = useGlobalContext();
+  const { t } = useTranslation();
   const router = useRouter();
 
   useEffect(() => {
@@ -12,24 +14,6 @@ const HomePage = () => {
       router.push("/dashboard");
     }
   }, [router, user]);
-
-  interface EnglishFallbackType {
-    [key: string]: string;
-  }
-
-  const englishFallback: EnglishFallbackType = {
-    welcome: "Welcome to cortex",
-    welcomeUser: "Welcome, {user}",
-    redirecting: "Redirecting to your dashboard",
-    workInProgress:
-      "This page is a work in progress, but you can still use our application!",
-    clickToRegister:
-      "Click the user icon in the top right to register or login",
-  };
-
-  // Helper function to get the translation
-  const t = (key: string): string =>
-    translations?.[key] || englishFallback[key] || key;
 
   return (
     <div>

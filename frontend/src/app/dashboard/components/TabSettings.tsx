@@ -1,8 +1,8 @@
-import * as React from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import { useGlobalContext } from '@/app/context/store';
+import * as React from "react";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -38,27 +38,28 @@ function TabPanel(props: TabPanelProps) {
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 
-export default function TabSettings({ 
+export default function TabSettings({
   components,
   hasUnsavedChanges,
-  setHasUnsavedChanges 
-}: { 
+  setHasUnsavedChanges,
+}: {
   components: ComponentProp[];
   hasUnsavedChanges?: boolean;
-  setHasUnsavedChanges?: (hasSavedChanges: boolean) => void; 
+  setHasUnsavedChanges?: (hasSavedChanges: boolean) => void;
 }) {
   const [value, setValue] = React.useState(0);
-  const { translations } = useGlobalContext();
 
-  const t = (key: string): string => translations?.[key] || key;
+  const { t } = useTranslation();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    if(hasUnsavedChanges && setHasUnsavedChanges !== undefined) {
-      const confirmationMessage = t('You have unsaved changes. Are you sure you want to discard them?')
+    if (hasUnsavedChanges && setHasUnsavedChanges !== undefined) {
+      const confirmationMessage = t(
+        "You have unsaved changes. Are you sure you want to discard them?"
+      );
       if (window.confirm(confirmationMessage)) {
         setValue(newValue);
         setHasUnsavedChanges(false);
@@ -69,11 +70,19 @@ export default function TabSettings({
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label={t('basic tabs example')}>
+    <Box sx={{ width: "100%" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label={t("basic tabs example")}
+        >
           {components.map((component, index) => (
-            <Tab key={component.name} label={t(component.name)} {...a11yProps(index)} />
+            <Tab
+              key={component.name}
+              label={t(component.name)}
+              {...a11yProps(index)}
+            />
           ))}
         </Tabs>
       </Box>

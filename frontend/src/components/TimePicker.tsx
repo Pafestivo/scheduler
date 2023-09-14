@@ -5,16 +5,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import { Box, Switch, Typography } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { useGlobalContext } from "@/app/context/store"; // <-- Assume you import useGlobalContext from your global store
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  startTime: "Start Time",
-  endTime: "End Time",
-};
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 export default function CortexTimePicker({
   defaultStartTime,
@@ -31,10 +22,7 @@ export default function CortexTimePicker({
   defaultActive: boolean;
   handleCheckboxChange: any;
 }) {
-  const { translations } = useGlobalContext(); // <-- Get translations from global context
-
-  const t = (key: string): string =>
-    translations?.[key] || englishFallback[key] || key; // <-- Updated t function
+  const { t } = useTranslation();
   const [active, setActive] = React.useState<boolean>(defaultActive);
   const [startTime, setStartTime] = React.useState<string>(defaultStartTime);
   const [endTime, setEndTime] = React.useState<string>(defaultEndTime);

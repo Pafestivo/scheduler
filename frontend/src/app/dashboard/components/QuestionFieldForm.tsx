@@ -1,8 +1,17 @@
-import React from 'react';
-import FormInput from '@/components/FormInput';
-import FormSelectInput from '@/components/FormSelectInput';
-import { Grid, Checkbox, FormControlLabel, Box, IconButton, Paper, Button } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React from "react";
+import FormInput from "@/components/FormInput";
+import FormSelectInput from "@/components/FormSelectInput";
+import {
+  Grid,
+  Checkbox,
+  FormControlLabel,
+  Box,
+  IconButton,
+  Paper,
+  Button,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 type OptionObject = {
   id: string;
@@ -10,14 +19,14 @@ type OptionObject = {
 };
 
 type Action =
-  | { type: 'UPDATE_QUESTION'; value: string; index: number }
-  | { type: 'UPDATE_TYPE'; value: string; index: number }
-  | { type: 'UPDATE_REQUIRED'; value: boolean; index: number }
-  | { type: 'UPDATE_OPTIONS'; value: OptionObject[]; index: number }
-  | { type: 'ADD_QUESTION'; value: string }
-  | { type: 'ADD_OPTION'; index: number }
-  | { type: 'DELETE_OPTION'; id: string; index: number }
-  | { type: 'DELETE_QUESTION'; index: number };
+  | { type: "UPDATE_QUESTION"; value: string; index: number }
+  | { type: "UPDATE_TYPE"; value: string; index: number }
+  | { type: "UPDATE_REQUIRED"; value: boolean; index: number }
+  | { type: "UPDATE_OPTIONS"; value: OptionObject[]; index: number }
+  | { type: "ADD_QUESTION"; value: string }
+  | { type: "ADD_OPTION"; index: number }
+  | { type: "DELETE_OPTION"; id: string; index: number }
+  | { type: "DELETE_QUESTION"; index: number };
 
 const QuestionFieldForm = ({
   index,
@@ -36,16 +45,17 @@ const QuestionFieldForm = ({
   handleDelete: (index: number) => void;
   defaultOptions?: OptionObject[];
 }) => {
+  const { t } = useTranslation();
   const handleQuestionChange = (value: string) => {
-    dispatch({ type: 'UPDATE_QUESTION', value, index });
+    dispatch({ type: "UPDATE_QUESTION", value, index });
   };
 
   const handleTypeChange = (value: string) => {
-    dispatch({ type: 'UPDATE_TYPE', value, index });
+    dispatch({ type: "UPDATE_TYPE", value, index });
   };
 
   const handleRequireChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: 'UPDATE_REQUIRED', value: event.target.checked, index });
+    dispatch({ type: "UPDATE_REQUIRED", value: event.target.checked, index });
   };
 
   const handleOptionChange = (value: string, id: string) => {
@@ -56,20 +66,28 @@ const QuestionFieldForm = ({
       targetOption.value = value;
     }
 
-    dispatch({ type: 'UPDATE_OPTIONS', value: updatedOptions, index });
+    dispatch({ type: "UPDATE_OPTIONS", value: updatedOptions, index });
   };
 
   const addOptionRow = () => {
-    dispatch({ type: 'ADD_OPTION', index });
+    dispatch({ type: "ADD_OPTION", index });
   };
 
   const removeOptionRow = (id: string) => {
-    dispatch({ type: 'DELETE_OPTION', id, index });
+    dispatch({ type: "DELETE_OPTION", id, index });
   };
 
   return (
-    <Paper sx={{ display: 'flex', flexDirection: 'column', width: '100%', mb: 1 }}>
-      <Grid container key={index} direction="row" spacing={2} alignItems={'center'}>
+    <Paper
+      sx={{ display: "flex", flexDirection: "column", width: "100%", mb: 1 }}
+    >
+      <Grid
+        container
+        key={index}
+        direction="row"
+        spacing={2}
+        alignItems={"center"}
+      >
         <Grid item xs={1}>
           <IconButton
             onClick={() => {
@@ -79,11 +97,11 @@ const QuestionFieldForm = ({
             <DeleteIcon />
           </IconButton>
         </Grid>
-        <Grid item xs={5} sx={{ paddingBottom: '8px' }}>
+        <Grid item xs={5} sx={{ paddingBottom: "8px" }}>
           <FormInput
             name={`question${index}`}
-            label="Question"
-            title="Question"
+            label={t("Question")}
+            title={t("Question")}
             type="text"
             fieldIdx={index}
             defaultValue={defaultValue}
@@ -94,12 +112,12 @@ const QuestionFieldForm = ({
 
         <Grid item xs={3}>
           <FormSelectInput
-            label="Question Type"
+            label={t("Question Type")}
             name={`type${index}`}
             options={{
-              text: 'text',
-              select: 'select',
-              checkbox: 'checkbox',
+              text: t("text"),
+              select: t("select"),
+              checkbox: t("checkbox"),
             }}
             fieldIdx={index}
             defaultOption={defaultOption}
@@ -118,15 +136,15 @@ const QuestionFieldForm = ({
               />
             }
             name={`required${index}`}
-            label="Required"
+            label={t("Required")}
           />
         </Grid>
       </Grid>
       <Box>
-        {defaultOption === 'select' && (
+        {defaultOption === "select" && (
           <>
             {(defaultOptions || []).map((object, idx) => (
-              <Box key={object.id} sx={{ display: 'flex' }}>
+              <Box key={object.id} sx={{ display: "flex" }}>
                 <IconButton
                   onClick={() => {
                     removeOptionRow(object.id);
@@ -138,8 +156,8 @@ const QuestionFieldForm = ({
                   name=""
                   fieldIdx={idx}
                   listid={object.id}
-                  title="Select Option"
-                  label="Select Option"
+                  title={t("Select Option")}
+                  label={t("Select Option")}
                   type="text"
                   defaultValue={object.value}
                   setState={handleOptionChange}
@@ -148,7 +166,7 @@ const QuestionFieldForm = ({
               </Box>
             ))}
             <Button type="button" onClick={addOptionRow}>
-              Add Option+
+              {t("Add Option+")}
             </Button>
           </>
         )}

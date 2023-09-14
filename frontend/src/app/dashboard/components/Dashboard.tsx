@@ -1,39 +1,36 @@
-'use client';
-import * as React from 'react';
-import { styled, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
-import UserMenu from '@/components/UserMenu';
-import theme from '@/theme';
-import CalendarStack from './CalendarStack';
-import { useGlobalContext } from '@/app/context/store';
-
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  'dashboard': 'Dashboard',
-};
+"use client";
+import * as React from "react";
+import { styled, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Link from "@mui/material/Link";
+import UserMenu from "@/components/UserMenu";
+import theme from "@/theme";
+import CalendarStack from "./CalendarStack";
+import { useGlobalContext } from "@/app/context/store";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
   return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
       <Link color="inherit" href="#">
         Cortex
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
@@ -45,17 +42,17 @@ interface AppBarProps extends MuiAppBarProps {
 }
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })<AppBarProps>(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
+  transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
+    transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -65,20 +62,25 @@ const AppBar = styled(MuiAppBar, {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 export default function Dashboard() {
-  const { translations } = useGlobalContext();
-  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
+  const { t } = useTranslation();
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar position="absolute">
           <Toolbar
             sx={{
-              pr: '24px', // keep right padding when drawer closed
+              pr: "24px", // keep right padding when drawer closed
             }}
           >
-            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              {t('dashboard')}
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              {t("dashboard")}
             </Typography>
             <UserMenu />
           </Toolbar>
@@ -87,10 +89,12 @@ export default function Dashboard() {
           component="main"
           sx={{
             backgroundColor: (theme) =>
-              theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+              theme.palette.mode === "light"
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
             flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
+            height: "100vh",
+            overflow: "auto",
           }}
         >
           <Toolbar />
@@ -101,9 +105,9 @@ export default function Dashboard() {
                 <Paper
                   sx={{
                     p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 'fit-content',
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "fit-content",
                   }}
                 >
                   <CalendarStack />

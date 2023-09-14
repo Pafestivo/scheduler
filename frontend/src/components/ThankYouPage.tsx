@@ -4,28 +4,19 @@ import React, { useCallback, useEffect, useState } from "react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { getData } from "@/utilities/serverRequests/serverRequests";
 import { useGlobalContext } from "@/app/context/store";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface ThankYouPageProps {
   calendarHash: string;
   bookerHash: string;
 }
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  thankYouMessage: "Thank you for placing your appointment, {name}!",
-};
-
 const ThankYou = ({ calendarHash, bookerHash }: ThankYouPageProps) => {
   const [booker, setBooker] = useState<{ name: string } | null>(null);
   const [calendar, setCalendar] = useState<{ thankYouMessage: string } | null>(
     null
   );
-  const { setLoading, translations } = useGlobalContext();
-  const t = (key: string): string =>
-    translations?.[key] || englishFallback[key] || key;
+  const { setLoading } = useGlobalContext();
+  const { t } = useTranslation();
   useEffect(() => {
     setLoading(true);
   }, [setLoading]);

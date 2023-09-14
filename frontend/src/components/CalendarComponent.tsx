@@ -29,7 +29,7 @@ import {
 } from "@/utilities/bookAppointmentsUtils";
 import BookAppointmentForm from "./BookAppointmentForm";
 import setThemeProperties from "@/utilities/setThemeProperties";
-
+import { useTranslation } from "@/utilities/translations/useTranslation";
 interface CalendarComponentProps {
   calendar: calendar;
   theme: theme;
@@ -41,6 +41,7 @@ const CalendarComponent = ({
   theme,
   appointmentHash,
 }: CalendarComponentProps) => {
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState(new Date());
   const [showAvailableTime, setShowAvailableTime] = useState(false);
   const [allCalendarAvailabilities, setAllCalendarAvailabilities] = useState<
@@ -58,7 +59,7 @@ const CalendarComponent = ({
     {
       question: "Preferred channel of communication?",
       inputType: "select",
-      options: { email: "email", phone: "phone" },
+      options: { email: t("email"), phone: t("phone") },
       required: true,
     },
   ]);
@@ -78,7 +79,21 @@ const CalendarComponent = ({
   const { user, setAlert, setAlertOpen, setLoading /* translations */ } =
     useGlobalContext();
   const router = useRouter();
-  // const t = (key: string): string => translations?.[key] || key;
+
+  // hook to update the options to hebrew when the t function mounts
+  useEffect(() => {
+    setPersonalForm([
+      { question: "What is your name?", inputType: "text", required: true },
+      { question: "What is your phone number?", inputType: "text" },
+      { question: "What is your email?", inputType: "email" },
+      {
+        question: "Preferred channel of communication?",
+        inputType: "select",
+        options: { email: t("email"), phone: t("phone") },
+        required: true,
+      },
+    ]);
+  }, [t]);
 
   const getCalendarAppointments = useCallback(async () => {
     try {

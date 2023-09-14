@@ -10,6 +10,7 @@ import FormSelectInput from "./FormSelectInput";
 // import { Checkbox, FormControlLabel } from '@mui/material';
 import FormCheckInput from "./FormCheckboxInput";
 import "@/styles/bookAppointmentForm.css";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface FormDialogProps {
   open: boolean;
@@ -42,6 +43,8 @@ const FormDialog = ({
     }));
   };
 
+  const { t } = useTranslation();
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -49,10 +52,12 @@ const FormDialog = ({
   return (
     <div>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>The booker has some questions for you</DialogTitle>
+        <DialogTitle sx={{ minWidth: "400px", textAlign: "center" }}>
+          {t("The booker has some questions for you")}
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Fields marked with * are required.
+          <DialogContentText sx={{ textAlign: "center" }}>
+            {t("Fields marked with * are required.")}
           </DialogContentText>
           <form onSubmit={(e) => handleSubmit("", e, answers)}>
             {personalForm &&
@@ -107,7 +112,7 @@ const FormDialog = ({
               type="submit"
               sx={{ width: "100%", marginBottom: "10px" }}
             >
-              Book Appointment
+              {t("Book Appointment")}
             </Button>
             <Button
               className="cancelBookAppointmentBtn"
@@ -115,7 +120,7 @@ const FormDialog = ({
               onClick={handleClose}
               sx={{ width: "100%", marginBottom: "10px" }}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
           </form>
         </DialogContent>

@@ -9,29 +9,15 @@ import { getData, putData } from "@/utilities/serverRequests/serverRequests";
 import FormInput from "@/components/FormInput";
 import FormSelectInput from "@/components/FormSelectInput";
 import { theme } from "@/utilities/types";
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  "Please enter a name": "Please enter a name",
-  "Calendar updated": "Calendar updated",
-  "Calendar Name": "Calendar Name",
-  "Calendar Description(Optional)": "Calendar Description(Optional)",
-  "Calendar Password(Optional)": "Calendar Password(Optional)",
-  "Update!": "Update!",
-};
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 const GeneralSettings = ({
   setHasUnsavedChanges,
 }: {
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }) => {
-  const { calendar, setCalendar, setAlert, setAlertOpen, translations } =
-    useGlobalContext();
-  const t = (key: string): string =>
-    translations?.[key] || englishFallback[key] || key;
+  const { calendar, setCalendar, setAlert, setAlertOpen } = useGlobalContext();
+  const { t } = useTranslation();
 
   const [themes, setThemes] = useState<theme[] | null>(null);
 
@@ -51,7 +37,7 @@ const GeneralSettings = ({
 
   const themeOptions =
     themes?.reduce<{ [key: number]: string }>((acc, theme) => {
-      acc[theme.id] = theme.name;
+      acc[theme.id] = t(theme.name);
       return acc;
     }, {}) || {};
   const defaultThemeId = calendar?.activeTheme
@@ -173,8 +159,8 @@ const GeneralSettings = ({
           label={t("Text Direction")}
           name="calendar-direction"
           options={{
-            ltr: "left to right",
-            rtl: "right to left(hebrew)",
+            ltr: t("left to right"),
+            rtl: t("right to left(hebrew)"),
           }}
           fieldIdx={3}
           defaultOption={calendar?.isRtl ? "rtl" : "ltr"}

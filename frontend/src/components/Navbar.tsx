@@ -22,17 +22,17 @@ import { ThemeProvider } from "@mui/material/styles";
 import UserMenu from "./UserMenu";
 import { usePathname } from "next/navigation";
 import { Isession } from "@/utilities/types";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
-  const { user, setUser, translations } = useGlobalContext();
+  const { user, setUser } = useGlobalContext();
   const pathname = usePathname();
   const sessionData: { data: Isession | null } = useSession();
 
-  const t = (key: string): string => translations?.[key] || key;
-
+  const { t } = useTranslation();
   const pages = [t("home"), t("pricing")];
 
   const getUser = useCallback(async () => {

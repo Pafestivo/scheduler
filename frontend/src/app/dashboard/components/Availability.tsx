@@ -1,40 +1,39 @@
-import { useGlobalContext } from '@/app/context/store';
-import React from 'react';
-import { filterDays, hasDuplicateDays } from '@/utilities/availabilityFunctions';
-import { Typography, Box, Button } from '@mui/material';
-import { Availability as AvailabilityInterface } from '@/utilities/types';
-import CortexTimePicker from '@/components/TimePicker';
-import { BASE_END_TIME, BASE_START_TIME } from '@/utilities/constants';
-import { putData } from '@/utilities/serverRequests/serverRequests';
+import { useGlobalContext } from "@/app/context/store";
+import React from "react";
+import {
+  filterDays,
+  hasDuplicateDays,
+} from "@/utilities/availabilityFunctions";
+import { Typography, Box, Button } from "@mui/material";
+import { Availability as AvailabilityInterface } from "@/utilities/types";
+import CortexTimePicker from "@/components/TimePicker";
+import { BASE_END_TIME, BASE_START_TIME } from "@/utilities/constants";
+import { putData } from "@/utilities/serverRequests/serverRequests";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface ManagedAvailability extends AvailabilityInterface {
   skip?: boolean;
 }
 
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  "Off days": "Off days",
-  "Save changes": "Save changes",
-  "No Changes To Availability": "No Changes To Availability",
-  "Availability Updated": "Availability Updated",
-  "Error Updating Availability": "Error Updating Availability",
-};
-
-const Availability = ({ 
-  setHasUnsavedChanges 
-} : { 
-  setHasUnsavedChanges: (hasChanges: boolean) => void 
+const Availability = ({
+  setHasUnsavedChanges,
+}: {
+  setHasUnsavedChanges: (hasChanges: boolean) => void;
 }) => {
-  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading, translations } = useGlobalContext();
-  const [notAvailableDays, setNotAvailableDays] = React.useState<string>('');
-  const t = (key: string): string => translations?.[key] || englishFallback[key] || key;
-  const [repeatingList, setRepeatingList] = React.useState<never[] | ManagedAvailability[]>(
+  const { calendar, setCalendar, setLoading, setAlert, setAlertOpen, loading } =
+    useGlobalContext();
+  const [notAvailableDays, setNotAvailableDays] = React.useState<string>("");
+  const { t } = useTranslation();
+  const [repeatingList, setRepeatingList] = React.useState<
+    never[] | ManagedAvailability[]
+  >(
     calendar?.availabilities ||
       Array(7)
-        .fill({ startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
+        .fill({
+          startTime: BASE_START_TIME,
+          endTime: BASE_END_TIME,
+          skip: true,
+        })
         .map((item, index) => ({ ...item, day: index }))
   );
   const [canSubmit, setCanSubmit] = React.useState<boolean>(true);
@@ -74,29 +73,50 @@ const Availability = ({
     const availabilitiesRequest = repeatingList
       .filter((availability) => !availability.skip)
       .map((availability) => {
-        return { day: availability.day, startTime: availability.startTime, endTime: availability.endTime };
+        return {
+          day: availability.day,
+          startTime: availability.startTime,
+          endTime: availability.endTime,
+        };
       });
-    const noChanges = JSON.stringify(availabilitiesRequest) === JSON.stringify(calendar?.availabilities);
+    const noChanges =
+      JSON.stringify(availabilitiesRequest) ===
+      JSON.stringify(calendar?.availabilities);
     if (noChanges) {
       setLoading(false);
-      setAlert({ message: t('No Changes To Availability'), code: 200, severity: 'info' });
+      setAlert({
+        message: t("No Changes To Availability"),
+        code: 200,
+        severity: "info",
+      });
       setAlertOpen(true);
       return;
     }
     try {
-      await putData('/calendars', { availabilities: availabilitiesRequest, hash: calendar?.hash });
+      await putData("/calendars", {
+        availabilities: availabilitiesRequest,
+        hash: calendar?.hash,
+      });
 
       if (availabilitiesRequest && calendar) {
         setCalendar({ ...calendar, availabilities: availabilitiesRequest });
       }
 
       setLoading(false);
-      setAlert({ message: t('Availability Updated'), code: 200, severity: 'success' });
+      setAlert({
+        message: t("Availability Updated"),
+        code: 200,
+        severity: "success",
+      });
       setAlertOpen(true);
       setHasUnsavedChanges(false);
     } catch (error) {
       setLoading(false);
-      setAlert({ message: t('Error Updating Availability'), code: 500, severity: 'error' });
+      setAlert({
+        message: t("Error Updating Availability"),
+        code: 500,
+        severity: "error",
+      });
       setAlertOpen(true);
     }
   };
@@ -110,7 +130,9 @@ const Availability = ({
     setNotAvailableDays(offDays);
 
     const allTimesValid = repeatingList.find(
-      (availability) => Number(availability.startTime.replace(':', '')) >= Number(availability.endTime.replace(':', ''))
+      (availability) =>
+        Number(availability.startTime.replace(":", "")) >=
+        Number(availability.endTime.replace(":", ""))
     );
     if (allTimesValid) {
       setCanSubmit(false);
@@ -121,13 +143,25 @@ const Availability = ({
 
   React.useEffect(() => {
     const getAvailabilities = async () => {
-      const offDays = filterDays(calendar?.availabilities ? calendar.availabilities : []);
+      const offDays = filterDays(
+        calendar?.availabilities ? calendar.availabilities : []
+      );
 
       setNotAvailableDays(offDays);
 
-      if (!hasDuplicateDays(calendar?.availabilities ? calendar.availabilities : []) && calendar?.availabilities) {
+      if (
+        !hasDuplicateDays(
+          calendar?.availabilities ? calendar.availabilities : []
+        ) &&
+        calendar?.availabilities
+      ) {
         const newArray = new Array(7)
-          .fill({ day: 0, startTime: BASE_START_TIME, endTime: BASE_END_TIME, skip: true })
+          .fill({
+            day: 0,
+            startTime: BASE_START_TIME,
+            endTime: BASE_END_TIME,
+            skip: true,
+          })
           .map((obj, index) => {
             return { ...obj, day: index };
           });
@@ -149,20 +183,29 @@ const Availability = ({
     <div>
       {!loading && (
         <>
-          <Box sx={{ display: 'flex', flexDirection: 'column', rowGap: 2, columnGap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              rowGap: 2,
+              columnGap: 2,
+            }}
+          >
             {repeatingList.map((obj, index) => {
               return (
                 <Box
                   key={Math.random()}
                   sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
                   <CortexTimePicker
-                    defaultStartTime={obj.startTime ? obj.startTime : BASE_START_TIME}
+                    defaultStartTime={
+                      obj.startTime ? obj.startTime : BASE_START_TIME
+                    }
                     defaultEndTime={obj.endTime ? obj.endTime : BASE_END_TIME}
                     index={index}
                     handleTimeChange={handleTimeChange}
@@ -174,11 +217,11 @@ const Availability = ({
             })}
           </Box>
           <Typography variant="body1" sx={{ flexGrow: 1 }}>
-            {t('Off days')}:{' '}
+            {t("Off days")}:{" "}
           </Typography>
           <Typography variant="body2">{notAvailableDays}</Typography>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {t('Save changes')}
+            {t("Save changes")}
           </Button>
         </>
       )}

@@ -3,6 +3,7 @@ import FormDialog from "./FormDialog";
 import { personalForm } from "@/utilities/types";
 import { useGlobalContext } from "@/app/context/store";
 import Cookies from "js-cookie";
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 interface BookAppointmentForm {
   showFormPopup: boolean;
@@ -30,9 +31,8 @@ const BookAppointmentForm = ({
   chosenAppointmentTime,
   bookAppointment,
 }: BookAppointmentForm) => {
-  const { setAlert, setAlertOpen, translations } = useGlobalContext();
-  const t = (key: string): string => translations?.[key] || key;
-
+  const { setAlert, setAlertOpen } = useGlobalContext();
+  const { t } = useTranslation();
   const testFormValidity = (
     appointmentStartTime?: string,
     e?: React.FormEvent<HTMLFormElement>,

@@ -3,16 +3,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
-import { useGlobalContext } from "@/app/context/store"; // Import your global context
-
-interface EnglishFallbackType {
-  [key: string]: string;
-}
-
-const englishFallback: EnglishFallbackType = {
-  readOnly: "Read Only",
-  fullAccess: "Full Access",
-};
+import { useTranslation } from "@/utilities/translations/useTranslation";
 
 export default function ScrollableList({
   listHeaders,
@@ -25,10 +16,7 @@ export default function ScrollableList({
   writeableRequired: boolean;
   update: (itemSummary: string) => void;
 }) {
-  const { translations } = useGlobalContext(); // Get translations from your global context
-
-  const t = (key: string): string =>
-    translations?.[key] || englishFallback[key] || key; // Translation function
+  const { t } = useTranslation();
 
   return (
     <List
